@@ -7,6 +7,8 @@ use App\Models\ApiModels\UserApiModel;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -23,7 +25,9 @@ class UserController extends Controller
     public function index(): JsonResponse
     {
         /** @var User[] $users */
-        $users = User::query()->get();
+        $users = User::query()
+                     ->with('roles')
+                     ->get();
 
         return new JsonResponse(UserApiModel::fromEntities($users));
     }
@@ -31,7 +35,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,7 +46,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\User  $user
+     * @param User $user
      * @return \Illuminate\Http\Response
      */
     public function show(User $user)
@@ -53,19 +57,28 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): JsonResponse
     {
-        //
+        $user->name = $request->post('name');
+        $roles = Role::query()
+                     ->whereIn('id', Collection::make($request->post('roles'))->map(function ($role) {
+                         return $role['id'];
+                     }))
+                     ->get();
+        $user->syncRoles($roles);
+        $user->save();
+
+        return new JsonResponse(UserApiModel::fromEntity($user));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\User  $user
+     * @param User $user
      * @return \Illuminate\Http\Response
      */
     public function destroy(User $user)

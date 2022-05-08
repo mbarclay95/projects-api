@@ -31,11 +31,24 @@ class Permissions
     const GOALS_DELETE_FOR_USER = self::GOALS . self::DELETE_FOR_USER;
     const GOALS_RESTORE_FOR_USER = self::GOALS . self::RESTORE_FOR_USER;
 
+    private const BACKUPS = 'backups';
+    const BACKUPS_VIEW_ANY_FOR_USER = self::BACKUPS . self::VIEW_ANY_FOR_USER;
+    const BACKUPS_VIEW_FOR_USER = self::BACKUPS . self::VIEW_FOR_USER;
+    const BACKUPS_CREATE = self::BACKUPS . self::CREATE;
+    const BACKUPS_UPDATE_FOR_USER = self::BACKUPS . self::UPDATE_FOR_USER;
+    const BACKUPS_RUN_ACTIONS = self::BACKUPS . '_run_actions';
 
-
+    private const SCHEDULED_BACKUPS = 'scheduled_backups';
+    const SCHEDULED_BACKUPS_VIEW_ANY_FOR_USER = self::SCHEDULED_BACKUPS . self::VIEW_ANY_FOR_USER;
+    const SCHEDULED_BACKUPS_VIEW_FOR_USER = self::SCHEDULED_BACKUPS . self::VIEW_FOR_USER;
+    const SCHEDULED_BACKUPS_CREATE = self::SCHEDULED_BACKUPS . self::CREATE;
+    const SCHEDULED_BACKUPS_UPDATE_FOR_USER = self::SCHEDULED_BACKUPS . self::UPDATE_FOR_USER;
+    const SCHEDULED_BACKUPS_DELETE_FOR_USER = self::SCHEDULED_BACKUPS . self::DELETE_FOR_USER;
+    const SCHEDULED_BACKUPS_RESTORE_FOR_USER = self::SCHEDULED_BACKUPS . self::RESTORE_FOR_USER;
 
     private const CLIENT = 'client_';
     const VIEW_USERS_PAGE = self::CLIENT . 'view_users_page';
     const VIEW_GOALS_PAGE = self::CLIENT . 'view_goals_page';
+    const VIEW_BACKUPS_PAGE = self::CLIENT . 'view_backups_page';
 
 }

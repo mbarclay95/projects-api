@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Backups\BackupController;
+use App\Http\Controllers\Backups\TargetController;
 use App\Http\Controllers\Goals\GoalController;
+use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,8 +26,14 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::apiResource('users', UserController::class)->except('show');
+    Route::apiResource('roles', RoleController::class)->only('index');
 });
 
 Route::middleware('auth')->group(function () {
     Route::apiResource('goals', GoalController::class)->except('show');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::apiResource('backups', BackupController::class);
+    Route::apiResource('targets', TargetController::class)->except('show');
 });

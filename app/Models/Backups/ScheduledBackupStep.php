@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Models\Backups;
+
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
+
+/**
+ * Class ScheduledBackupStep
+ *
+ * @property integer id
+ * @property Carbon created_at
+ * @property Carbon updated_at
+ * @property Carbon deleted_at
+ *
+ * @property string name
+ * @property string source_dir
+ * @property integer sort
+ * @property integer full_every_n_days
+ *
+ * @property integer user_id
+ * @property User user
+ *
+ * @property integer target_id
+ * @property Target target
+ *
+ * @property integer scheduled_backup_id
+ * @property ScheduledBackup scheduledBackup
+ *
+ * @property Collection|BackupStep[] backupSteps
+ */
+class ScheduledBackupStep extends Model
+{
+    use HasFactory;
+
+    protected static $unguarded = true;
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function target(): BelongsTo
+    {
+        return $this->belongsTo(Target::class);
+    }
+
+    public function scheduledBackup(): BelongsTo
+    {
+        return $this->belongsTo(ScheduledBackup::class);
+    }
+
+    public function backupSteps(): HasMany
+    {
+        return $this->hasMany(BackupStep::class);
+    }
+}

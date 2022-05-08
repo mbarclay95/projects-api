@@ -3,11 +3,12 @@
 namespace App\Policies;
 
 use App\Enums\Permissions;
+use App\Models\Backups\Backup;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
-class UserPolicy
+class BackupPolicy
 {
     use HandlesAuthorization;
 
@@ -19,19 +20,19 @@ class UserPolicy
      */
     public function viewAny(User $user): Response|bool
     {
-        return $user->hasPermissionTo(Permissions::USERS_VIEW_ANY);
+        return $user->hasPermissionTo(Permissions::BACKUPS_VIEW_ANY_FOR_USER);
     }
 
     /**
      * Determine whether the user can view the model.
      *
      * @param User $user
-     * @param User $model
+     * @param Backup $backup
      * @return Response|bool
      */
-    public function view(User $user, User $model)
+    public function view(User $user, Backup $backup): Response|bool
     {
-        //
+        return $user->hasPermissionTo(Permissions::BACKUPS_VIEW_FOR_USER) && $backup->user_id == $user->id;
     }
 
     /**
@@ -40,31 +41,31 @@ class UserPolicy
      * @param User $user
      * @return Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): Response|bool
     {
-        //
+        return $user->hasPermissionTo(Permissions::BACKUPS_CREATE);
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param User $user
-     * @param User $model
+     * @param Backup $backup
      * @return Response|bool
      */
-    public function update(User $user, User $model): Response|bool
+    public function update(User $user, Backup $backup): Response|bool
     {
-        return $user->hasPermissionTo(Permissions::USERS_UPDATE) || $user->id == $model->id;
+        return $user->hasPermissionTo(Permissions::BACKUPS_UPDATE_FOR_USER) && $backup->user_id == $user->id;
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param User $user
-     * @param User $model
+     * @param Backup $backup
      * @return Response|bool
      */
-    public function delete(User $user, User $model)
+    public function delete(User $user, Backup $backup)
     {
         //
     }
@@ -73,10 +74,10 @@ class UserPolicy
      * Determine whether the user can restore the model.
      *
      * @param User $user
-     * @param User $model
+     * @param Backup $backup
      * @return Response|bool
      */
-    public function restore(User $user, User $model)
+    public function restore(User $user, Backup $backup)
     {
         //
     }
@@ -85,10 +86,10 @@ class UserPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param User $user
-     * @param User $model
+     * @param Backup $backup
      * @return Response|bool
      */
-    public function forceDelete(User $user, User $model)
+    public function forceDelete(User $user, Backup $backup)
     {
         //
     }

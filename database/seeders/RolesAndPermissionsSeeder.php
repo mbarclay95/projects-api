@@ -24,6 +24,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $this->createUsersRole();
         $this->createGoalsRole();
+        $this->createBackupsRole();
     }
 
     private function createUsersRole()
@@ -49,6 +50,25 @@ class RolesAndPermissionsSeeder extends Seeder
             Permissions::GOALS_RESTORE_FOR_USER,
 
             Permissions::VIEW_GOALS_PAGE,
+        ]);
+    }
+
+    private function createBackupsRole()
+    {
+        $this->createAndAssign(Roles::BACKUPS_ROLE, [
+            Permissions::BACKUPS_VIEW_ANY_FOR_USER,
+            Permissions::BACKUPS_VIEW_FOR_USER,
+            Permissions::BACKUPS_CREATE,
+            Permissions::BACKUPS_UPDATE_FOR_USER,
+            Permissions::BACKUPS_RUN_ACTIONS,
+            Permissions::SCHEDULED_BACKUPS_VIEW_ANY_FOR_USER,
+            Permissions::SCHEDULED_BACKUPS_VIEW_FOR_USER,
+            Permissions::SCHEDULED_BACKUPS_CREATE,
+            Permissions::SCHEDULED_BACKUPS_UPDATE_FOR_USER,
+            Permissions::SCHEDULED_BACKUPS_DELETE_FOR_USER,
+            Permissions::SCHEDULED_BACKUPS_RESTORE_FOR_USER,
+
+            Permissions::VIEW_BACKUPS_PAGE,
         ]);
     }
 

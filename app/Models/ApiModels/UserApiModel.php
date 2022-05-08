@@ -14,6 +14,7 @@ class UserApiModel
     public Carbon|null $lastLoggedInAt;
     public string $name;
     public Collection $permissions;
+    public array $roles;
 
     /**
      * @param User $entity
@@ -63,6 +64,7 @@ class UserApiModel
         $apiModel->createdAt = $entity->created_at;
         $apiModel->lastLoggedInAt = $entity->last_logged_in_at;
         $apiModel->name = $entity->name;
+        $apiModel->roles = RoleApiModel::fromEntities($entity->roles);
 
         return $apiModel;
     }

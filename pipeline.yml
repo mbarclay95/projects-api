@@ -1,0 +1,78 @@
+resources:
+  - name: ((project-name))-repo
+    type: git
+    icon: github
+    source:
+      uri: ssh://git@10.5.10.11:222/mbarclay36/projects-api.git
+      branch: master
+      private_key: ((private-key))
+      private_key_passphrase: ((private-key-passphrase))
+  - name: ((project-name))-image
+    type: docker-image
+    icon: docker
+    source:
+      repository: docker-registry.bigmike.dev/((project-name))
+  - name: docker-compose-repo
+    type: git
+    icon: github
+    source:
+      uri: ssh://git@10.5.10.11:222/mbarclay36/docker-compose-definitions.git
+      branch: master
+      private_key: ((private-key))
+      private_key_passphrase: ((private-key-passphrase))
+
+jobs:
+  - name: build-push-deploy
+    plan:
+      - get: ((project-name))-repo
+        trigger: true
+        version: latest
+      - get: docker-compose-repo
+        version: latest
+      - put: ((project-name))-image
+        params:
+          build: ((project-name))-repo
+          dockerfile: ((project-name))-repo/docker/Dockerfile
+          tag_file: ((project-name))-repo/.git/ref
+      - task: update-docker-compose
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: concourse/oci-build-task
+          inputs:
+            - name: ((project-name))-repo
+            - name: docker-compose-repo
+          outputs:
+            - name: docker-compose-repo
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                cd ((project-name))-repo
+                TAG_HASH=$(/usr/bin/git log -1 --pretty=%H)
+                cd ../docker-compose-repo/((project-name))
+                sed -i "s/image:.*/image: docker-registry.bigmike.dev\/((project-name)):$TAG_HASH/g" docker-compose.yml
+                /usr/bin/git config user.email "michaelbarclay36@gmail.com"
+                /usr/bin/git config user.name "mbarclay36"
+                /usr/bin/git add docker-compose.yml
+                /usr/bin/git commit -m "Concourse pipeline deploy ((project-name))"
+      - put: docker-compose-repo
+        params: {repository: docker-compose-repo}
+      - task: run-portainer-webhook
+        config:
+          platform: linux
+          privileged: true
+          image_resource:
+            type: docker-image
+            source:
+              repository: concourse/oci-build-task
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                apk add curl
+                curl --location --request POST 'http://10.5.10.11:9000/api/stacks/webhooks/e22679a0-188c-466a-bbd9-7796f0d685fc'

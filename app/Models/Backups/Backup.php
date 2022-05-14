@@ -66,12 +66,12 @@ class Backup extends Model
 
     public function startBackup(): Backup
     {
+        $this->started_at = Carbon::now();
+        $this->save();
+
         /** @var BackupStep $firstStep */
         $firstStep = $this->backupSteps->sortBy('sort')->first();
         $firstStep->run();
-
-        $this->started_at = Carbon::now();
-        $this->save();
 
         return $this;
     }

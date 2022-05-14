@@ -147,10 +147,11 @@ class BackupStep extends Model
         $this->save();
 
         $full = $this->full_backup ? 'full ' : '';
-        $duplicityCommand = "duplicity {$full}{$this->source_dir} scp://{$this->target->host_name}/{$this->target->target_url}";
+        $duplicityCommand = "{$full}{$this->source_dir} sftp://{$this->target->host_name}/{$this->target->target_url}/2022-05-13.5";
         $base = base_path();
-        $backupCompleteCommand = "php {$base}/artisan backups:backup-step-completed {$this->id}";
-        `($duplicityCommand > /dev/null 2>&1 &) && ($backupCompleteCommand > /dev/null 2>&1 &)`;
+        $backupCompleteCommand = "{$base}/artisan backups:backup-step-completed {$this->id}";
+        $command = "$base/scripts/run_duplicity.sh '$duplicityCommand' '$backupCompleteCommand'";
+        `$command > /dev/null 2>&1 &`;
 
         return $this;
     }

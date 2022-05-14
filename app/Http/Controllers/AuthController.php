@@ -39,6 +39,9 @@ class AuthController extends Controller
     {
         /** @var User $me */
         $me = Auth::user();
+        if (!$me->userConfig) {
+            $me->userConfig = $me->createFirstUserConfig();
+        }
 
         return new JsonResponse(UserApiModel::fromMeEntity($me));
     }

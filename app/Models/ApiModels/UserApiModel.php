@@ -3,6 +3,7 @@
 namespace App\Models\ApiModels;
 
 use App\Models\User;
+use App\Models\UserConfig;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use JetBrains\PhpStorm\Pure;
@@ -15,6 +16,7 @@ class UserApiModel
     public string $name;
     public Collection $permissions;
     public array $roles;
+    public ?UserConfigApiModel $userConfig;
 
     /**
      * @param User $entity
@@ -28,6 +30,8 @@ class UserApiModel
         $apiModel->createdAt = $entity->created_at;
         $apiModel->lastLoggedInAt = $entity->last_logged_in_at;
         $apiModel->name = $entity->name;
+        $apiModel->userConfig = UserConfigApiModel::fromEntity($entity->userConfig) ?? null;
+        $apiModel->roles = RoleApiModel::fromEntities($entity->roles);
         $apiModel->permissions = $entity->getAllPermissions()
                                         ->filter(function ($value) {
                                             return str_contains($value, 'client_');

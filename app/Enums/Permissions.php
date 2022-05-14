@@ -46,9 +46,27 @@ class Permissions
     const SCHEDULED_BACKUPS_DELETE_FOR_USER = self::SCHEDULED_BACKUPS . self::DELETE_FOR_USER;
     const SCHEDULED_BACKUPS_RESTORE_FOR_USER = self::SCHEDULED_BACKUPS . self::RESTORE_FOR_USER;
 
+    private const TARGETS = 'targets';
+
+    private const FOLDERS = 'folders';
+    const FOLDERS_VIEW_ANY_FOR_USER = self::FOLDERS . self::VIEW_ANY_FOR_USER;
+    const FOLDERS_CREATE = self::FOLDERS . self::CREATE;
+    const FOLDERS_UPDATE_FOR_USER = self::FOLDERS . self::UPDATE_FOR_USER;
+    const FOLDERS_DELETE_FOR_USER = self::FOLDERS . self::DELETE_FOR_USER;
+
+    private const SITES = 'sites';
+    const SITES_CREATE = self::SITES . self::CREATE;
+    const SITES_UPDATE_FOR_USER = self::SITES . self::UPDATE_FOR_USER;
+    const SITES_DELETE_FOR_USER = self::SITES . self::DELETE_FOR_USER;
+
+    private const SITE_IMAGES = 'site_images';
+    const SITE_IMAGES_VIEW_FOR_USER = self::SITE_IMAGES . self::VIEW_FOR_USER;
+    const SITE_IMAGES_CREATE = self::SITE_IMAGES . self::CREATE;
+
     private const CLIENT = 'client_';
     const VIEW_USERS_PAGE = self::CLIENT . 'view_users_page';
     const VIEW_GOALS_PAGE = self::CLIENT . 'view_goals_page';
     const VIEW_BACKUPS_PAGE = self::CLIENT . 'view_backups_page';
+    const VIEW_DASHBOARD_PAGE = self::CLIENT . 'view_dashboard_page';
 
 }

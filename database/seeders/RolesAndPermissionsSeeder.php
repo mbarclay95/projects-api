@@ -25,6 +25,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createUsersRole();
         $this->createGoalsRole();
         $this->createBackupsRole();
+        $this->createDashboardRole();
     }
 
     private function createUsersRole()
@@ -69,6 +70,23 @@ class RolesAndPermissionsSeeder extends Seeder
             Permissions::SCHEDULED_BACKUPS_RESTORE_FOR_USER,
 
             Permissions::VIEW_BACKUPS_PAGE,
+        ]);
+    }
+
+    private function createDashboardRole()
+    {
+        $this->createAndAssign(Roles::DASHBOARD_ROLE, [
+            Permissions::FOLDERS_VIEW_ANY_FOR_USER,
+            Permissions::FOLDERS_CREATE,
+            Permissions::FOLDERS_UPDATE_FOR_USER,
+            Permissions::FOLDERS_DELETE_FOR_USER,
+            Permissions::SITES_CREATE,
+            Permissions::SITES_UPDATE_FOR_USER,
+            Permissions::SITES_DELETE_FOR_USER,
+            Permissions::SITE_IMAGES_CREATE,
+            Permissions::SITE_IMAGES_VIEW_FOR_USER,
+
+            Permissions::VIEW_DASHBOARD_PAGE,
         ]);
     }
 

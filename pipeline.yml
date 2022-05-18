@@ -34,6 +34,10 @@ jobs:
           build: ((project-name))-repo
           dockerfile: ((project-name))-repo/docker/Dockerfile
           tag_file: ((project-name))-repo/.git/ref
+      - put: ((project-name))-image
+        params:
+          load: ((project-name))-repo
+          tag: latest
       - task: update-docker-compose
         config:
           platform: linux

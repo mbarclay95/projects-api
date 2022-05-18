@@ -7,11 +7,16 @@ use App\Http\Requests\Backups\TargetStoreRequest;
 use App\Models\ApiModels\Backups\TargetApiModel;
 use App\Models\Backups\Target;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class TargetController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Target::class, 'target');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -50,8 +55,8 @@ class TargetController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Backups\Target  $target
-     * @return \Illuminate\Http\Response
+     * @param Target $target
+     * @return Response
      */
     public function show(Target $target)
     {
@@ -61,20 +66,27 @@ class TargetController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param  \App\Models\Backups\Target  $target
-     * @return \Illuminate\Http\Response
+     * @param TargetStoreRequest $request
+     * @param Target $target
+     * @return JsonResponse
      */
-    public function update(Request $request, Target $target)
+    public function update(TargetStoreRequest $request, Target $target): JsonResponse
     {
-        //
+        $validated = $request->validated();
+
+        $target->name = $validated['name'];
+        $target->target_url = $validated['targetUrl'];
+        $target->host_name = $validated['hostName'];
+        $target->save();
+
+        return new JsonResponse(TargetApiModel::fromEntity($target));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Backups\Target  $target
-     * @return \Illuminate\Http\Response
+     * @param Target $target
+     * @return Response
      */
     public function destroy(Target $target)
     {

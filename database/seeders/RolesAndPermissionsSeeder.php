@@ -62,12 +62,18 @@ class RolesAndPermissionsSeeder extends Seeder
             Permissions::BACKUPS_CREATE,
             Permissions::BACKUPS_UPDATE_FOR_USER,
             Permissions::BACKUPS_RUN_ACTIONS,
+
             Permissions::SCHEDULED_BACKUPS_VIEW_ANY_FOR_USER,
             Permissions::SCHEDULED_BACKUPS_VIEW_FOR_USER,
             Permissions::SCHEDULED_BACKUPS_CREATE,
             Permissions::SCHEDULED_BACKUPS_UPDATE_FOR_USER,
             Permissions::SCHEDULED_BACKUPS_DELETE_FOR_USER,
             Permissions::SCHEDULED_BACKUPS_RESTORE_FOR_USER,
+
+            Permissions::TARGETS_VIEW_ANY_FOR_USER,
+            Permissions::TARGETS_CREATE,
+            Permissions::TARGETS_UPDATE_FOR_USER,
+            Permissions::TARGETS_DELETE_FOR_USER,
 
             Permissions::VIEW_BACKUPS_PAGE,
         ]);
@@ -80,9 +86,11 @@ class RolesAndPermissionsSeeder extends Seeder
             Permissions::FOLDERS_CREATE,
             Permissions::FOLDERS_UPDATE_FOR_USER,
             Permissions::FOLDERS_DELETE_FOR_USER,
+
             Permissions::SITES_CREATE,
             Permissions::SITES_UPDATE_FOR_USER,
             Permissions::SITES_DELETE_FOR_USER,
+
             Permissions::SITE_IMAGES_CREATE,
             Permissions::SITE_IMAGES_VIEW_FOR_USER,
 

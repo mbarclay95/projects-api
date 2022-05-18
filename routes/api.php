@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('folders', FolderController::class)->except('show');
     Route::apiResource('sites', SiteController::class)->except('index', 'show');
-    Route::apiResource('site-images', SiteImageController::class)->only('create');
+    Route::apiResource('site-images', SiteImageController::class)->only('store');
 });
 
 Route::apiResource('site-images', SiteImageController::class)->only('show');

@@ -66,6 +66,21 @@ class BackupStep extends Model
         return $backupStep;
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function target(): BelongsTo
+    {
+        return $this->belongsTo(Target::class);
+    }
+
+    public function backup(): BelongsTo
+    {
+        return $this->belongsTo(Backup::class);
+    }
+
     public static function createBackupStep(string $name, int $userId, int $targetId, int $sort, string $sourceDir, bool $fullBackup): BackupStep
     {
         $backupStep = new BackupStep([
@@ -79,16 +94,6 @@ class BackupStep extends Model
         $backupStep->save();
 
         return $backupStep;
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function target(): BelongsTo
-    {
-        return $this->belongsTo(Target::class);
     }
 
     public static function createFromScheduled(ScheduledBackupStep $scheduledBackupStep): BackupStep
@@ -114,16 +119,6 @@ class BackupStep extends Model
         return $backupStep;
     }
 
-    public function scheduledBackupStep(): BelongsTo
-    {
-        return $this->belongsTo(ScheduledBackupStep::class);
-    }
-
-    public function scheduledBackup(): BelongsTo
-    {
-        return $this->belongsTo(ScheduledBackup::class);
-    }
-
     public static function getLastFullBackupStep(int $scheduledBackupId): BackupStep|null
     {
         /** @var BackupStep|null $lastFull */
@@ -136,9 +131,14 @@ class BackupStep extends Model
         return $lastFull;
     }
 
-    public function backup(): BelongsTo
+    public function scheduledBackupStep(): BelongsTo
     {
-        return $this->belongsTo(Backup::class);
+        return $this->belongsTo(ScheduledBackupStep::class);
+    }
+
+    public function scheduledBackup(): BelongsTo
+    {
+        return $this->belongsTo(ScheduledBackup::class);
     }
 
     public function run(): BackupStep
@@ -146,8 +146,11 @@ class BackupStep extends Model
         $this->started_at = Carbon::now();
         $this->save();
 
+        $folderBackup = $this->scheduled_backup_id ? "scheduled_backup_{$this->scheduled_backup_id}" : "backup_{$this->backup_id}";
+        $folderBackupStep = $this->scheduled_backup_step_id ? "step_{$this->scheduled_backup_step_id}" : "step_{$this->id}";
+
         $full = $this->full_backup ? 'full ' : '';
-        $duplicityCommand = "{$full}{$this->source_dir} sftp://{$this->target->host_name}/{$this->target->target_url}/2022-05-13.5";
+        $duplicityCommand = "{$full}{$this->source_dir} sftp://{$this->target->host_name}/{$this->target->target_url}/$folderBackup/$folderBackupStep";
         $base = base_path();
         $backupCompleteCommand = "{$base}/artisan backups:backup-step-completed {$this->id}";
         $command = "$base/scripts/run_duplicity.sh '$duplicityCommand' '$backupCompleteCommand'";

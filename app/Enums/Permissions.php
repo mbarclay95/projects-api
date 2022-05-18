@@ -47,6 +47,10 @@ class Permissions
     const SCHEDULED_BACKUPS_RESTORE_FOR_USER = self::SCHEDULED_BACKUPS . self::RESTORE_FOR_USER;
 
     private const TARGETS = 'targets';
+    const TARGETS_VIEW_ANY_FOR_USER = self::TARGETS . self::VIEW_ANY_FOR_USER;
+    const TARGETS_CREATE = self::TARGETS . self::CREATE;
+    const TARGETS_UPDATE_FOR_USER = self::TARGETS . self::UPDATE_FOR_USER;
+    const TARGETS_DELETE_FOR_USER = self::TARGETS . self::DELETE_FOR_USER;
 
     private const FOLDERS = 'folders';
     const FOLDERS_VIEW_ANY_FOR_USER = self::FOLDERS . self::VIEW_ANY_FOR_USER;

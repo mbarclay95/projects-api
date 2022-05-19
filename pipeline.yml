@@ -35,33 +35,33 @@ jobs:
           dockerfile: ((project-name))-repo/docker/Dockerfile
           tag_file: ((project-name))-repo/.git/ref
           tag_as_latest: true
-      - task: update-docker-compose
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: concourse/oci-build-task
-          inputs:
-            - name: ((project-name))-repo
-            - name: docker-compose-repo
-          outputs:
-            - name: docker-compose-repo
-          run:
-            path: /bin/sh
-            args:
-              - -c
-              - |
-                cd ((project-name))-repo
-                TAG_HASH=$(/usr/bin/git log -1 --pretty=%H)
-                cd ../docker-compose-repo/((project-name))
-                sed -i "s/image:.*/image: docker-registry.bigmike.dev\/((project-name)):$TAG_HASH/g" docker-compose.yml
-                /usr/bin/git config user.email "michaelbarclay36@gmail.com"
-                /usr/bin/git config user.name "mbarclay36"
-                /usr/bin/git add docker-compose.yml
-                /usr/bin/git commit -m "Concourse pipeline deploy ((project-name))"
-      - put: docker-compose-repo
-        params: {repository: docker-compose-repo}
+#      - task: update-docker-compose
+#        config:
+#          platform: linux
+#          image_resource:
+#            type: docker-image
+#            source:
+#              repository: concourse/oci-build-task
+#          inputs:
+#            - name: ((project-name))-repo
+#            - name: docker-compose-repo
+#          outputs:
+#            - name: docker-compose-repo
+#          run:
+#            path: /bin/sh
+#            args:
+#              - -c
+#              - |
+#                cd ((project-name))-repo
+#                TAG_HASH=$(/usr/bin/git log -1 --pretty=%H)
+#                cd ../docker-compose-repo/((project-name))
+#                sed -i "s/image:.*/image: docker-registry.bigmike.dev\/((project-name)):$TAG_HASH/g" docker-compose.yml
+#                /usr/bin/git config user.email "michaelbarclay36@gmail.com"
+#                /usr/bin/git config user.name "mbarclay36"
+#                /usr/bin/git add docker-compose.yml
+#                /usr/bin/git commit -m "Concourse pipeline deploy ((project-name))"
+#      - put: docker-compose-repo
+#        params: {repository: docker-compose-repo}
       - task: run-portainer-webhook
         config:
           platform: linux

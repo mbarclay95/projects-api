@@ -19,14 +19,10 @@ use Illuminate\Support\Collection;
  * @property Carbon deleted_at
  *
  * @property string name
- * @property boolean monday
- * @property boolean tuesday
- * @property boolean wednesday
- * @property boolean thursday
- * @property boolean friday
- * @property boolean saturday
- * @property boolean sunday
  * @property integer start_time
+ * @property array schedule
+ * @property boolean enabled
+ * @property integer full_every_n_days
  *
  * @property integer user_id
  * @property User user
@@ -40,6 +36,10 @@ class ScheduledBackup extends Model
     use HasFactory;
 
     protected static $unguarded = true;
+
+    protected $casts = [
+        'schedule' => 'jsonb'
+    ];
 
     public function user(): BelongsTo
     {
@@ -60,4 +60,20 @@ class ScheduledBackup extends Model
     {
         return $this->hasMany(BackupStep::class);
     }
+
+    public static function createFromRequest($request, int $userId): ScheduledBackup
+    {
+        $scheduledBackup = new ScheduledBackup([
+            'name' => $request['name'],
+            'enabled' => $request['enabled'],
+            'start_time' => $request['startTime'],
+            'full_every_n_days' => $request['fullEveryNDays'],
+            'schedule' => $request['schedule'],
+        ]);
+        $scheduledBackup->user()->associate($userId);
+        $scheduledBackup->save();
+
+        return $scheduledBackup;
+    }
+
 }

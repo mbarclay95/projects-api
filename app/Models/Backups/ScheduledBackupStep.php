@@ -21,7 +21,6 @@ use Illuminate\Support\Collection;
  * @property string name
  * @property string source_dir
  * @property integer sort
- * @property integer full_every_n_days
  *
  * @property integer user_id
  * @property User user
@@ -58,5 +57,21 @@ class ScheduledBackupStep extends Model
     public function backupSteps(): HasMany
     {
         return $this->hasMany(BackupStep::class);
+    }
+
+    public static function createFromRequest(array $request, int $userId, int $scheduleBackupId): ScheduledBackupStep
+    {
+        $scheduleBackupStep = new ScheduledBackupStep([
+            'name' => $request['name'],
+            'sort' => $request['sort'],
+            'source_dir' => $request['sourceDir'],
+            'full_backup' => $request['fullBackup'],
+        ]);
+        $scheduleBackupStep->user()->associate($userId);
+        $scheduleBackupStep->target()->associate($request['target']['id']);
+        $scheduleBackupStep->scheduledBackup()->associate($scheduleBackupId);
+        $scheduleBackupStep->save();
+
+        return $scheduleBackupStep;
     }
 }

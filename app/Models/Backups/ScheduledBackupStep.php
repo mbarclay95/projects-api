@@ -2,6 +2,7 @@
 
 namespace App\Models\Backups;
 
+use App\Models\HasApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,7 +22,6 @@ use Illuminate\Support\Collection;
  * @property string name
  * @property string source_dir
  * @property integer sort
- * @property integer full_every_n_days
  *
  * @property integer user_id
  * @property User user
@@ -36,7 +36,15 @@ use Illuminate\Support\Collection;
  */
 class ScheduledBackupStep extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
+
+    protected static array $apiModelAttributes = ['id', 'name', 'source_dir', 'sort'];
+
+    protected static array $apiModelEntities = [
+        'target' => Target::class
+    ];
+
+    protected static array $apiModelArrayEntities = [];
 
     protected static $unguarded = true;
 
@@ -58,5 +66,21 @@ class ScheduledBackupStep extends Model
     public function backupSteps(): HasMany
     {
         return $this->hasMany(BackupStep::class);
+    }
+
+    public static function createFromRequest(array $request, int $userId, int $scheduleBackupId): ScheduledBackupStep
+    {
+        $scheduleBackupStep = new ScheduledBackupStep([
+            'name' => $request['name'],
+            'sort' => $request['sort'],
+            'source_dir' => $request['sourceDir'],
+            'full_backup' => $request['fullBackup'],
+        ]);
+        $scheduleBackupStep->user()->associate($userId);
+        $scheduleBackupStep->target()->associate($request['target']['id']);
+        $scheduleBackupStep->scheduledBackup()->associate($scheduleBackupId);
+        $scheduleBackupStep->save();
+
+        return $scheduleBackupStep;
     }
 }

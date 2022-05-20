@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Backups;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Backups\TargetStoreRequest;
-use App\Models\ApiModels\Backups\TargetApiModel;
 use App\Models\Backups\Target;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -27,7 +26,7 @@ class TargetController extends Controller
         /** @var Target[] $targets */
         $targets = Target::query()->get();
 
-        return new JsonResponse(TargetApiModel::fromEntities($targets));
+        return new JsonResponse(Target::toApiModels($targets));
     }
 
     /**
@@ -49,7 +48,7 @@ class TargetController extends Controller
         $target->user()->associate($userId);
         $target->save();
 
-        return new JsonResponse(TargetApiModel::fromEntity($target));
+        return new JsonResponse(Target::toApiModel($target));
     }
 
     /**
@@ -79,7 +78,7 @@ class TargetController extends Controller
         $target->host_name = $validated['hostName'];
         $target->save();
 
-        return new JsonResponse(TargetApiModel::fromEntity($target));
+        return new JsonResponse(Target::toApiModel($target));
     }
 
     /**

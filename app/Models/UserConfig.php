@@ -21,9 +21,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserConfig extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
 
     protected static $unguarded = true;
+
+    protected static array $apiModelAttributes = ['side_menu_open'];
+
+    protected static array $apiModelEntities = [];
 
     public function user(): BelongsTo
     {

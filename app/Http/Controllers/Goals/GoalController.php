@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Goals;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Goals\GoalStoreRequest;
-use App\Models\ApiModels\Goals\GoalApiModel;
 use App\Models\Goals\Goal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class GoalController extends Controller
                      ->where('user_id', '=', $userId)
                      ->get();
 
-        return new JsonResponse(GoalApiModel::fromEntities($goals));
+        return new JsonResponse(Goal::toApiModels($goals));
     }
 
     /**
@@ -56,7 +55,7 @@ class GoalController extends Controller
         $goal->user()->associate($userId);
         $goal->save();
 
-        return new JsonResponse(GoalApiModel::fromEntity($goal));
+        return new JsonResponse(Goal::toApiModel($goal));
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\ApiModels\Dashboard\FolderApiModel;
 use App\Models\Dashboard\Folder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,7 +29,7 @@ class FolderController extends Controller
                          ->where('user_id', '=', $userId)
                          ->get();
 
-        return new JsonResponse(FolderApiModel::fromEntities($folders));
+        return new JsonResponse(Folder::toApiModels($folders));
     }
 
     /**
@@ -52,7 +51,7 @@ class FolderController extends Controller
         $folder->user()->associate($userId);
         $folder->save();
 
-        return new JsonResponse(FolderApiModel::fromEntity($folder));
+        return new JsonResponse(Folder::toApiModel($folder));
     }
 
     /**
@@ -79,7 +78,7 @@ class FolderController extends Controller
         $folder->show = $request->post('show');
         $folder->save();
 
-        return new JsonResponse(FolderApiModel::fromEntity($folder));
+        return new JsonResponse(Folder::toApiModel($folder));
     }
 
     public function updateFolderSorts(Request $request): JsonResponse

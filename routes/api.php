@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Backups\BackupController;
+use App\Http\Controllers\Backups\ScheduledBackupController;
 use App\Http\Controllers\Backups\TargetController;
 use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
@@ -37,7 +38,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::apiResource('backups', BackupController::class);
+    Route::apiResource('backups', BackupController::class)->only('index', 'create');
+    Route::apiResource('scheduled-backups', ScheduledBackupController::class)->except('show');
     Route::apiResource('targets', TargetController::class)->except('show');
 });
 

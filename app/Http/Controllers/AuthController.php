@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ApiModels\UserApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +42,6 @@ class AuthController extends Controller
             $me->userConfig = $me->createFirstUserConfig();
         }
 
-        return new JsonResponse(UserApiModel::fromMeEntity($me));
+        return new JsonResponse(User::toApiModel($me));
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\ApiModels\Dashboard\SiteApiModel;
 use App\Models\Dashboard\Site;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,7 +51,7 @@ class SiteController extends Controller
         $site->user()->associate($userId);
         $site->save();
 
-        return new JsonResponse(SiteApiModel::fromEntity($site));
+        return new JsonResponse(Site::toApiModel($site));
     }
 
     /**
@@ -85,7 +84,7 @@ class SiteController extends Controller
         }
         $site->save();
 
-        return new JsonResponse(SiteApiModel::fromEntity($site));
+        return new JsonResponse(Site::toApiModel($site));
     }
 
     public function updateSiteSorts(Request $request): JsonResponse

@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Models\Backups;
+namespace App\Models\Tasks;
 
-use App\Models\HasApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,31 +9,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Class Target
+ * Class Family
  *
  * @property integer id
  * @property Carbon created_at
  * @property Carbon updated_at
- * @property Carbon deleted_at
  *
- * @property string name
- * @property string target_url
- * @property string host_name
+ * @property integer tasks_per_week
+ *
+ * @property integer family_id
+ * @property Family family
  *
  * @property integer user_id
  * @property User user
  */
-class Target extends Model
+class TaskUserConfig extends Model
 {
-    use HasFactory, HasApiModel;
-
-    protected static array $apiModelAttributes = ['id', 'name', 'target_url', 'host_name'];
-
-    protected static array $apiModelEntities = [];
-
-    protected static array $apiModelArrayEntities = [];
+    use HasFactory;
 
     protected static $unguarded = true;
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
 
     public function user(): BelongsTo
     {

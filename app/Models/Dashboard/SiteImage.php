@@ -2,6 +2,7 @@
 
 namespace App\Models\Dashboard;
 
+use App\Models\HasApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class SiteImage extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
+
+    protected static array $apiModelAttributes = ['id', 'original_file_name', 's3_path'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [];
 
     protected static $unguarded = true;
 

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\ApiModels\Dashboard\SiteImageApiModel;
-use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,7 +46,7 @@ class SiteImageController extends Controller
         $siteImage->user()->associate($userId);
         $siteImage->save();
 
-        return new JsonResponse(SiteImageApiModel::fromEntity($siteImage));
+        return new JsonResponse(SiteImage::toApiModel($siteImage));
     }
 
     /**

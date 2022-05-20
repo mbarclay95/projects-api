@@ -2,7 +2,11 @@
 
 namespace App\Models\Dashboard;
 
+use App\Models\ApiModels\PermissionApiModel;
+use App\Models\ApiModels\RoleApiModel;
+use App\Models\HasApiModel;
 use App\Models\User;
+use App\Models\UserConfig;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +33,15 @@ use Illuminate\Support\Collection;
  */
 class Folder extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
+
+    protected static array $apiModelAttributes = ['id', 'name', 'sort', 'show'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [
+        'sites' => Site::class,
+    ];
 
     protected static $unguarded = true;
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\Dashboard;
 
+use App\Models\HasApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +34,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Site extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
+
+    protected static array $apiModelAttributes = ['id', 'name', 'sort', 'show', 'description', 'url', 'folder_id'];
+
+    protected static array $apiModelEntities = [
+        'siteImage' => SiteImage::class,
+    ];
+
+    protected static array $apiModelArrayEntities = [];
 
     protected static $unguarded = true;
 

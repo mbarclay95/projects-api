@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\UsersUpdateRequest;
-use App\Models\ApiModels\UserApiModel;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class UserController extends Controller
                      ->with('roles')
                      ->get();
 
-        return new JsonResponse(UserApiModel::fromEntities($users));
+        return new JsonResponse(User::toApiModels($users, ['clientPermissions', 'userConfig']));
     }
 
     /**
@@ -79,10 +78,10 @@ class UserController extends Controller
         $user->userConfig->save();
 
         if ($user->id == Auth::id()) {
-            return new JsonResponse(UserApiModel::fromMeEntity($user));
+            return new JsonResponse(User::toApiModel($user));
         }
 
-        return new JsonResponse(UserApiModel::fromEntity($user));
+        return new JsonResponse(User::toApiModel($user, ['clientPermissions', 'userConfig']));
     }
 
     /**

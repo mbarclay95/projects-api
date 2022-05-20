@@ -2,6 +2,7 @@
 
 namespace App\Models\Backups;
 
+use App\Models\HasApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,7 +33,16 @@ use Illuminate\Support\Collection;
  */
 class Backup extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiModel;
+
+    protected static array $apiModelAttributes = ['id', 'name', 'started_at', 'completed_at', 'errored_at',
+        'scheduled_backup_id'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [
+        'backupSteps' => BackupStep::class,
+    ];
 
     protected static $unguarded = true;
 

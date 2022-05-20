@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\ApiModels\PermissionApiModel;
+use App\Models\ApiModels\RoleApiModel;
+use App\Models\Tasks\TaskUserConfig;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -24,12 +29,28 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string username
  *
  * @property UserConfig userConfig
+ * @property TaskUserConfig taskUserConfig
+ *
+ * @property Collection|Role[] roles
+ * @property Collection|Permission[] rolePermissions
+ * @property Collection|Permission[] clientPermissions
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, HasApiModel;
 
     protected static $unguarded = true;
+
+    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at'];
+
+    protected static array $apiModelEntities = [
+        'userConfig' => UserConfig::class
+    ];
+
+    protected static array $apiModelArrayEntities = [
+        'roles' => RoleApiModel::class,
+        'clientPermissions' => PermissionApiModel::class
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -49,10 +70,26 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserConfig::class);
     }
 
+    public function taskUserConfig(): HasOne
+    {
+        return $this->hasOne(TaskUserConfig::class);
+    }
+
     public function createFirstUserConfig(): UserConfig
     {
         $userConfig = new UserConfig([
             'side_menu_open' => true,
+        ]);
+        $userConfig->user()->associate($this);
+        $userConfig->save();
+
+        return $userConfig;
+    }
+
+    public function createFirstTaskUserConfig(): TaskUserConfig
+    {
+        $userConfig = new TaskUserConfig([
+            'tasks_per_week' => 5,
         ]);
         $userConfig->user()->associate($this);
         $userConfig->save();
@@ -68,5 +105,18 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
+    }
+
+    public function getRolePermissionsAttribute(): Collection
+    {
+        return $this->getAllPermissions();
+    }
+
+    public function getClientPermissionsAttribute(): Collection
+    {
+        return $this->getAllPermissions()
+                    ->filter(function ($value) {
+                        return str_contains($value, 'client_');
+                    });
     }
 }

@@ -25,7 +25,7 @@ class RoleController extends Controller
         /** @var Role[] $roles */
         $roles = Role::query()->get();
 
-        return new JsonResponse(RoleApiModel::fromEntities($roles));
+        return new JsonResponse(RoleApiModel::toApiModels($roles));
     }
 
     /**

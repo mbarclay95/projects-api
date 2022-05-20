@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Backups;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Backups\BackupStoreRequest;
-use App\Models\ApiModels\Backups\BackupApiModel;
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
 use Illuminate\Http\JsonResponse;
@@ -32,7 +31,7 @@ class BackupController extends Controller
                          ->with('backupSteps')
                          ->get();
 
-        return new JsonResponse(BackupApiModel::fromEntities($backups));
+        return new JsonResponse(Backup::toApiModels($backups));
     }
 
     /**
@@ -52,7 +51,7 @@ class BackupController extends Controller
             BackupStep::createFromRequest($backupStep, $userId, $backup->id);
         }
 
-        return new JsonResponse(BackupApiModel::fromEntity($backup));
+        return new JsonResponse(Backup::toApiModel($backup));
     }
 
     /**

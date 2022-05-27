@@ -8,11 +8,6 @@ use Illuminate\Support\Str;
 
 trait HasApiModel
 {
-    protected static array $apiModelAttributes = [];
-
-    protected static array $apiModelEntities = [];
-
-    protected static array $apiModelArrayEntities = [];
 
     /**
      * @param Model|null $model
@@ -25,9 +20,9 @@ trait HasApiModel
             return null;
         }
 
-        $attributes = static::$apiModelAttributes;
-        $entities = static::$apiModelEntities;
-        $arrayEntities = static::$apiModelArrayEntities;
+        $attributes = static::$apiModelAttributes ?? [];
+        $entities = static::$apiModelEntities ?? [];
+        $arrayEntities = static::$apiModelArrayEntities ?? [];
         $returnArray = [];
 
         foreach ($attributes as $attribute) {

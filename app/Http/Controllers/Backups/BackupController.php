@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BackupController extends ApiCrudController
 {
-    protected static string $model = Backup::class;
+    protected static string $modelClass = Backup::class;
 
     public function __construct()
     {
@@ -25,7 +25,7 @@ class BackupController extends ApiCrudController
      * @param BackupStoreRequest $request
      * @return JsonResponse
      */
-    public function store(BackupStoreRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $userId = Auth::id();
         $validated = $request->validated();
@@ -39,37 +39,4 @@ class BackupController extends ApiCrudController
         return new JsonResponse(Backup::toApiModel($backup));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Backups\Backup $backup
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Backup $backup)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Backups\Backup $backup
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Backup $backup)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \App\Models\Backups\Backup $backup
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Backup $backup)
-    {
-        //
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Users;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiCrudController;
 use App\Http\Requests\Users\UsersUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -11,8 +11,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
-class UserController extends Controller
+class UserController extends ApiCrudController
 {
+    protected static string $model = User::class;
+
+    protected static array $indexRules = [];
+
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
@@ -21,9 +25,10 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         /** @var User[] $users */
         $users = User::query()

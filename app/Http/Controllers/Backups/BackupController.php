@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Backups;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiCrudController;
 use App\Http\Requests\Backups\BackupStoreRequest;
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
@@ -10,28 +10,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class BackupController extends Controller
+class BackupController extends ApiCrudController
 {
+    protected static string $model = Backup::class;
+
     public function __construct()
     {
         $this->authorizeResource(Backup::class, 'backup');
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return JsonResponse
-     */
-    public function index(): JsonResponse
-    {
-        $userId = Auth::id();
-        /** @var Backup[] $backups */
-        $backups = Backup::query()
-                         ->where('user_id', '=', $userId)
-                         ->with('backupSteps')
-                         ->get();
-
-        return new JsonResponse(Backup::toApiModels($backups));
     }
 
     /**

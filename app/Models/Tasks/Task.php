@@ -2,11 +2,10 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\HasApiModel;
+use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -34,18 +33,16 @@ use Illuminate\Support\Collection;
  *
  * @property Collection|Tag[] tags
  */
-class Task extends Model
+class Task extends BaseApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
-        'recurring_task_id', 'owner_type'];
+        'recurring_task_id', 'owner_type', 'owner_id'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
-
-    protected static $unguarded = true;
 
     protected $dates = [
         'completed_at',
@@ -66,5 +63,10 @@ class Task extends Model
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    public static function createEntity($request, int $authId)
+    {
+
     }
 }

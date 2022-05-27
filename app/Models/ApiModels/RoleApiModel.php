@@ -2,7 +2,7 @@
 
 namespace App\Models\ApiModels;
 
-use App\Models\HasApiModel;
+use App\Traits\HasApiModel;
 
 
 class RoleApiModel

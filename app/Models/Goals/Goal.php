@@ -2,8 +2,8 @@
 
 namespace App\Models\Goals;
 
-use App\Models\HasApiModel;
 use App\Models\User;
+use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,11 +30,16 @@ use Illuminate\Support\Collection;
  *
  * @property Collection|Tag[] tags
  */
-class RecurringTask extends Model
+class RecurringTask extends BaseApiModel
 {
     use HasFactory;
 
-    protected static $unguarded = true;
+    protected static array $apiModelAttributes = ['id', 'name', 'description', 'frequency_amount', 'frequency_unit',
+        'owner_type', 'owner_id'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [];
 
     public function owner(): MorphTo
     {

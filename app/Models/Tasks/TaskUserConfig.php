@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,11 +24,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property integer user_id
  * @property User user
  */
-class TaskUserConfig extends Model
+class TaskUserConfig extends BaseApiModel
 {
     use HasFactory;
 
-    protected static $unguarded = true;
+    protected static array $apiModelAttributes = ['id', 'tasks_per_week'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [];
 
     public function family(): BelongsTo
     {

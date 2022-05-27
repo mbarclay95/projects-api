@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -8,6 +8,12 @@ use Illuminate\Support\Str;
 
 trait HasApiModel
 {
+    protected static array $apiModelAttributes = [];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [];
+
     /**
      * @param Model|null $model
      * @param array $hideItem
@@ -19,9 +25,9 @@ trait HasApiModel
             return null;
         }
 
-        $attributes = self::$apiModelAttributes ?? [];
-        $entities = self::$apiModelEntities ?? [];
-        $arrayEntities = self::$apiModelArrayEntities ?? [];
+        $attributes = static::$apiModelAttributes;
+        $entities = static::$apiModelEntities;
+        $arrayEntities = static::$apiModelArrayEntities;
         $returnArray = [];
 
         foreach ($attributes as $attribute) {
@@ -55,7 +61,7 @@ trait HasApiModel
         $apiModels = [];
 
         foreach ($models as $model) {
-            $apiModels[] = self::toApiModel($model, $hideItem);
+            $apiModels[] = static::toApiModel($model, $hideItem);
         }
 
         return $apiModels;

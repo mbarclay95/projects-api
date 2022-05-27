@@ -113,7 +113,6 @@ class FolderController extends Controller
             $updateSortFolder->sort -= 1;
             $updateSortFolder->save();
         }
-
         $folder->delete();
 
         return new JsonResponse(['success' => true]);

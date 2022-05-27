@@ -5,17 +5,17 @@ namespace App\Enums;
 class Permissions
 {
 
-    private const VIEW_ANY = '_view_any';
-    private const VIEW_ANY_FOR_USER = '_view_any_for_user';
-    private const VIEW = '_view';
-    private const VIEW_FOR_USER = '_view_for_user';
-    private const CREATE = '_create';
-    private const UPDATE = '_update';
-    private const UPDATE_FOR_USER = '_update_for_user';
-    private const DELETE = '_delete';
-    private const DELETE_FOR_USER = '_delete_for_user';
-    private const RESTORE = '_restore';
-    private const RESTORE_FOR_USER = '_restore_for_user';
+    const VIEW_ANY = '_view_any';
+    const VIEW_ANY_FOR_USER = '_view_any_for_user';
+    const VIEW = '_view';
+    const VIEW_FOR_USER = '_view_for_user';
+    const CREATE = '_create';
+    const UPDATE = '_update';
+    const UPDATE_FOR_USER = '_update_for_user';
+    const DELETE = '_delete';
+    const DELETE_FOR_USER = '_delete_for_user';
+    const RESTORE = '_restore';
+    const RESTORE_FOR_USER = '_restore_for_user';
 
     private const USERS = 'users';
     const USERS_VIEW_ANY = self::USERS . self::VIEW_ANY;

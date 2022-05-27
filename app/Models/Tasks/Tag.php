@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Models\BaseApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,11 +21,15 @@ use Illuminate\Support\Collection;
  * @property Collection|Task[] tasks
  * @property Collection|RecurringTask[] recurringTasks
  */
-class Tag extends Model
+class Tag extends BaseApiModel
 {
     use HasFactory;
 
-    protected static $unguarded = true;
+    protected static array $apiModelAttributes = ['id', 'tag'];
+
+    protected static array $apiModelEntities = [];
+
+    protected static array $apiModelArrayEntities = [];
 
     public function tasks(): MorphToMany
     {

@@ -37,12 +37,12 @@ class ApiCrudController extends Controller
         $validated = $request->validate(static::$indexRules);
 
         if (static::$getUserEntitiesOnly) {
-            if (!$user->hasPermissionTo(static::$modelClass::viewAnyForUserPermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::viewAnyForUserPermission())) {
                 throw new AuthenticationException();
             }
             $models = static::$modelClass::getUserEntities($validated, $user->id);
         } else {
-            if (!$user->hasPermissionTo(static::$modelClass::viewAnyPermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::viewAnyPermission())) {
                 throw new AuthenticationException();
             }
             $models = static::$modelClass::getEntities($validated);
@@ -64,7 +64,7 @@ class ApiCrudController extends Controller
         $user = Auth::user();
         $validated = $request->validate(static::$storeRules);
 
-        if (!$user->hasPermissionTo(static::$modelClass::createPermission)) {
+        if (!$user->hasPermissionTo(static::$modelClass::createPermission())) {
             throw new AuthenticationException();
         }
         $model = static::$modelClass::createEntity($validated, $user->id);
@@ -85,12 +85,12 @@ class ApiCrudController extends Controller
         $user = Auth::user();
 
         if (static::$getUserEntityOnly) {
-            if (!$user->hasPermissionTo(static::$modelClass::viewForUserPermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::viewForUserPermission())) {
                 throw new AuthenticationException();
             }
             $model = static::$modelClass::getUserEntity($id, $user->id);
         } else {
-            if (!$user->hasPermissionTo(static::$modelClass::viewPermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::viewPermission())) {
                 throw new AuthenticationException();
             }
             $model = static::$modelClass::getEntity($id);
@@ -119,12 +119,12 @@ class ApiCrudController extends Controller
         }
 
         if (static::$updateUserEntityOnly) {
-            if (!($user->hasPermissionTo(static::$modelClass::updateForUserPermission) && $user->id === $model->user_id)) {
+            if (!($user->hasPermissionTo(static::$modelClass::updateForUserPermission()) && $user->id === $model->user_id)) {
                 throw new AuthenticationException();
             }
             $model = static::$modelClass::updateUserEntity($model, $validated, $user->id);
         } else {
-            if (!$user->hasPermissionTo(static::$modelClass::updatePermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::updatePermission())) {
                 throw new AuthenticationException();
             }
             $model = static::$modelClass::updateEntity($model, $validated);
@@ -151,11 +151,11 @@ class ApiCrudController extends Controller
         }
 
         if (static::$destroyUserEntityOnly) {
-            if (!($user->hasPermissionTo(static::$modelClass::destroyForUserPermission) && $user->id === $model->user_id)) {
+            if (!($user->hasPermissionTo(static::$modelClass::destroyForUserPermission()) && $user->id === $model->user_id)) {
                 throw new AuthenticationException();
             }
         } else {
-            if (!$user->hasPermissionTo(static::$modelClass::destroyPermission)) {
+            if (!$user->hasPermissionTo(static::$modelClass::destroyPermission())) {
                 throw new AuthenticationException();
             }
         }

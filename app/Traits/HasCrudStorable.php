@@ -6,7 +6,7 @@ trait HasCrudStorable
 {
     public static function createEntity($request, int $authId)
     {
-        $entity = new static::class();
-        return $entity;
+//        $entity = new static::class;
+//        return $entity;
     }
 }

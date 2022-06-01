@@ -34,4 +34,14 @@ class Family extends BaseApiModel
     {
         return $this->hasMany(TaskUserConfig::class);
     }
+
+    public static function createEntity($request, int $authId): Family
+    {
+        $family = new Family([
+            'name' => $request['name']
+        ]);
+        $family->save();
+
+        return $family;
+    }
 }

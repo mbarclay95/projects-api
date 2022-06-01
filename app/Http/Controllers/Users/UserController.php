@@ -40,9 +40,8 @@ class UserController extends ApiCrudController
      * @param User $user
      * @return JsonResponse
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $validated, int $id): JsonResponse
     {
-        $validated = $request->validated();
         $user = User::query()->find($id);
 
         $user->name = $validated['name'];

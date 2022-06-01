@@ -65,8 +65,30 @@ class Task extends BaseApiModel
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
-    public static function createEntity($request, int $authId)
+    public static function getUserEntities($request, int $authId)
     {
+        /** @var User $user */
+        $user = User::query()->find($authId);
 
+//        $family =
+
+        return Task::query()
+            ->where('owner_type', '=', User::class)
+            ->where('owner_id', '=', $user->id)
+            ->get();
+    }
+
+    public static function createEntity($request, int $authId): Task
+    {
+        $task = new Task([
+            'name' => $request['name'],
+            'description' => $request['description'],
+            'due_date' => $request['dueDate'],
+            'owner_type' => $request['ownerType'],
+            'owner_id' => $request['ownerId'],
+        ]);
+        $task->save();
+
+        return $task;
     }
 }

@@ -72,5 +72,6 @@ class Permissions
     const VIEW_GOALS_PAGE = self::CLIENT . 'view_goals_page';
     const VIEW_BACKUPS_PAGE = self::CLIENT . 'view_backups_page';
     const VIEW_DASHBOARD_PAGE = self::CLIENT . 'view_dashboard_page';
+    const VIEW_TASKS_PAGE = self::CLIENT . 'view_tasks_page';
 
 }

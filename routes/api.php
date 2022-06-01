@@ -8,6 +8,8 @@ use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Goals\GoalController;
+use App\Http\Controllers\Tasks\FamilyController;
+use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +43,12 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('backups', BackupController::class)->only('index', 'create');
     Route::apiResource('scheduled-backups', ScheduledBackupController::class)->except('show');
     Route::apiResource('targets', TargetController::class)->except('show');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::apiResource('tasks', TaskController::class)->except('show');
+    Route::apiResource('families', FamilyController::class)->except('show');
+
 });
 
 Route::middleware('auth')->group(function () {

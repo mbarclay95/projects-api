@@ -15,34 +15,72 @@ class BaseApiModel extends Model
 {
     use HasApiModel, HasCrudIndexable, HasCrudStorable, HasCrudShowable, HasCrudUpdatable, HasCrudDestroyable;
 
-    protected static string $viewAnyPermission;
-    protected static string $viewAnyForUserPermission;
-    protected static string $viewPermission;
-    protected static string $viewForUserPermission;
-    protected static string $createPermission;
-    protected static string $updatePermission;
-    protected static string $updateForUserPermission;
-    protected static string $deletePermission;
-    protected static string $deleteForUserPermission;
-    protected static string $restorePermission;
-    protected static string $restoreForUserPermission;
+    protected static string $viewAnyPermission = Permissions::VIEW_ANY;
+    protected static string $viewAnyForUserPermission = Permissions::VIEW_ANY_FOR_USER;
+    protected static string $viewPermission = Permissions::VIEW;
+    protected static string $viewForUserPermission = Permissions::VIEW_FOR_USER;
+    protected static string $createPermission = Permissions::CREATE;
+    protected static string $updatePermission = Permissions::UPDATE;
+    protected static string $updateForUserPermission = Permissions::UPDATE_FOR_USER;
+    protected static string $deletePermission = Permissions::DELETE;
+    protected static string $deleteForUserPermission = Permissions::DELETE_FOR_USER;
+    protected static string $restorePermission = Permissions::RESTORE;
+    protected static string $restoreForUserPermission = Permissions::RESTORE_FOR_USER;
 
     protected static $unguarded = true;
 
-    public function __construct(array $attributes = [])
+    public static function viewAnyPermission(): string
     {
-        static::$viewAnyPermission = static::class . Permissions::VIEW_ANY;
-        static::$viewAnyForUserPermission = static::class . Permissions::VIEW_ANY_FOR_USER;
-        static::$viewPermission = static::class . Permissions::VIEW;
-        static::$viewForUserPermission = static::class . Permissions::VIEW_FOR_USER;
-        static::$createPermission = static::class . Permissions::CREATE;
-        static::$updatePermission = static::class . Permissions::UPDATE;
-        static::$updateForUserPermission = static::class . Permissions::UPDATE_FOR_USER;
-        static::$deletePermission = static::class . Permissions::DELETE;
-        static::$deleteForUserPermission = static::class . Permissions::DELETE_FOR_USER;
-        static::$restorePermission = static::class . Permissions::RESTORE;
-        static::$restoreForUserPermission = static::class . Permissions::RESTORE_FOR_USER;
+        return static::class . static::$viewAnyPermission;
+    }
 
-        parent::__construct($attributes);
+    public static function viewAnyForUserPermission(): string
+    {
+        return static::class . static::$viewAnyForUserPermission;
+    }
+
+    public static function viewPermission(): string
+    {
+        return static::class . static::$viewPermission;
+    }
+
+    public static function viewForUserPermission(): string
+    {
+        return static::class . static::$viewForUserPermission;
+    }
+
+    public static function createPermission(): string
+    {
+        return static::class . static::$createPermission;
+    }
+
+    public static function updatePermission(): string
+    {
+        return static::class . static::$updatePermission;
+    }
+
+    public static function updateForUserPermission(): string
+    {
+        return static::class . static::$updateForUserPermission;
+    }
+
+    public static function deletePermission(): string
+    {
+        return static::class . static::$deletePermission;
+    }
+
+    public static function deleteForUserPermission(): string
+    {
+        return static::class . static::$deleteForUserPermission;
+    }
+
+    public static function restorePermission(): string
+    {
+        return static::class . static::$restorePermission;
+    }
+
+    public static function restoreForUserPermission(): string
+    {
+        return static::class . static::$restoreForUserPermission;
     }
 }

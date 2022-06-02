@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
+use App\Models\Tasks\Family;
 use App\Models\Tasks\TaskUserConfig;
 use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -35,6 +37,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Collection|Role[] roles
  * @property Collection|Permission[] rolePermissions
  * @property Collection|Permission[] clientPermissions
+ * @property Family family
  */
 class User extends Authenticatable implements JWTSubject
 {
@@ -45,7 +48,8 @@ class User extends Authenticatable implements JWTSubject
     protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at'];
 
     protected static array $apiModelEntities = [
-        'userConfig' => UserConfig::class
+        'userConfig' => UserConfig::class,
+        'taskUserConfig' => TaskUserConfig::class
     ];
 
     protected static array $apiModelArrayEntities = [
@@ -74,6 +78,11 @@ class User extends Authenticatable implements JWTSubject
     public function taskUserConfig(): HasOne
     {
         return $this->hasOne(TaskUserConfig::class);
+    }
+
+    public function family(): HasOneThrough
+    {
+        return $this->hasOneThrough(Family::class, TaskUserConfig::class, 'family_id', 'id');
     }
 
     public function createFirstUserConfig(): UserConfig

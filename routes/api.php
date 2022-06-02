@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::apiResource('tasks', TaskController::class)->except('show');
-    Route::apiResource('families', FamilyController::class)->except('show');
+    Route::apiResource('families', FamilyController::class);
 
 });
 

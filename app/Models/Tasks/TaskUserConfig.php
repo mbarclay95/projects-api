@@ -28,7 +28,7 @@ class TaskUserConfig extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'tasks_per_week'];
+    protected static array $apiModelAttributes = ['tasks_per_week', 'family_id'];
 
     protected static array $apiModelEntities = [];
 

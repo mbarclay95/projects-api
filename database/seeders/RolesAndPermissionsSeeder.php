@@ -69,6 +69,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::deletePermission(),
 
             Permissions::VIEW_USERS_PAGE,
+            Permissions::VIEW_FAMILIES_TAB,
         ]);
     }
 

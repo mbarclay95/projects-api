@@ -9,6 +9,27 @@ use Illuminate\Support\Str;
 trait HasApiModel
 {
 
+    public static function buildFromAttributes(string $attributeKey, Model $model)
+    {
+        return $model->$attributeKey;
+    }
+
+    /**
+     * @param Collection|Model[] $models
+     * @param array $hideItem
+     * @return array
+     */
+    public static function toApiModels(array|Collection $models, array $hideItem = []): array
+    {
+        $apiModels = [];
+
+        foreach ($models as $model) {
+            $apiModels[] = static::toApiModel($model, $hideItem);
+        }
+
+        return $apiModels;
+    }
+
     /**
      * @param Model|null $model
      * @param array $hideItem
@@ -27,7 +48,7 @@ trait HasApiModel
 
         foreach ($attributes as $attribute) {
             if (!in_array($attribute, $hideItem)) {
-                $returnArray[Str::camel($attribute)] = $model->$attribute;
+                $returnArray[Str::camel($attribute)] = static::buildFromAttributes($attribute, $model);
             }
         }
 
@@ -44,21 +65,5 @@ trait HasApiModel
         }
 
         return $returnArray;
-    }
-
-    /**
-     * @param Collection|Model[] $models
-     * @param array $hideItem
-     * @return array
-     */
-    public static function toApiModels(array|Collection $models, array $hideItem = []): array
-    {
-        $apiModels = [];
-
-        foreach ($models as $model) {
-            $apiModels[] = static::toApiModel($model, $hideItem);
-        }
-
-        return $apiModels;
     }
 }

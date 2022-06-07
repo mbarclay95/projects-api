@@ -40,7 +40,7 @@ class ApiCrudController extends Controller
             if (!$user->hasPermissionTo(static::$modelClass::viewAnyForUserPermission())) {
                 throw new AuthenticationException();
             }
-            $models = static::$modelClass::getUserEntities($validated, $user->id);
+            $models = static::$modelClass::getUserEntities($validated, $user);
         } else {
             if (!$user->hasPermissionTo(static::$modelClass::viewAnyPermission())) {
                 throw new AuthenticationException();
@@ -67,7 +67,7 @@ class ApiCrudController extends Controller
         if (!$user->hasPermissionTo(static::$modelClass::createPermission())) {
             throw new AuthenticationException();
         }
-        $model = static::$modelClass::createEntity($validated, $user->id);
+        $model = static::$modelClass::createEntity($validated, $user);
 
         return new JsonResponse(static::$modelClass::toApiModel($model));
     }
@@ -88,7 +88,7 @@ class ApiCrudController extends Controller
             if (!$user->hasPermissionTo(static::$modelClass::viewForUserPermission())) {
                 throw new AuthenticationException();
             }
-            $model = static::$modelClass::getUserEntity($id, $user->id);
+            $model = static::$modelClass::getUserEntity($id, $user);
         } else {
             if (!$user->hasPermissionTo(static::$modelClass::viewPermission())) {
                 throw new AuthenticationException();
@@ -122,7 +122,7 @@ class ApiCrudController extends Controller
             if (!($user->hasPermissionTo(static::$modelClass::updateForUserPermission()) && $user->id === $model->user_id)) {
                 throw new AuthenticationException();
             }
-            $model = static::$modelClass::updateUserEntity($model, $validated, $user->id);
+            $model = static::$modelClass::updateUserEntity($model, $validated, $user);
         } else {
             if (!$user->hasPermissionTo(static::$modelClass::updatePermission())) {
                 throw new AuthenticationException();
@@ -154,12 +154,13 @@ class ApiCrudController extends Controller
             if (!($user->hasPermissionTo(static::$modelClass::destroyForUserPermission()) && $user->id === $model->user_id)) {
                 throw new AuthenticationException();
             }
+            static::$modelClass::destroyUserEntity($model, $user);
         } else {
             if (!$user->hasPermissionTo(static::$modelClass::destroyPermission())) {
                 throw new AuthenticationException();
             }
+            static::$modelClass::destroyEntity($model);
         }
-        $model->delete();
 
         return new JsonResponse(['success' => true]);
     }

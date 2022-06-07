@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasCrudUpdatable
@@ -11,7 +12,7 @@ trait HasCrudUpdatable
 
     }
 
-    public static function updateUserEntity(Model $entity, $request, int $authId)
+    public static function updateUserEntity(Model $entity, $request, User $auth)
     {
 
     }

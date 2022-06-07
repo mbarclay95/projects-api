@@ -36,18 +36,19 @@ class UserController extends ApiCrudController
     /**
      * Update the specified resource in storage.
      *
-     * @param UsersUpdateRequest $request
-     * @param User $user
+     * @param Request $request
+     * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $validated, int $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
+        /** @var User $user */
         $user = User::query()->find($id);
 
-        $user->name = $validated['name'];
-        $user->userConfig->side_menu_open = $validated['userConfig']['sideMenuOpen'];
+        $user->name = $request['name'];
+        $user->userConfig->side_menu_open = $request['userConfig']['sideMenuOpen'];
         $roles = Role::query()
-                     ->whereIn('id', Collection::make($validated['roles'])->map(function ($role) {
+                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
                          return $role['id'];
                      }))
                      ->get();

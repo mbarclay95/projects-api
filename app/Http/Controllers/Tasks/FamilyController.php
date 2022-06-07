@@ -17,6 +17,6 @@ class FamilyController extends ApiCrudController
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
-        'members' => 'required|array'
+        'members' => 'present|array'
     ];
 }

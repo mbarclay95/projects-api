@@ -82,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function family(): HasOneThrough
     {
-        return $this->hasOneThrough(Family::class, TaskUserConfig::class, 'family_id', 'id');
+        return $this->hasOneThrough(Family::class, TaskUserConfig::class, 'user_id', 'id', 'id', 'family_id');
     }
 
     public function createFirstUserConfig(): UserConfig

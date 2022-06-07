@@ -6,7 +6,6 @@ use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
@@ -40,6 +39,54 @@ class RecurringTask extends BaseApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
+
+    public static function createEntity($request, User $auth): RecurringTask
+    {
+        $task = new RecurringTask([
+            'name' => $request['name'],
+            'description' => $request['description'],
+            'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
+            'owner_id' => $request['ownerId'],
+            'frequency_amount' => $request['frequencyAmount'],
+            'frequency_unit' => $request['frequencyUnit'],
+        ]);
+        $task->save();
+
+        $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
+        $task->createFutureTasks($dueDate);
+
+        return $task;
+    }
+
+    public function createFutureTasks(Carbon $startDate, int $numOfTasks = 2): void
+    {
+        $futureTasks = Task::getFutureIncompleteTasks($this->id);
+
+        if (count($futureTasks) >= $numOfTasks) {
+            return;
+        }
+
+        for ($i = 0 ; $i < $numOfTasks ; $i++) {
+            $foundTask = $futureTasks->where('due_date', '=', $startDate)->first();
+            if ($foundTask) {
+                continue;
+            }
+            Task::createFromRecurring($this, $startDate);
+            $startDate = $this->incrementDateByFrequency($startDate);
+        }
+    }
+
+    public function incrementDateByFrequency(Carbon $date): Carbon
+    {
+        if ($this->frequency_unit == 'day') {
+            return $date->addDays($this->frequency_amount);
+        }
+        if ($this->frequency_unit == 'week') {
+            return $date->addWeeks($this->frequency_amount);
+        }
+
+        return $date->addMonths($this->frequency_amount);
+    }
 
     public function owner(): MorphTo
     {

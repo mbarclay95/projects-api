@@ -6,10 +6,12 @@ use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
+use JetBrains\PhpStorm\Pure;
 
 /**
  * Class Task
@@ -31,6 +33,9 @@ use Illuminate\Support\Collection;
  * @property integer owner_id
  * @property User|Family owner
  *
+ * @property integer completed_by_id
+ * @property User completedBy
+ *
  * @property Collection|Tag[] tags
  */
 class Task extends BaseApiModel
@@ -38,21 +43,124 @@ class Task extends BaseApiModel
     use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
-        'recurring_task_id', 'owner_type', 'owner_id'];
+        'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring'];
 
-    protected static array $apiModelEntities = [];
+    protected static array $apiModelEntities = [
+        'completedBy' => User::class
+    ];
 
     protected static array $apiModelArrayEntities = [];
 
     protected $dates = [
         'completed_at',
         'cleared_at',
-        'due_date'
     ];
+
+    /**
+     * @param string $attributeKey
+     * @param Task $model
+     * @return mixed|void
+     */
+    #[Pure] public static function buildFromAttributes(string $attributeKey, Model $model)
+    {
+        if ($attributeKey == 'owner_type') {
+            return $model->owner_type == User::class ? 'user' : 'family';
+        }
+
+        return parent::buildFromAttributes($attributeKey, $model);
+    }
+
+    public static function getUserEntities($request, User $auth)
+    {
+        return Task::query()
+                   ->where(function ($innerWhere) use ($auth) {
+                       $innerWhere
+                           ->orWhere(function ($userWhere) use ($auth) {
+                               $userWhere->where('owner_type', '=', User::class)
+                                         ->where('owner_id', '=', $auth->id);
+                           })
+                           ->when($auth->family, function ($familyCondition) use ($auth) {
+                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
+                                   $familyWhere->where('owner_type', '=', Family::class)
+                                               ->where('owner_id', '=', $auth->family->id);
+                               });
+                           });
+                   })
+                   ->orderBy('due_date')
+                   ->get();
+    }
+
+    /**
+     * @param $request
+     * @param User $auth
+     * @return Task|RecurringTask
+     */
+    public static function createEntity($request, User $auth): Task|RecurringTask
+    {
+        if ($request['recurring']) {
+            $task = RecurringTask::createEntity($request, $auth);
+        } else {
+            $task = new Task([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'due_date' => Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay(),
+                'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
+                'owner_id' => $request['ownerId'],
+            ]);
+            $task->save();
+        }
+
+        return $task;
+    }
+
+    public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate): Task
+    {
+        $task = new Task([
+            'name' => $recurringTask->name,
+            'description' => $recurringTask->description,
+            'due_date' => $dueDate,
+            'owner_type' => $recurringTask->owner_type,
+            'owner_id' => $recurringTask->owner_id,
+        ]);
+        $task->recurringTask()->associate($recurringTask);
+        $task->save();
+
+        return $task;
+    }
 
     public function recurringTask(): BelongsTo
     {
         return $this->belongsTo(RecurringTask::class);
+    }
+
+    public static function getFutureIncompleteTasks(int $recurringTaskId): Collection|array
+    {
+        return Task::query()
+                   ->where('recurring_task_id', '=', $recurringTaskId)
+                   ->where('due_date', '>', Carbon::today())
+                   ->whereNull('completed_by_id')
+                   ->get();
+    }
+
+    public function getDueDateAttribute($value): bool|Carbon
+    {
+        return Carbon::createFromFormat('Y-m-d', $value, 'America/Los_Angeles')->startOfDay();
+    }
+
+    public function getFrequencyAmountAttribute(): ?int
+    {
+        return $this->recurringTask?->frequency_amount;
+    }
+
+    public function getFrequencyUnitAttribute(): ?string
+    {
+        return $this->recurringTask?->frequency_unit;
+
+    }
+
+    public function getRecurringAttribute(): bool
+    {
+        return !!$this->recurringTask;
     }
 
     public function owner(): MorphTo
@@ -65,30 +173,8 @@ class Task extends BaseApiModel
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
-    public static function getUserEntities($request, int $authId)
+    public function completedBy(): BelongsTo
     {
-        /** @var User $user */
-        $user = User::query()->find($authId);
-
-//        $family =
-
-        return Task::query()
-            ->where('owner_type', '=', User::class)
-            ->where('owner_id', '=', $user->id)
-            ->get();
-    }
-
-    public static function createEntity($request, int $authId): Task
-    {
-        $task = new Task([
-            'name' => $request['name'],
-            'description' => $request['description'],
-            'due_date' => $request['dueDate'],
-            'owner_type' => $request['ownerType'],
-            'owner_id' => $request['ownerId'],
-        ]);
-        $task->save();
-
-        return $task;
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

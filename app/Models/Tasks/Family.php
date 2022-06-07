@@ -36,19 +36,19 @@ class Family extends BaseApiModel
         'members' => User::class
     ];
 
-    public static function getUserEntity(int $entityId, int $authId)
+    public static function getUserEntity(int $entityId, User $auth)
     {
         return Family::query()
-                     ->whereExists(function ($whereIn) use ($entityId, $authId) {
+                     ->whereExists(function ($whereIn) use ($entityId, $auth) {
                          $whereIn->select(new Expression('1'))
                                  ->from('task_user_configs')
                                  ->where('family_id', '=', $entityId)
-                                 ->where('user_id', '=', $authId);
+                                 ->where('user_id', '=', $auth->id);
                      })
                      ->first();
     }
 
-    public static function createEntity($request, int $authId): Family
+    public static function createEntity($request, User $auth): Family
     {
         $family = new Family([
             'name' => $request['name']
@@ -58,25 +58,22 @@ class Family extends BaseApiModel
         return $family;
     }
 
+    /**
+     * @param Family $entity
+     * @param $request
+     * @return Model
+     */
     public static function updateEntity(Model $entity, $request): Model
     {
-        clock($request);
         $entity->name = $request['name'];
         $members = User::query()
                        ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
                            return $user['id'];
                        }))
                        ->get();
-//        $user->syncRoles($roles);
+        $entity->syncMembers($members);
         $entity->save();
-        foreach ($members as $member) {
-            $config = new TaskUserConfig([
-                'tasks_per_week' => 5
-            ]);
-            $config->family()->associate($entity);
-            $config->user()->associate($member);
-            $config->save();
-        }
+
         return $entity;
     }
 
@@ -87,6 +84,27 @@ class Family extends BaseApiModel
 
     public function members(): HasManyThrough
     {
-        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'user_id', 'id');
+        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id');
+    }
+
+    /**
+     * @param array|Collection $newMembers
+     * @return void
+     */
+    public function syncMembers($newMembers): void
+    {
+        foreach ($this->members as $member) {
+            if ($newMembers->doesntContain('id', $member->id)) {
+                $member->taskUserConfig()->delete();
+            }
+        }
+        /** @var User $newMember */
+        foreach ($newMembers as $newMember) {
+            if ($this->members->doesntContain('id', $newMember->id)) {
+                TaskUserConfig::createNewEntity($newMember, $this);
+            }
+        }
+
+        $this->members()->load();
     }
 }

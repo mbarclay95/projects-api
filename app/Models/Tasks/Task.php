@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -44,17 +45,16 @@ class Task extends BaseApiModel
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring'];
-
     protected static array $apiModelEntities = [
         'completedBy' => User::class
     ];
-
     protected static array $apiModelArrayEntities = [];
+    protected $dateFormat = 'Y-m-d H:i:sO';
 
-    protected $dates = [
-        'completed_at',
-        'cleared_at',
-    ];
+//    protected $dates = [
+//        'completed_at',
+//        'cleared_at'
+//    ];
 
     /**
      * @param string $attributeKey
@@ -72,6 +72,7 @@ class Task extends BaseApiModel
 
     public static function getUserEntities($request, User $auth)
     {
+        $next7Days = Carbon::today()->addDays(7);
         return Task::query()
                    ->where(function ($innerWhere) use ($auth) {
                        $innerWhere
@@ -86,7 +87,11 @@ class Task extends BaseApiModel
                                });
                            });
                    })
+                   ->where('due_date', '<', $next7Days)
+                   ->whereNull('completed_at')
+                   ->whereNull('cleared_at')
                    ->orderBy('due_date')
+                   ->limit(10)
                    ->get();
     }
 
@@ -102,8 +107,8 @@ class Task extends BaseApiModel
         } else {
             $task = new Task([
                 'name' => $request['name'],
-                'description' => $request['description'],
-                'due_date' => Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay(),
+                'description' => $request['description'] ?? null,
+                'due_date' => Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString(),
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
             ]);
@@ -111,6 +116,28 @@ class Task extends BaseApiModel
         }
 
         return $task;
+    }
+
+    /**
+     * @param Task $entity
+     * @param $request
+     * @return Task
+     */
+    public static function updateEntity(Model $entity, $request): Task
+    {
+        $entity->name = $request['name'];
+        $entity->description = $request['description'];
+//        $entity->due_date = $request['dueDate'];
+//        $entity->owner_type = $request['dueDate'];
+//        $entity->owner_id = $request['dueDate'];
+
+        if ($entity->completed_at == null && isset($request['completedAt'])) {
+            $entity->completed_at = Carbon::parse($request['completedAt']);
+            $entity->completed_by_id = Auth::id();
+        }
+        $entity->save();
+
+        return $entity;
     }
 
     public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate): Task

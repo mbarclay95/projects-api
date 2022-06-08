@@ -10,6 +10,7 @@ use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TaskController;
+use App\Http\Controllers\Tasks\TaskUserConfigController;
 use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('tasks', TaskController::class)->except('show');
     Route::apiResource('families', FamilyController::class);
+    Route::apiResource('task-user-config', TaskUserConfigController::class)->only('update');
 
 });
 

@@ -16,6 +16,13 @@ class UserController extends ApiCrudController
     protected static string $modelClass = User::class;
 
     protected static array $indexRules = [];
+    protected static array $storeRules = [
+        'name' => 'required|string',
+        'username' => 'required|string',
+        'password' => 'required|string',
+        'roles' => 'present|array',
+    ];
+    protected static array $updateRules = [];
 
     /**
      * Display a listing of the resource.

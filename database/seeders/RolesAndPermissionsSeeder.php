@@ -8,6 +8,7 @@ use App\Models\Tasks\Family;
 use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -38,7 +39,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createAndAssign(Roles::TASK_ROLE, [
             Task::viewAnyForUserPermission(),
             Task::createPermission(),
-            Task::updateForUserPermission(),
+            Task::updatePermission(),
             Task::deleteForUserPermission(),
 
             RecurringTask::viewAnyForUserPermission(),
@@ -49,7 +50,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::viewForUserPermission(),
 
             TaskUserConfig::viewAnyForUserPermission(),
-            TaskUserConfig::updateForUserPermission(),
+            TaskUserConfig::updatePermission(),
 
             Permissions::VIEW_TASKS_PAGE
         ]);
@@ -58,10 +59,10 @@ class RolesAndPermissionsSeeder extends Seeder
     private function createUsersRole()
     {
         $this->createAndAssign(Roles::USERS_ROLE, [
-            Permissions::USERS_VIEW_ANY,
-            Permissions::USERS_CREATE,
-            Permissions::USERS_UPDATE,
-            Permissions::USERS_DELETE,
+            User::viewAnyPermission(),
+            User::createPermission(),
+            User::updatePermission(),
+            User::deletePermission(),
 
             Family::viewAnyPermission(),
             Family::createPermission(),

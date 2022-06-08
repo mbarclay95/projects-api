@@ -20,6 +20,7 @@ use Illuminate\Support\Collection;
  * @property Carbon updated_at
  *
  * @property string name
+ * @property string color
  *
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
@@ -28,7 +29,7 @@ class Family extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name'];
+    protected static array $apiModelAttributes = ['id', 'name', 'color'];
 
     protected static array $apiModelEntities = [];
 
@@ -66,6 +67,7 @@ class Family extends BaseApiModel
     public static function updateEntity(Model $entity, $request): Model
     {
         $entity->name = $request['name'];
+        $entity->color = $request['color'];
         $members = User::query()
                        ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
                            return $user['id'];
@@ -73,6 +75,7 @@ class Family extends BaseApiModel
                        ->get();
         $entity->syncMembers($members);
         $entity->save();
+        $entity->refresh();
 
         return $entity;
     }
@@ -104,7 +107,5 @@ class Family extends BaseApiModel
                 TaskUserConfig::createNewEntity($newMember, $this);
             }
         }
-
-        $this->members()->load();
     }
 }

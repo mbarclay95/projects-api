@@ -102,13 +102,15 @@ class Task extends BaseApiModel
      */
     public static function createEntity($request, User $auth): Task|RecurringTask
     {
+        $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
         if ($request['recurring']) {
-            $task = RecurringTask::createEntity($request, $auth);
+            $recurringTask = RecurringTask::createEntity($request, $auth);
+            $task = $recurringTask->createFutureTask($dueDate);
         } else {
             $task = new Task([
                 'name' => $request['name'],
                 'description' => $request['description'] ?? null,
-                'due_date' => Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString(),
+                'due_date' => $dueDate->toDateString(),
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
             ]);
@@ -127,15 +129,21 @@ class Task extends BaseApiModel
     {
         $entity->name = $request['name'];
         $entity->description = $request['description'];
-//        $entity->due_date = $request['dueDate'];
-//        $entity->owner_type = $request['dueDate'];
-//        $entity->owner_id = $request['dueDate'];
+        $entity->due_date = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString();
+        $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
+        $entity->owner_id = $request['ownerId'];
 
+        $taskCompleted = false;
         if ($entity->completed_at == null && isset($request['completedAt'])) {
             $entity->completed_at = Carbon::parse($request['completedAt']);
             $entity->completed_by_id = Auth::id();
+            $taskCompleted = true;
         }
         $entity->save();
+
+        if ($taskCompleted) {
+            $entity->recurringTask?->createFutureTask();
+        }
 
         return $entity;
     }
@@ -145,7 +153,7 @@ class Task extends BaseApiModel
         $task = new Task([
             'name' => $recurringTask->name,
             'description' => $recurringTask->description,
-            'due_date' => $dueDate,
+            'due_date' => $dueDate->toDateString(),
             'owner_type' => $recurringTask->owner_type,
             'owner_id' => $recurringTask->owner_id,
         ]);
@@ -160,13 +168,30 @@ class Task extends BaseApiModel
         return $this->belongsTo(RecurringTask::class);
     }
 
-    public static function getFutureIncompleteTasks(int $recurringTaskId): Collection|array
+    /**
+     * @param int $recurringTaskId
+     * @return Task
+     */
+    public static function getFutureIncompleteTask(int $recurringTaskId)
     {
         return Task::query()
                    ->where('recurring_task_id', '=', $recurringTaskId)
-                   ->where('due_date', '>', Carbon::today())
                    ->whereNull('completed_by_id')
-                   ->get();
+                   ->orderBy('due_date')
+                   ->first();
+    }
+
+    /**
+     * @param int $recurringTaskId
+     * @return Task
+     */
+    public static function getLastCompletedTask(int $recurringTaskId)
+    {
+        return Task::query()
+                   ->where('recurring_task_id', '=', $recurringTaskId)
+                   ->whereNotNull('completed_by_id')
+                   ->orderBy('due_date', 'desc')
+                   ->first();
     }
 
     public function getDueDateAttribute($value): bool|Carbon

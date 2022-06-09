@@ -52,28 +52,23 @@ class RecurringTask extends BaseApiModel
         ]);
         $task->save();
 
-        $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
-        $task->createFutureTasks($dueDate);
-
         return $task;
     }
 
-    public function createFutureTasks(Carbon $startDate, int $numOfTasks = 2): void
+    public function createFutureTask(?Carbon $dueDate = null): Task
     {
-        $futureTasks = Task::getFutureIncompleteTasks($this->id);
+        $futureTask = Task::getFutureIncompleteTask($this->id);
 
-        if (count($futureTasks) >= $numOfTasks) {
-            return;
+        if ($futureTask) {
+            return $futureTask;
         }
 
-        for ($i = 0 ; $i < $numOfTasks ; $i++) {
-            $foundTask = $futureTasks->where('due_date', '=', $startDate)->first();
-            if ($foundTask) {
-                continue;
-            }
-            Task::createFromRecurring($this, $startDate);
-            $startDate = $this->incrementDateByFrequency($startDate);
+        if (!$dueDate) {
+            $lastCompletedTask = Task::getLastCompletedTask($this->id);
+            $dueDate = $this->incrementDateByFrequency($lastCompletedTask->due_date);
         }
+
+        return Task::createFromRecurring($this, $dueDate);
     }
 
     public function incrementDateByFrequency(Carbon $date): Carbon

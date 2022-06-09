@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class Family
@@ -30,22 +29,11 @@ class TaskUserConfig extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'tasks_per_week', 'tasks_completed', 'family_id', 'color'];
+    protected static array $apiModelAttributes = ['id', 'tasks_per_week', 'family_tasks_completed', 'family_id', 'color'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
-
-    public function getTasksCompletedAttribute(): int
-    {
-        $startOfWeek = Carbon::today()->startOfWeek();
-
-        return Task::query()
-                   ->whereNotNull('completed_at')
-                   ->where('completed_by_id', '=', $this->user_id)
-                   ->where('completed_at', '>', $startOfWeek)
-                   ->count();
-    }
 
     public static function createNewEntity(User $user, Family $family): TaskUserConfig
     {
@@ -58,6 +46,16 @@ class TaskUserConfig extends BaseApiModel
         $config->save();
 
         return $config;
+    }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -74,13 +72,16 @@ class TaskUserConfig extends BaseApiModel
         return $entity;
     }
 
-    public function family(): BelongsTo
+    public function getFamilyTasksCompletedAttribute(): int
     {
-        return $this->belongsTo(Family::class);
-    }
+        $startOfWeek = Carbon::today()->startOfWeek();
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
+        return Task::query()
+                   ->whereNotNull('completed_at')
+                   ->where('completed_by_id', '=', $this->user_id)
+                   ->where('completed_at', '>', $startOfWeek)
+                   ->where('owner_type', '=', Family::class)
+                   ->where('owner_id', '=', $this->family_id)
+                   ->count();
     }
 }

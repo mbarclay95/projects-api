@@ -3,11 +3,20 @@
 namespace App\Models\ApiModels;
 
 use App\Traits\HasApiModel;
+use App\Traits\HasCrudIndexable;
+use App\Traits\HasCrudPermissions;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\Permission\Models\Role;
 
 
 class RoleApiModel
 {
-    use HasApiModel;
+    use HasApiModel, HasCrudIndexable, HasCrudPermissions;
 
     protected static array $apiModelAttributes = ['id', 'name'];
+
+    public static function getEntities($request): Collection|array
+    {
+        return Role::query()->get();
+    }
 }

@@ -17,12 +17,6 @@ class Permissions
     const RESTORE = '_restore';
     const RESTORE_FOR_USER = '_restore_for_user';
 
-    private const USERS = 'users';
-    const USERS_VIEW_ANY = self::USERS . self::VIEW_ANY;
-    const USERS_CREATE = self::USERS . self::CREATE;
-    const USERS_UPDATE = self::USERS . self::UPDATE;
-    const USERS_DELETE = self::USERS . self::DELETE;
-
     private const GOALS = 'goals';
     const GOALS_VIEW_ANY_FOR_USER = self::GOALS . self::VIEW_ANY_FOR_USER;
     const GOALS_VIEW_FOR_USER = self::GOALS . self::VIEW_FOR_USER;
@@ -74,5 +68,6 @@ class Permissions
     const VIEW_DASHBOARD_PAGE = self::CLIENT . 'view_dashboard_page';
     const VIEW_TASKS_PAGE = self::CLIENT . 'view_tasks_page';
     const VIEW_FAMILIES_TAB = self::CLIENT . 'view_families_tab';
+    const VIEW_EVENTS_PAGE = self::CLIENT . 'view_events_page';
 
 }

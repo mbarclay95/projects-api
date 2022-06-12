@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Enums\Permissions;
 use App\Enums\Roles;
+use App\Models\ApiModels\RoleApiModel;
+use App\Models\Events\Event;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Task;
@@ -32,9 +34,23 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createBackupsRole();
         $this->createDashboardRole();
         $this->createTasksRole();
+        $this->createEventsRole();
     }
 
-    private function createTasksRole()
+    private function createEventsRole()
+    {
+        $this->createAndAssign(Roles::EVENT_ROLE, [
+
+            Event::viewAnyForUserPermission(),
+            Event::createPermission(),
+            Event::updateForUserPermission(),
+            Event::deleteForUserPermission(),
+
+            Permissions::VIEW_EVENTS_PAGE
+        ]);
+    }
+
+        private function createTasksRole()
     {
         $this->createAndAssign(Roles::TASK_ROLE, [
             Task::viewAnyForUserPermission(),
@@ -63,6 +79,8 @@ class RolesAndPermissionsSeeder extends Seeder
             User::createPermission(),
             User::updatePermission(),
             User::deletePermission(),
+
+            RoleApiModel::viewAnyPermission(),
 
             Family::viewAnyPermission(),
             Family::createPermission(),

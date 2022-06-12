@@ -9,4 +9,5 @@ class Roles
     const BACKUPS_ROLE = 'backups_role';
     const DASHBOARD_ROLE = 'dashboard_role';
     const TASK_ROLE  = 'task_role';
+    const EVENT_ROLE  = 'event_role';
 }

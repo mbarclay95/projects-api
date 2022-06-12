@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Users;
+namespace App\Http\Controllers\Events;
 
 use App\Http\Controllers\ApiCrudController;
-use App\Models\ApiModels\RoleApiModel;
+use App\Models\Events\Event;
 
-class RoleController extends ApiCrudController
+class EventController extends ApiCrudController
 {
-    protected static string $modelClass = RoleApiModel::class;
+    protected static string $modelClass = Event::class;
 
-    protected static bool $getUserEntitiesOnly = false;
+    protected static bool $getUserEntitiesOnly = true;
     protected static bool $getUserEntityOnly = true;
     protected static bool $updateUserEntityOnly = true;
     protected static bool $destroyUserEntityOnly = true;

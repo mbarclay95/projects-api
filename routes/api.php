@@ -7,6 +7,7 @@ use App\Http\Controllers\Backups\TargetController;
 use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
+use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -57,6 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('folders', FolderController::class)->except('show');
     Route::apiResource('sites', SiteController::class)->except('index', 'show');
     Route::apiResource('site-images', SiteImageController::class)->only('store');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::apiResource('events', EventController::class)->except('show');
 });
 
 Route::apiResource('site-images', SiteImageController::class)->only('show');

@@ -65,7 +65,7 @@ class RecurringTask extends BaseApiModel
 
         if (!$dueDate) {
             $lastCompletedTask = Task::getLastCompletedTask($this->id);
-            $dueDate = $this->incrementDateByFrequency($lastCompletedTask->due_date);
+            $dueDate = $this->incrementDateByFrequency($lastCompletedTask->completed_at);
         }
 
         return Task::createFromRecurring($this, $dueDate);

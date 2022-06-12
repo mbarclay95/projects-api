@@ -5,6 +5,7 @@ namespace App\Models\Tasks;
 use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,7 +42,7 @@ use JetBrains\PhpStorm\Pure;
  */
 class Task extends BaseApiModel
 {
-    use HasFactory;
+    use HasFactory, Filterable;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring'];
@@ -72,7 +73,6 @@ class Task extends BaseApiModel
 
     public static function getUserEntities($request, User $auth)
     {
-        $next7Days = Carbon::today()->addDays(7);
         return Task::query()
                    ->where(function ($innerWhere) use ($auth) {
                        $innerWhere
@@ -87,11 +87,8 @@ class Task extends BaseApiModel
                                });
                            });
                    })
-                   ->where('due_date', '<', $next7Days)
-                   ->whereNull('completed_at')
-                   ->whereNull('cleared_at')
+                   ->filter($request)
                    ->orderBy('due_date')
-                   ->limit(10)
                    ->get();
     }
 

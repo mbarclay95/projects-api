@@ -9,7 +9,17 @@ class TaskController extends ApiCrudController
 {
     protected static string $modelClass = Task::class;
     protected static bool $updateUserEntityOnly = false;
-    protected static array $indexRules = [];
+    protected static array $indexRules = [
+        'numOfDays' => 'int',
+        'ownerType' => 'string',
+        'ownerId' => 'int',
+        'completedStatus' => 'string',
+        'recurringType' => 'string',
+        'page' => 'int',
+        'pageSize' => 'int',
+        'sort' => 'string',
+        'sortDir' => 'string'
+    ];
     protected static array $storeRules = [
         'name' => 'required|string',
         'description' => 'present|string|nullable',

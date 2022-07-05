@@ -49,13 +49,15 @@ class Task extends BaseApiModel
     protected static array $apiModelEntities = [
         'completedBy' => User::class
     ];
-    protected static array $apiModelArrayEntities = [];
+    protected static array $apiModelArrayEntities = [
+        'tags' => Tag::class
+    ];
     protected $dateFormat = 'Y-m-d H:i:sO';
 
-//    protected $dates = [
-//        'completed_at',
-//        'cleared_at'
-//    ];
+    protected $dates = [
+        'completed_at',
+        'cleared_at'
+    ];
 
     /**
      * @param string $attributeKey
@@ -87,8 +89,9 @@ class Task extends BaseApiModel
                                });
                            });
                    })
-                   ->filter($request)
                    ->orderBy('due_date')
+                   ->with('tags', 'recurringTask')
+                   ->filter($request)
                    ->get();
     }
 
@@ -102,7 +105,7 @@ class Task extends BaseApiModel
         $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
         if ($request['recurring']) {
             $recurringTask = RecurringTask::createEntity($request, $auth);
-            $task = $recurringTask->createFutureTask($dueDate);
+            $task = $recurringTask->createFutureTask($request['tags'], $dueDate);
         } else {
             $task = new Task([
                 'name' => $request['name'],
@@ -111,10 +114,43 @@ class Task extends BaseApiModel
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
             ]);
+            $task->updateTags($request['tags']);
             $task->save();
         }
 
         return $task;
+    }
+
+    public function updateTags(array $newTags): Task
+    {
+        $currentTags = $this->tags;
+        $tagsToInsert = [];
+        /** @var string $newTag */
+        foreach ($newTags as $newTag) {
+            if ($currentTags->doesntContain(function (Tag $currentTag) use ($newTag) {
+                return $newTag == $currentTag->tag;
+            })) {
+                $tagsToInsert[] = new Tag(['tag' => $newTag]);
+            }
+        }
+        $this->tags()->saveMany($tagsToInsert);
+
+        foreach ($currentTags as $currentTag) {
+            if (Collection::make($newTags)->doesntContain(function (string $newTag) use ($currentTag) {
+                return $currentTag->tag == $newTag;
+            })) {
+                $this->tags()->detach($currentTag);
+            }
+        }
+
+        $this->load('tags');
+
+        return $this;
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     /**
@@ -130,22 +166,41 @@ class Task extends BaseApiModel
         $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
         $entity->owner_id = $request['ownerId'];
 
+        if ($entity->recurring_task_id) {
+            $entity->recurringTask->name = $request['name'];
+            $entity->recurringTask->description = $request['description'];
+            $entity->recurringTask->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
+            $entity->recurringTask->owner_id = $request['ownerId'];
+            $entity->recurringTask->save();
+        }
+
         $taskCompleted = false;
         if ($entity->completed_at == null && isset($request['completedAt'])) {
             $entity->completed_at = Carbon::parse($request['completedAt']);
             $entity->completed_by_id = Auth::id();
             $taskCompleted = true;
         }
+        $entity->updateTags($request['tags']);
         $entity->save();
 
         if ($taskCompleted) {
-            $entity->recurringTask?->createFutureTask();
+            $entity->recurringTask?->createFutureTask($request['tags']);
         }
 
         return $entity;
     }
 
-    public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate): Task
+    /**
+     * @param Task $entity
+     * @return void
+     */
+    public static function destroyEntity(Model $entity): void
+    {
+        $entity->recurringTask?->delete();
+        $entity->delete();
+    }
+
+    public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate, array $tags): Task
     {
         $task = new Task([
             'name' => $recurringTask->name,
@@ -156,6 +211,7 @@ class Task extends BaseApiModel
         ]);
         $task->recurringTask()->associate($recurringTask);
         $task->save();
+        $task->updateTags($tags);
 
         return $task;
     }
@@ -209,17 +265,12 @@ class Task extends BaseApiModel
 
     public function getRecurringAttribute(): bool
     {
-        return !!$this->recurringTask;
+        return !!$this->recurring_task_id;
     }
 
     public function owner(): MorphTo
     {
         return $this->morphTo('owner', 'owner_type', 'owner_id');
-    }
-
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function completedBy(): BelongsTo

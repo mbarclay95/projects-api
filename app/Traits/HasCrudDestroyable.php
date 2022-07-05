@@ -3,21 +3,17 @@
 namespace App\Traits;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 trait HasCrudDestroyable
 {
-    public static function destroyEntity(int $entityId)
+    public static function destroyEntity(Model $entity): void
     {
-        return static::class::query()
-                            ->where('id', '=', $entityId)
-                            ->delete();
+        $entity->delete();
     }
 
-    public static function destroyUserEntity(int $entityId, User $auth)
+    public static function destroyUserEntity(Model $entity, User $auth): void
     {
-        return static::class::query()
-                            ->where('id', '=', $entityId)
-                            ->where('user_id', '=', $auth->id)
-                            ->delete();
+        $entity->delete();
     }
 }

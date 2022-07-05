@@ -10,11 +10,11 @@ use EloquentFilter\ModelFilter;
 class TaskFilter extends ModelFilter
 {
     /**
-    * Related Models that have ModelFilters as well as the method on the ModelFilter
-    * As [relationMethod => [input_key1, input_key2]].
-    *
-    * @var array
-    */
+     * Related Models that have ModelFilters as well as the method on the ModelFilter
+     * As [relationMethod => [input_key1, input_key2]].
+     *
+     * @var array
+     */
     public $relations = [];
 
     public function numOfDays($numOfDays)
@@ -50,5 +50,20 @@ class TaskFilter extends ModelFilter
     public function ownerId($ownerId)
     {
         $this->where('owner_id', '=', $ownerId);
+    }
+
+    public function tags($tags)
+    {
+        $this->whereHas('tags', function ($has) use ($tags) {
+            $has->whereIn('tag', $tags);
+        });
+    }
+
+    public function search($search)
+    {
+        $this->where(function ($where) use ($search) {
+            $where->orWhere('name', 'ilike', "%" . strtolower($search) . "%")
+                  ->orWhere('description', 'ilike', "%" . strtolower($search) . "%");
+        });
     }
 }

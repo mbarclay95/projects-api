@@ -33,9 +33,9 @@ trait HasApiModel
     /**
      * @param Model|null $model
      * @param array $hideItem
-     * @return array|null
+     * @return array|string|null
      */
-    public static function toApiModel(?Model $model, array $hideItem = []): ?array
+    public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {
         if (!$model) {
             return null;

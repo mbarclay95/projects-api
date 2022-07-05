@@ -8,6 +8,7 @@ use App\Models\ApiModels\RoleApiModel;
 use App\Models\Events\Event;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\RecurringTask;
+use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\User;
@@ -56,17 +57,14 @@ class RolesAndPermissionsSeeder extends Seeder
             Task::viewAnyForUserPermission(),
             Task::createPermission(),
             Task::updatePermission(),
-            Task::deleteForUserPermission(),
-
-            RecurringTask::viewAnyForUserPermission(),
-            RecurringTask::createPermission(),
-            RecurringTask::updateForUserPermission(),
-            RecurringTask::deleteForUserPermission(),
+            Task::deletePermission(),
 
             Family::viewForUserPermission(),
 
             TaskUserConfig::viewAnyForUserPermission(),
             TaskUserConfig::updatePermission(),
+
+            Tag::viewAnyForUserPermission(),
 
             Permissions::VIEW_TASKS_PAGE
         ]);

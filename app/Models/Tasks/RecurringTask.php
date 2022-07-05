@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
 /**
@@ -31,7 +32,7 @@ use Illuminate\Support\Collection;
  */
 class RecurringTask extends BaseApiModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'description', 'frequency_amount', 'frequency_unit',
         'owner_type', 'owner_id'];
@@ -55,7 +56,7 @@ class RecurringTask extends BaseApiModel
         return $task;
     }
 
-    public function createFutureTask(?Carbon $dueDate = null): Task
+    public function createFutureTask(array $tags, ?Carbon $dueDate = null): Task
     {
         $futureTask = Task::getFutureIncompleteTask($this->id);
 
@@ -68,7 +69,7 @@ class RecurringTask extends BaseApiModel
             $dueDate = $this->incrementDateByFrequency($lastCompletedTask->completed_at);
         }
 
-        return Task::createFromRecurring($this, $dueDate);
+        return Task::createFromRecurring($this, $dueDate, $tags);
     }
 
     public function incrementDateByFrequency(Carbon $date): Carbon

@@ -14,7 +14,20 @@ class EventController extends ApiCrudController
     protected static bool $updateUserEntityOnly = true;
     protected static bool $destroyUserEntityOnly = true;
 
-    protected static array $indexRules = [];
-    protected static array $storeRules = [];
-    protected static array $updateRules = [];
+    protected static array $indexRules = [
+        'showArchived' => 'required|bool',
+        'search' => 'nullable|string'
+    ];
+    protected static array $storeRules = [
+        'name' => 'required|string',
+        'notes' => 'present|string|nullable',
+        'eventDate' => 'required|date',
+        'numOfPeople' => 'required|int'
+    ];
+    protected static array $updateRules = [
+        'name' => 'required|string',
+        'notes' => 'present|string|nullable',
+        'eventDate' => 'required|date',
+        'numOfPeople' => 'required|int'
+    ];
 }

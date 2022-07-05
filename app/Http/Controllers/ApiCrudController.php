@@ -151,12 +151,12 @@ class ApiCrudController extends Controller
         }
 
         if (static::$destroyUserEntityOnly) {
-            if (!($user->hasPermissionTo(static::$modelClass::destroyForUserPermission()) && $user->id === $model->user_id)) {
+            if (!($user->hasPermissionTo(static::$modelClass::deleteForUserPermission()) && $user->id === $model->user_id)) {
                 throw new AuthenticationException();
             }
             static::$modelClass::destroyUserEntity($model, $user);
         } else {
-            if (!$user->hasPermissionTo(static::$modelClass::destroyPermission())) {
+            if (!$user->hasPermissionTo(static::$modelClass::deletePermission())) {
                 throw new AuthenticationException();
             }
             static::$modelClass::destroyEntity($model);

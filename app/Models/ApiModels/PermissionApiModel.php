@@ -14,7 +14,7 @@ class PermissionApiModel
      * @param Permission $model
      * @return array|string
      */
-    public static function toApiModel(Model $model): array|string
+    public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {
         return $model->name;
     }

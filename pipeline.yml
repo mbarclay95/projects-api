@@ -35,33 +35,6 @@ jobs:
           dockerfile: ((project-name))-repo/docker/Dockerfile
           tag_file: ((project-name))-repo/.git/ref
           tag_as_latest: true
-#      - task: update-docker-compose
-#        config:
-#          platform: linux
-#          image_resource:
-#            type: docker-image
-#            source:
-#              repository: concourse/oci-build-task
-#          inputs:
-#            - name: ((project-name))-repo
-#            - name: docker-compose-repo
-#          outputs:
-#            - name: docker-compose-repo
-#          run:
-#            path: /bin/sh
-#            args:
-#              - -c
-#              - |
-#                cd ((project-name))-repo
-#                TAG_HASH=$(/usr/bin/git log -1 --pretty=%H)
-#                cd ../docker-compose-repo/((project-name))
-#                sed -i "s/image:.*/image: docker-registry.bigmike.dev\/((project-name)):$TAG_HASH/g" docker-compose.yml
-#                /usr/bin/git config user.email "michaelbarclay36@gmail.com"
-#                /usr/bin/git config user.name "mbarclay36"
-#                /usr/bin/git add docker-compose.yml
-#                /usr/bin/git commit -m "Concourse pipeline deploy ((project-name))"
-#      - put: docker-compose-repo
-#        params: {repository: docker-compose-repo}
       - task: run-portainer-webhook
         config:
           platform: linux
@@ -77,3 +50,30 @@ jobs:
               - |
                 apk add curl
                 curl --location --request POST 'http://10.5.10.11:9000/api/stacks/webhooks/e22679a0-188c-466a-bbd9-7796f0d685fc'
+    on_success:
+      task: job-success
+      run:
+        path: /bin/sh
+        args: -c
+        - |
+          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "message": "project-api pipline success",
+              "priority": 10,
+              "title": "Concourse Success"
+          }'
+    on_failure:
+      task: job-failure
+      run:
+        path: /bin/sh
+        args: -c
+        - |
+          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "message": "project-api pipline failed",
+              "priority": 10,
+              "title": "Concourse Failure"
+          }'
+          

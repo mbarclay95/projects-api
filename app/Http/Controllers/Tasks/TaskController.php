@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Tasks;
 
 use App\Http\Controllers\ApiCrudController;
 use App\Models\Tasks\Task;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends ApiCrudController
 {
@@ -46,4 +50,23 @@ class TaskController extends ApiCrudController
         'completedAt' => 'nullable|date',
         'tags' => 'array|present'
     ];
+
+    public function index(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $validated = $request->validate(static::$indexRules);
+        $query = Task::buildIndexQuery($validated, $user);
+
+        if (array_key_exists('page', $validated) && array_key_exists('pageSize', $validated)) {
+            $pagination = $query->paginate($validated['pageSize']);
+            $apiModels = Task::toApiModels($pagination->items());
+            return new JsonResponse([
+                'total' => $pagination->total(),
+                'data' => $apiModels
+            ]);
+        }
+
+        return new JsonResponse(Task::toApiModels($query->get()));
+    }
 }

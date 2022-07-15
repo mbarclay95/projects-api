@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use JetBrains\PhpStorm\Pure;
@@ -71,6 +72,32 @@ class Task extends BaseApiModel
         }
 
         return parent::buildFromAttributes($attributeKey, $model);
+    }
+
+    /**
+     * @param $request
+     * @param User $auth
+     * @return Builder
+     */
+    public static function buildIndexQuery($request, User $auth)
+    {
+        return Task::query()
+                   ->where(function ($innerWhere) use ($auth) {
+                       $innerWhere
+                           ->orWhere(function ($userWhere) use ($auth) {
+                               $userWhere->where('owner_type', '=', User::class)
+                                         ->where('owner_id', '=', $auth->id);
+                           })
+                           ->when($auth->family, function ($familyCondition) use ($auth) {
+                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
+                                   $familyWhere->where('owner_type', '=', Family::class)
+                                               ->where('owner_id', '=', $auth->family->id);
+                               });
+                           });
+                   })
+                   ->orderBy('due_date')
+                   ->with('tags', 'recurringTask')
+                   ->filter($request);
     }
 
     public static function getUserEntities($request, User $auth)

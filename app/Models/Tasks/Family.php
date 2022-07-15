@@ -29,7 +29,7 @@ class Family extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'color'];
+    protected static array $apiModelAttributes = ['id', 'name', 'color', 'tasks_per_week', 'total_family_tasks'];
 
     protected static array $apiModelEntities = [];
 
@@ -37,9 +37,17 @@ class Family extends BaseApiModel
         'members' => User::class
     ];
 
+    public static function getEntities($request)
+    {
+        return Family::query()
+                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
+                     ->get();
+    }
+
     public static function getUserEntity(int $entityId, User $auth)
     {
         return Family::query()
+                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
                      ->whereExists(function ($whereIn) use ($entityId, $auth) {
                          $whereIn->select(new Expression('1'))
                                  ->from('task_user_configs')
@@ -80,16 +88,6 @@ class Family extends BaseApiModel
         return $entity;
     }
 
-    public function userConfigs(): HasMany
-    {
-        return $this->hasMany(TaskUserConfig::class);
-    }
-
-    public function members(): HasManyThrough
-    {
-        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id');
-    }
-
     /**
      * @param array|Collection $newMembers
      * @return void
@@ -107,5 +105,43 @@ class Family extends BaseApiModel
                 TaskUserConfig::createNewEntity($newMember, $this);
             }
         }
+    }
+
+    public function getTasksPerWeekAttribute(): float|int
+    {
+        $dayCount = RecurringTask::query()
+                                 ->selectRaw("sum(case
+when frequency_unit = 'week'
+then 1.0 / (frequency_amount * 7.0)
+when frequency_unit = 'month'
+then 1.0 / (frequency_amount * 30.0)
+else frequency_amount
+end)")
+                                 ->where('owner_type', '=', Family::class)
+                                 ->where('owner_id', '=', $this->id)
+                                 ->first();
+        $weekCount = $dayCount['sum'] * 7;
+
+        return $weekCount / count($this->members);
+    }
+
+    public function getTotalFamilyTasksAttribute(): int
+    {
+        return Task::query()
+                   ->where('owner_type', '=', Family::class)
+                   ->where('owner_id', '=', $this->id)
+                   ->whereNull('completed_at')
+                   ->whereNull('cleared_at')
+                   ->count();
+    }
+
+    public function userConfigs(): HasMany
+    {
+        return $this->hasMany(TaskUserConfig::class);
+    }
+
+    public function members(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id');
     }
 }

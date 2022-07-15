@@ -29,7 +29,8 @@ class TaskUserConfig extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'tasks_per_week', 'family_tasks_completed', 'family_id', 'color'];
+    protected static array $apiModelAttributes = ['id', 'tasks_per_week', 'family_tasks_completed', 'family_id', 'color',
+        'total_user_tasks'];
 
     protected static array $apiModelEntities = [];
 
@@ -82,6 +83,16 @@ class TaskUserConfig extends BaseApiModel
                    ->where('completed_at', '>', $startOfWeek)
                    ->where('owner_type', '=', Family::class)
                    ->where('owner_id', '=', $this->family_id)
+                   ->count();
+    }
+
+    public function getTotalUserTasksAttribute(): int
+    {
+        return Task::query()
+                   ->where('owner_type', '=', User::class)
+                   ->where('owner_id', '=', $this->id)
+                   ->whereNull('completed_at')
+                   ->whereNull('cleared_at')
                    ->count();
     }
 }

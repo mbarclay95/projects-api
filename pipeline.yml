@@ -52,28 +52,25 @@ jobs:
                 curl --location --request POST 'http://10.5.10.11:9000/api/stacks/webhooks/e22679a0-188c-466a-bbd9-7796f0d685fc'
     on_success:
       task: job-success
-      run:
-        path: /bin/sh
-        args: -c
-        - |
-          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-              "message": "project-api pipline success",
-              "priority": 10,
-              "title": "Concourse Success"
-          }'
-    on_failure:
-      task: job-failure
-      run:
-        path: /bin/sh
-        args: -c
-        - |
-          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' \
-          --header 'Content-Type: application/json' \
-          --data-raw '{
-              "message": "project-api pipline failed",
-              "priority": 10,
-              "title": "Concourse Failure"
-          }'
-          
+      config:
+        platform: linux
+        run:
+          path: /bin/sh
+          args:
+            - -c
+            - |
+              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' --header 'Content-Type: application/json' \
+              --data-raw '{"message": "project-api pipline success","priority": 10,"title": "Concourse Success"}'
+      on_failure:
+        task: job-failure
+        config:
+          platform: linux
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' header 'Content-Type: application/json' \
+                --data-raw '{"message": "project-api pipline failed","priority": 10,"title": "Concourse Failure"}'
+
+

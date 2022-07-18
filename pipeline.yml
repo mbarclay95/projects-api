@@ -54,23 +54,35 @@ jobs:
       task: job-success
       config:
         platform: linux
+        privileged: true
+        image_resource:
+          type: docker-image
+          source:
+            repository: concourse/oci-build-task
         run:
           path: /bin/sh
           args:
             - -c
             - |
+              apk add curl
               curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' --header 'Content-Type: application/json' \
               --data-raw '{"message": "project-api pipline success","priority": 10,"title": "Concourse Success"}'
-      on_failure:
-        task: job-failure
-        config:
-          platform: linux
-          run:
-            path: /bin/sh
-            args:
-              - -c
-              - |
-                curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' header 'Content-Type: application/json' \
-                --data-raw '{"message": "project-api pipline failed","priority": 10,"title": "Concourse Failure"}'
+    on_failure:
+      task: job-failure
+      config:
+        platform: linux
+        privileged: true
+        image_resource:
+          type: docker-image
+          source:
+            repository: concourse/oci-build-task
+        run:
+          path: /bin/sh
+          args:
+            - -c
+            - |
+              apk add curl
+              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' header 'Content-Type: application/json' \
+              --data-raw '{"message": "project-api pipline failed","priority": 10,"title": "Concourse Failure"}'
 
 

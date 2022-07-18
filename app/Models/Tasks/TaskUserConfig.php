@@ -34,7 +34,9 @@ class TaskUserConfig extends BaseApiModel
 
     protected static array $apiModelEntities = [];
 
-    protected static array $apiModelArrayEntities = [];
+    protected static array $apiModelArrayEntities = [
+        'completedFamilyTasks' => Task::class
+    ];
 
     public static function createNewEntity(User $user, Family $family): TaskUserConfig
     {
@@ -73,9 +75,9 @@ class TaskUserConfig extends BaseApiModel
         return $entity;
     }
 
-    public function getFamilyTasksCompletedAttribute(): int
+    public function getCompletedFamilyTasksAttribute()
     {
-        $startOfWeek = Carbon::today()->startOfWeek();
+        $startOfWeek = Carbon::today()->setTimezone('America/Los_Angeles')->startOfWeek();
 
         return Task::query()
                    ->whereNotNull('completed_at')
@@ -83,7 +85,7 @@ class TaskUserConfig extends BaseApiModel
                    ->where('completed_at', '>', $startOfWeek)
                    ->where('owner_type', '=', Family::class)
                    ->where('owner_id', '=', $this->family_id)
-                   ->count();
+                   ->get();
     }
 
     public function getTotalUserTasksAttribute(): int

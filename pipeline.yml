@@ -82,7 +82,7 @@ jobs:
             - -c
             - |
               apk add curl
-              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' header 'Content-Type: application/json' \
+              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' --header 'Content-Type: application/json' \
               --data-raw '{"message": "project-api pipline failed","priority": 10,"title": "Concourse Failure"}'
 
 

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon deleted_at
  *
  * @property string name
+ * @property boolean is_going
  *
  * @property integer event_id
  * @property Event event
@@ -24,7 +25,7 @@ class EventParticipant extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name'];
+    protected static array $apiModelAttributes = ['id', 'name', 'is_going'];
 
     public function event(): BelongsTo
     {

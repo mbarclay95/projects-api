@@ -27,6 +27,7 @@ use Illuminate\Support\Str;
  * @property Carbon event_date
  * @property integer num_of_people
  * @property string token
+ * @property boolean limit_participants
  *
  * @property integer user_id
  * @property User user
@@ -37,7 +38,8 @@ class Event extends BaseApiModel
 {
     use HasFactory, SoftDeletes, Filterable;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'notes', 'event_date', 'num_of_people', 'token', 'deleted_at'];
+    protected static array $apiModelAttributes = ['id', 'name', 'notes', 'event_date', 'num_of_people', 'token',
+        'deleted_at', 'limit_participants'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [
         'eventParticipants' => EventParticipant::class
@@ -52,6 +54,7 @@ class Event extends BaseApiModel
     public static function getUserEntities($request, User $auth)
     {
         return Event::query()
+                    ->with('eventParticipants')
                     ->where('user_id', '=', $auth->id)
                     ->orderBy('event_date')
                     ->filter($request)
@@ -65,12 +68,18 @@ class Event extends BaseApiModel
             'notes' => $request['notes'],
             'event_date' => $request['eventDate'],
             'num_of_people' => $request['numOfPeople'],
+            'limit_participants' => $request['limitParticipants'],
             'token' => Str::random(),
         ]);
         $event->user()->associate($auth);
         $event->save();
 
         return $event;
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -85,14 +94,10 @@ class Event extends BaseApiModel
         $entity->notes = $request['notes'];
         $entity->event_date = $request['eventDate'];
         $entity->num_of_people = $request['numOfPeople'];
+        $entity->limit_participants = $request['limitParticipants'];
         $entity->save();
 
         return $entity;
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function eventParticipants(): HasMany

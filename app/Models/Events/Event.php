@@ -39,7 +39,9 @@ class Event extends BaseApiModel
 
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'event_date', 'num_of_people', 'token', 'deleted_at'];
     protected static array $apiModelEntities = [];
-    protected static array $apiModelArrayEntities = [];
+    protected static array $apiModelArrayEntities = [
+        'eventParticipants' => EventParticipant::class
+    ];
 
     protected $dates = [
         'event_date'

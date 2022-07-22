@@ -12,22 +12,12 @@ resources:
     icon: docker
     source:
       repository: docker-registry.bigmike.dev/((project-name))
-  - name: docker-compose-repo
-    type: git
-    icon: github
-    source:
-      uri: ssh://git@10.5.10.11:222/mbarclay36/docker-compose-definitions.git
-      branch: master
-      private_key: ((private-key))
-      private_key_passphrase: ((private-key-passphrase))
 
 jobs:
   - name: build-push-deploy
     plan:
       - get: ((project-name))-repo
         trigger: true
-        version: latest
-      - get: docker-compose-repo
         version: latest
       - put: ((project-name))-image
         params:

@@ -77,7 +77,7 @@ class TaskUserConfig extends BaseApiModel
 
     public function getCompletedFamilyTasksAttribute()
     {
-        $startOfWeek = Carbon::today()->setTimezone('America/Los_Angeles')->startOfWeek()->setTimeZone('UTC');
+        $startOfWeek = Carbon::now()->setTimezone('America/Los_Angeles')->startOfWeek()->setTimeZone('UTC');
 
         return Task::query()
                    ->whereNotNull('completed_at')

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon updated_at
  *
  * @property boolean side_menu_open
+ * @property boolean home_page_role
  *
  * @property integer user_id
  * @property User user
@@ -26,7 +27,7 @@ class UserConfig extends Model
 
     protected static $unguarded = true;
 
-    protected static array $apiModelAttributes = ['side_menu_open'];
+    protected static array $apiModelAttributes = ['side_menu_open', 'home_page_role'];
 
     protected static array $apiModelEntities = [];
 

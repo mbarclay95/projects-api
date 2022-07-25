@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\ApiCrudController;
-use App\Http\Requests\Users\UsersUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,8 +20,16 @@ class UserController extends ApiCrudController
         'username' => 'required|string',
         'password' => 'required|string',
         'roles' => 'present|array',
+        'userConfig.homePageRole' => 'required|string'
     ];
-    protected static array $updateRules = [];
+    protected static array $updateRules = [
+        'name' => 'required|string',
+        'username' => 'required|string',
+        'password' => 'required|string',
+        'roles' => 'present|array',
+        'userConfig.sideMenuOpen' => 'required|bool',
+        'userConfig.homePageRole' => 'required|string'
+    ];
 
     /**
      * Display a listing of the resource.
@@ -34,10 +41,11 @@ class UserController extends ApiCrudController
     {
         /** @var User[] $users */
         $users = User::query()
-            ->with('roles')
-            ->get();
+                     ->with('roles')
+                     ->orderBy('id')
+                     ->get();
 
-        return new JsonResponse(User::toApiModels($users, ['clientPermissions', 'userConfig']));
+        return new JsonResponse(User::toApiModels($users, ['clientPermissions']));
     }
 
     /**
@@ -54,6 +62,7 @@ class UserController extends ApiCrudController
 
         $user->name = $request['name'];
         $user->userConfig->side_menu_open = $request['userConfig']['sideMenuOpen'];
+        $user->userConfig->home_page_role = $request['userConfig']['homePageRole'];
         $roles = Role::query()
                      ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
                          return $role['id'];

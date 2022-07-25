@@ -9,6 +9,7 @@ trait HasCrudIndexable
     public static function getEntities($request)
     {
         return static::class::query()
+                            ->orderBy('id')
                             ->get();
     }
 
@@ -16,6 +17,7 @@ trait HasCrudIndexable
     {
         return static::class::query()
                             ->where('user_id', '=', $auth->id)
+                            ->orderBy('id')
                             ->get();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\ApiModels;
 
+use App\Models\User;
 use App\Traits\HasApiModel;
 use App\Traits\HasCrudIndexable;
 use App\Traits\HasCrudPermissions;
@@ -15,7 +16,7 @@ class RoleApiModel
 
     protected static array $apiModelAttributes = ['id', 'name'];
 
-    public static function getEntities($request): Collection|array
+    public static function getEntities($request, User $auth, bool $viewAnyForUser): Collection|array
     {
         return Role::query()->get();
     }

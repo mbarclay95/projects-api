@@ -9,11 +9,6 @@ class RoleController extends ApiCrudController
 {
     protected static string $modelClass = RoleApiModel::class;
 
-    protected static bool $getUserEntitiesOnly = false;
-    protected static bool $getUserEntityOnly = true;
-    protected static bool $updateUserEntityOnly = true;
-    protected static bool $destroyUserEntityOnly = true;
-
     protected static array $indexRules = [];
     protected static array $storeRules = [];
     protected static array $updateRules = [];

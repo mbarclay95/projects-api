@@ -6,17 +6,9 @@ use App\Models\User;
 
 trait HasCrudIndexable
 {
-    public static function getEntities($request)
+    public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return static::class::query()
-                            ->orderBy('id')
-                            ->get();
-    }
-
-    public static function getUserEntities($request, User $auth)
-    {
-        return static::class::query()
-                            ->where('user_id', '=', $auth->id)
                             ->orderBy('id')
                             ->get();
     }

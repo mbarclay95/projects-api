@@ -8,8 +8,6 @@ use App\Models\Tasks\TaskUserConfig;
 class TaskUserConfigController extends ApiCrudController
 {
     protected static string $modelClass = TaskUserConfig::class;
-    protected static bool $getUserEntitiesOnly = false;
-    protected static bool $updateUserEntityOnly = false;
     protected static array $indexRules = [];
     protected static array $storeRules = [
     ];

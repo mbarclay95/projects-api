@@ -64,9 +64,10 @@ class TaskUserConfig extends BaseApiModel
     /**
      * @param TaskUserConfig $entity
      * @param $request
+     * @param User $auth
      * @return Model|TaskUserConfig
      */
-    public static function updateEntity(Model $entity, $request): Model|TaskUserConfig
+    public static function updateEntity(Model $entity, $request, User $auth): Model|TaskUserConfig
     {
         $entity->tasks_per_week = $request['tasksPerWeek'];
         $entity->color = $request['color'];

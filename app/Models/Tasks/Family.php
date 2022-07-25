@@ -37,14 +37,14 @@ class Family extends BaseApiModel
         'members' => User::class
     ];
 
-    public static function getEntities($request)
+    public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Family::query()
                      ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
                      ->get();
     }
 
-    public static function getUserEntity(int $entityId, User $auth)
+    public static function getEntity(int $entityId, User $auth, bool $viewForUser)
     {
         return Family::query()
                      ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
@@ -70,9 +70,10 @@ class Family extends BaseApiModel
     /**
      * @param Family $entity
      * @param $request
+     * @param User $auth
      * @return Model
      */
-    public static function updateEntity(Model $entity, $request): Model
+    public static function updateEntity(Model $entity, $request, User $auth): Model
     {
         $entity->name = $request['name'];
         $entity->color = $request['color'];

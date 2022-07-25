@@ -108,16 +108,6 @@ class User extends Authenticatable implements JWTSubject
         return $user;
     }
 
-    /**
-     * @param User $entity
-     * @param $request
-     * @return void
-     */
-    public static function updateEntity(Model $entity, $request)
-    {
-
-    }
-
     public function createFirstUserConfig(): UserConfig
     {
         $userConfig = new UserConfig([

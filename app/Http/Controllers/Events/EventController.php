@@ -9,11 +9,6 @@ class EventController extends ApiCrudController
 {
     protected static string $modelClass = Event::class;
 
-    protected static bool $getUserEntitiesOnly = true;
-    protected static bool $getUserEntityOnly = true;
-    protected static bool $updateUserEntityOnly = true;
-    protected static bool $destroyUserEntityOnly = true;
-
     protected static array $indexRules = [
         'showArchived' => 'required|bool',
         'search' => 'nullable|string'

@@ -51,7 +51,7 @@ class Event extends BaseApiModel
 
     protected $dateFormat = 'Y-m-d H:i:sO';
 
-    public static function getUserEntities($request, User $auth)
+    public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Event::query()
                     ->with('eventParticipants')
@@ -88,7 +88,7 @@ class Event extends BaseApiModel
      * @param User $auth
      * @return Event
      */
-    public static function updateUserEntity(Model $entity, $request, User $auth): Model
+    public static function updateEntity(Model $entity, $request, User $auth): Model
     {
         $entity->name = $request['name'];
         $entity->notes = $request['notes'];

@@ -12,8 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class TaskController extends ApiCrudController
 {
     protected static string $modelClass = Task::class;
-    protected static bool $updateUserEntityOnly = false;
-    protected static bool $destroyUserEntityOnly = false;
+
     protected static array $indexRules = [
         'numOfDays' => 'int',
         'ownerType' => 'string',

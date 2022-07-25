@@ -6,18 +6,13 @@ use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ApiCrudController extends Controller
 {
     protected static string $modelClass;
-
-    protected static bool $getUserEntitiesOnly = true;
-    protected static bool $getUserEntityOnly = true;
-    protected static bool $updateUserEntityOnly = true;
-    protected static bool $destroyUserEntityOnly = true;
 
     protected static array $indexRules = [];
     protected static array $storeRules = [];
@@ -35,18 +30,19 @@ class ApiCrudController extends Controller
         /** @var User $user */
         $user = Auth::user();
         $validated = $request->validate(static::$indexRules);
+        $viewAnyForUser = false;
+        $viewAny = false;
+        try {
+            $viewAnyForUser = $user->hasPermissionTo(static::$modelClass::viewAnyForUserPermission());
+        } catch (PermissionDoesNotExist $e) {}
+        try {
+            $viewAny = $user->hasPermissionTo(static::$modelClass::viewAnyPermission());
+        } catch (PermissionDoesNotExist $e) {}
 
-        if (static::$getUserEntitiesOnly) {
-            if (!$user->hasPermissionTo(static::$modelClass::viewAnyForUserPermission())) {
-                throw new AuthenticationException();
-            }
-            $models = static::$modelClass::getUserEntities($validated, $user);
-        } else {
-            if (!$user->hasPermissionTo(static::$modelClass::viewAnyPermission())) {
-                throw new AuthenticationException();
-            }
-            $models = static::$modelClass::getEntities($validated);
+        if (!$viewAnyForUser && !$viewAny) {
+            throw new AuthenticationException();
         }
+        $models = static::$modelClass::getEntities($validated, $user, $viewAnyForUser);
 
         return new JsonResponse(static::$modelClass::toApiModels($models));
     }
@@ -63,8 +59,12 @@ class ApiCrudController extends Controller
         /** @var User $user */
         $user = Auth::user();
         $validated = $request->validate(static::$storeRules);
+        $createPermission = false;
+        try {
+            $createPermission = $user->hasPermissionTo(static::$modelClass::createPermission());
+        } catch (PermissionDoesNotExist $e) {}
 
-        if (!$user->hasPermissionTo(static::$modelClass::createPermission())) {
+        if (!$createPermission) {
             throw new AuthenticationException();
         }
         $model = static::$modelClass::createEntity($validated, $user);
@@ -83,18 +83,19 @@ class ApiCrudController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
+        $viewForUser = false;
+        $view = false;
+        try {
+            $viewForUser = $user->hasPermissionTo(static::$modelClass::viewForUserPermission());
+        } catch (PermissionDoesNotExist $e) {}
+        try {
+            $view = $user->hasPermissionTo(static::$modelClass::viewPermission());
+        } catch (PermissionDoesNotExist $e) {}
 
-        if (static::$getUserEntityOnly) {
-            if (!$user->hasPermissionTo(static::$modelClass::viewForUserPermission())) {
-                throw new AuthenticationException();
-            }
-            $model = static::$modelClass::getUserEntity($id, $user);
-        } else {
-            if (!$user->hasPermissionTo(static::$modelClass::viewPermission())) {
-                throw new AuthenticationException();
-            }
-            $model = static::$modelClass::getEntity($id);
+        if (!$viewForUser && !$view) {
+            throw new AuthenticationException();
         }
+        $model = static::$modelClass::getEntity($id, $user, $viewForUser);
 
         return new JsonResponse(static::$modelClass::toApiModel($model));
     }
@@ -117,18 +118,19 @@ class ApiCrudController extends Controller
         if (!$model) {
             throw new NotFoundHttpException();
         }
+        $updateForUser = false;
+        $update = false;
+        try {
+            $updateForUser = $user->hasPermissionTo(static::$modelClass::updateForUserPermission()) && $user->id === $model->user_id;
+        } catch (PermissionDoesNotExist $e) {}
+        try {
+            $update = $user->hasPermissionTo(static::$modelClass::updatePermission());
+        } catch (PermissionDoesNotExist $e) {}
 
-        if (static::$updateUserEntityOnly) {
-            if (!($user->hasPermissionTo(static::$modelClass::updateForUserPermission()) && $user->id === $model->user_id)) {
-                throw new AuthenticationException();
-            }
-            $model = static::$modelClass::updateUserEntity($model, $validated, $user);
-        } else {
-            if (!$user->hasPermissionTo(static::$modelClass::updatePermission())) {
-                throw new AuthenticationException();
-            }
-            $model = static::$modelClass::updateEntity($model, $validated);
+        if (!$updateForUser && !$update) {
+            throw new AuthenticationException();
         }
+        $model = static::$modelClass::updateEntity($model, $validated, $user);
 
         return new JsonResponse(static::$modelClass::toApiModel($model));
     }
@@ -149,18 +151,19 @@ class ApiCrudController extends Controller
         if (!$model) {
             throw new NotFoundHttpException();
         }
+        $deleteForUser = false;
+        $delete = false;
+        try {
+            $deleteForUser = $user->hasPermissionTo(static::$modelClass::deleteForUserPermission()) && $user->id === $model->user_id;
+        } catch (PermissionDoesNotExist $e) {}
+        try {
+            $delete = $user->hasPermissionTo(static::$modelClass::deletePermission());
+        } catch (PermissionDoesNotExist $e) {}
 
-        if (static::$destroyUserEntityOnly) {
-            if (!($user->hasPermissionTo(static::$modelClass::deleteForUserPermission()) && $user->id === $model->user_id)) {
-                throw new AuthenticationException();
-            }
-            static::$modelClass::destroyUserEntity($model, $user);
-        } else {
-            if (!$user->hasPermissionTo(static::$modelClass::deletePermission())) {
-                throw new AuthenticationException();
-            }
-            static::$modelClass::destroyEntity($model);
+        if (!$deleteForUser && !$delete) {
+            throw new AuthenticationException();
         }
+        static::$modelClass::destroyEntity($model, $user);
 
         return new JsonResponse(['success' => true]);
     }

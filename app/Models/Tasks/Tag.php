@@ -37,7 +37,7 @@ class Tag extends BaseApiModel
         return $model->tag;
     }
 
-    public static function getUserEntities($request, User $auth)
+    public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Tag::query()
             ->whereHas('tasks', function ($where) use ($auth) {

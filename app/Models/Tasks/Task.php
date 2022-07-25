@@ -100,7 +100,7 @@ class Task extends BaseApiModel
                    ->filter($request);
     }
 
-    public static function getUserEntities($request, User $auth)
+    public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Task::query()
                    ->where(function ($innerWhere) use ($auth) {
@@ -183,9 +183,10 @@ class Task extends BaseApiModel
     /**
      * @param Task $entity
      * @param $request
+     * @param User $auth
      * @return Task
      */
-    public static function updateEntity(Model $entity, $request): Task
+    public static function updateEntity(Model $entity, $request, User $auth): Task
     {
         $entity->name = $request['name'];
         $entity->description = $request['description'];
@@ -219,9 +220,10 @@ class Task extends BaseApiModel
 
     /**
      * @param Task $entity
+     * @param User $auth
      * @return void
      */
-    public static function destroyEntity(Model $entity): void
+    public static function destroyEntity(Model $entity, User $auth): void
     {
         $entity->recurringTask?->delete();
         $entity->delete();

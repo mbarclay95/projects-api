@@ -19,6 +19,7 @@ class EventController extends ApiCrudController
         'eventDate' => 'required|date',
         'numOfPeople' => 'required|int',
         'limitParticipants' => 'required|bool',
+        'notificationEmail' => 'present|string|nullable'
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
@@ -26,5 +27,6 @@ class EventController extends ApiCrudController
         'eventDate' => 'required|date',
         'numOfPeople' => 'required|int',
         'limitParticipants' => 'required|bool',
+        'notificationEmail' => 'present|string|nullable'
     ];
 }

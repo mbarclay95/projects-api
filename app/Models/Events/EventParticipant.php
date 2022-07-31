@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property string name
  * @property boolean is_going
+ * @property boolean notification_email
  *
  * @property integer event_id
  * @property Event event

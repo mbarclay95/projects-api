@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
  * @property integer num_of_people
  * @property string token
  * @property boolean limit_participants
+ * @property boolean notification_email
  *
  * @property integer user_id
  * @property User user
@@ -39,7 +40,7 @@ class Event extends BaseApiModel
     use HasFactory, SoftDeletes, Filterable;
 
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'event_date', 'num_of_people', 'token',
-        'deleted_at', 'limit_participants'];
+        'deleted_at', 'limit_participants', 'notification_email'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [
         'eventParticipants' => EventParticipant::class
@@ -69,6 +70,7 @@ class Event extends BaseApiModel
             'event_date' => $request['eventDate'],
             'num_of_people' => $request['numOfPeople'],
             'limit_participants' => $request['limitParticipants'],
+            'notification_email' => $request['notificationEmail'],
             'token' => Str::random(),
         ]);
         $event->user()->associate($auth);
@@ -95,6 +97,7 @@ class Event extends BaseApiModel
         $entity->event_date = $request['eventDate'];
         $entity->num_of_people = $request['numOfPeople'];
         $entity->limit_participants = $request['limitParticipants'];
+        $entity->notification_email = $request['notificationEmail'];
         $entity->save();
 
         return $entity;

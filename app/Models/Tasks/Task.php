@@ -82,44 +82,44 @@ class Task extends BaseApiModel
     public static function buildIndexQuery($request, User $auth)
     {
         return Task::query()
-                   ->where(function ($innerWhere) use ($auth) {
-                       $innerWhere
-                           ->orWhere(function ($userWhere) use ($auth) {
-                               $userWhere->where('owner_type', '=', User::class)
-                                         ->where('owner_id', '=', $auth->id);
-                           })
-                           ->when($auth->family, function ($familyCondition) use ($auth) {
-                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
-                                   $familyWhere->where('owner_type', '=', Family::class)
-                                               ->where('owner_id', '=', $auth->family->id);
-                               });
-                           });
-                   })
-                   ->orderBy('due_date')
-                   ->with('tags', 'recurringTask')
-                   ->filter($request);
+            ->where(function ($innerWhere) use ($auth) {
+                $innerWhere
+                    ->orWhere(function ($userWhere) use ($auth) {
+                        $userWhere->where('owner_type', '=', User::class)
+                            ->where('owner_id', '=', $auth->id);
+                    })
+                    ->when($auth->family, function ($familyCondition) use ($auth) {
+                        $familyCondition->orWhere(function ($familyWhere) use ($auth) {
+                            $familyWhere->where('owner_type', '=', Family::class)
+                                ->where('owner_id', '=', $auth->family->id);
+                        });
+                    });
+            })
+            ->orderBy('due_date')
+            ->with('tags', 'recurringTask')
+            ->filter($request);
     }
 
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Task::query()
-                   ->where(function ($innerWhere) use ($auth) {
-                       $innerWhere
-                           ->orWhere(function ($userWhere) use ($auth) {
-                               $userWhere->where('owner_type', '=', User::class)
-                                         ->where('owner_id', '=', $auth->id);
-                           })
-                           ->when($auth->family, function ($familyCondition) use ($auth) {
-                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
-                                   $familyWhere->where('owner_type', '=', Family::class)
-                                               ->where('owner_id', '=', $auth->family->id);
-                               });
-                           });
-                   })
-                   ->orderBy('due_date')
-                   ->with('tags', 'recurringTask')
-                   ->filter($request)
-                   ->get();
+            ->where(function ($innerWhere) use ($auth) {
+                $innerWhere
+                    ->orWhere(function ($userWhere) use ($auth) {
+                        $userWhere->where('owner_type', '=', User::class)
+                            ->where('owner_id', '=', $auth->id);
+                    })
+                    ->when($auth->family, function ($familyCondition) use ($auth) {
+                        $familyCondition->orWhere(function ($familyWhere) use ($auth) {
+                            $familyWhere->where('owner_type', '=', Family::class)
+                                ->where('owner_id', '=', $auth->family->id);
+                        });
+                    });
+            })
+            ->orderBy('due_date')
+            ->with('tags', 'recurringTask')
+            ->filter($request)
+            ->get();
     }
 
     /**
@@ -208,6 +208,18 @@ class Task extends BaseApiModel
             $entity->completed_by_id = Auth::id();
             $taskCompleted = true;
         }
+        if ($entity->completed_at && !isset($request['completedAt'])) {
+            $entity->completed_at = null;
+            $entity->completed_by_id = null;
+            if ($entity->recurring_task_id) {
+                Task::query()
+                    ->whereNull('completed_at')
+                    ->whereNull('completed_by_id')
+                    ->where('due_date', '>', $entity->due_date)
+                    ->where('recurring_task_id', '=', $entity->recurring_task_id)
+                    ->delete();
+            }
+        }
         $entity->updateTags($request['tags']);
         $entity->save();
 
@@ -257,10 +269,10 @@ class Task extends BaseApiModel
     public static function getFutureIncompleteTask(int $recurringTaskId)
     {
         return Task::query()
-                   ->where('recurring_task_id', '=', $recurringTaskId)
-                   ->whereNull('completed_by_id')
-                   ->orderBy('due_date')
-                   ->first();
+            ->where('recurring_task_id', '=', $recurringTaskId)
+            ->whereNull('completed_by_id')
+            ->orderBy('due_date')
+            ->first();
     }
 
     /**
@@ -270,10 +282,10 @@ class Task extends BaseApiModel
     public static function getLastCompletedTask(int $recurringTaskId)
     {
         return Task::query()
-                   ->where('recurring_task_id', '=', $recurringTaskId)
-                   ->whereNotNull('completed_by_id')
-                   ->orderBy('due_date', 'desc')
-                   ->first();
+            ->where('recurring_task_id', '=', $recurringTaskId)
+            ->whereNotNull('completed_by_id')
+            ->orderBy('due_date', 'desc')
+            ->first();
     }
 
     public function getDueDateAttribute($value): bool|Carbon

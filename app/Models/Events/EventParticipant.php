@@ -3,8 +3,11 @@
 namespace App\Models\Events;
 
 use App\Models\BaseApiModel;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -26,10 +29,25 @@ class EventParticipant extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'is_going'];
+    protected static array $apiModelAttributes = ['id', 'name', 'is_going', 'event_id'];
 
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * @param EventParticipant $entity
+     * @param User $auth
+     * @return void
+     * @throws AuthenticationException
+     */
+    public static function destroyEntity(Model $entity, User $auth): void
+    {
+        if ($entity->event->user_id !== $auth->id) {
+            throw new AuthenticationException();
+        }
+
+        $entity->delete();
     }
 }

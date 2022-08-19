@@ -6,6 +6,7 @@ use App\Enums\Permissions;
 use App\Enums\Roles;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Events\Event;
+use App\Models\Events\EventParticipant;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Tag;
@@ -46,6 +47,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Event::createPermission(),
             Event::updateForUserPermission(),
             Event::deleteForUserPermission(),
+
+            EventParticipant::deletePermission(),
 
             Permissions::VIEW_EVENTS_PAGE
         ]);

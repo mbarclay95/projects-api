@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
@@ -64,6 +65,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::apiResource('events', EventController::class)->except('show');
+    Route::apiResource('event-participants', EventParticipantController::class)->only('destroy');
 });
 
 Route::apiResource('site-images', SiteImageController::class)->only('show');

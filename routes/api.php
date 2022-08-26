@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::apiResource('events', EventController::class)->except('show');
-    Route::apiResource('event-participants', EventParticipantController::class)->only('destroy');
+    Route::apiResource('event-participants', EventParticipantController::class)->only('update');
 });
 
 Route::apiResource('site-images', SiteImageController::class)->only('show');

@@ -70,7 +70,7 @@ class Event extends BaseApiModel
             'event_date' => $request['eventDate'],
             'num_of_people' => $request['numOfPeople'],
             'limit_participants' => $request['limitParticipants'],
-            'notification_email' => $request['notificationEmail'],
+            'notification_email' => $request['notificationEmail'] ?? null,
             'token' => Str::random(),
         ]);
         $event->user()->associate($auth);
@@ -97,7 +97,7 @@ class Event extends BaseApiModel
         $entity->event_date = $request['eventDate'];
         $entity->num_of_people = $request['numOfPeople'];
         $entity->limit_participants = $request['limitParticipants'];
-        $entity->notification_email = $request['notificationEmail'];
+        $entity->notification_email = $request['notificationEmail'] ?? null;
         $entity->save();
 
         return $entity;

@@ -38,6 +38,26 @@ class EventParticipant extends BaseApiModel
 
     /**
      * @param EventParticipant $entity
+     * @param $request
+     * @param User $auth
+     * @return EventParticipant|Model
+     * @throws AuthenticationException
+     */
+    public static function updateEntity(Model $entity, $request, User $auth): Model|EventParticipant
+    {
+        if ($entity->event->user_id !== $auth->id) {
+            throw new AuthenticationException();
+        }
+
+        $entity->name = $request['name'];
+        $entity->is_going = $request['isGoing'];
+        $entity->save();
+
+        return $entity;
+    }
+
+    /**
+     * @param EventParticipant $entity
      * @param User $auth
      * @return void
      * @throws AuthenticationException

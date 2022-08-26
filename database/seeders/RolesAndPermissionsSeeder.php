@@ -48,6 +48,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Event::updateForUserPermission(),
             Event::deleteForUserPermission(),
 
+            EventParticipant::updatePermission(),
             EventParticipant::deletePermission(),
 
             Permissions::VIEW_EVENTS_PAGE

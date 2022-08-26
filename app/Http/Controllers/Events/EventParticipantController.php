@@ -11,5 +11,8 @@ class EventParticipantController extends ApiCrudController
 
     protected static array $indexRules = [];
     protected static array $storeRules = [];
-    protected static array $updateRules = [];
+    protected static array $updateRules = [
+        'name' => 'string|required',
+        'isGoing' => 'bool|required',
+    ];
 }

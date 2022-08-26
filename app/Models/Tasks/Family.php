@@ -60,7 +60,8 @@ class Family extends BaseApiModel
     public static function createEntity($request, User $auth): Family
     {
         $family = new Family([
-            'name' => $request['name']
+            'name' => $request['name'],
+            'color' => '#994455'
         ]);
         $family->save();
 

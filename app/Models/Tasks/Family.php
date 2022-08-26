@@ -61,9 +61,16 @@ class Family extends BaseApiModel
     {
         $family = new Family([
             'name' => $request['name'],
-            'color' => '#994455'
+            'color' => $request['color']
         ]);
+        $members = User::query()
+                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
+                           return $user['id'];
+                       }))
+                       ->get();
         $family->save();
+        $family->syncMembers($members);
+        $family->refresh();
 
         return $family;
     }

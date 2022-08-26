@@ -46,15 +46,16 @@ class Family extends BaseApiModel
 
     public static function getEntity(int $entityId, User $auth, bool $viewForUser)
     {
-        return Family::query()
-                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
-                     ->whereExists(function ($whereIn) use ($entityId, $auth) {
-                         $whereIn->select(new Expression('1'))
-                                 ->from('task_user_configs')
-                                 ->where('family_id', '=', $entityId)
-                                 ->where('user_id', '=', $auth->id);
-                     })
-                     ->first();
+        return Family::query()->find($entityId);
+//        return Family::query()
+//                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
+//                     ->whereExists(function ($whereIn) use ($entityId, $auth) {
+//                         $whereIn->select(new Expression('1'))
+//                                 ->from('task_user_configs')
+//                                 ->where('family_id', '=', $entityId)
+//                                 ->where('user_id', '=', $auth->id);
+//                     })
+//                     ->first();
     }
 
     public static function createEntity($request, User $auth): Family

@@ -64,6 +64,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Task::deletePermission(),
 
             Family::viewForUserPermission(),
+            Family::updatePermission(),
 
             TaskUserConfig::viewAnyForUserPermission(),
             TaskUserConfig::updatePermission(),

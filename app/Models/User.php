@@ -104,14 +104,16 @@ class User extends Authenticatable implements JWTSubject
                      }))
                      ->get();
         $user->syncRoles($roles);
+        $user->createFirstUserConfig($request['userConfig']['homePageRole']);
 
         return $user;
     }
 
-    public function createFirstUserConfig(): UserConfig
+    public function createFirstUserConfig(string $homePage = 'dashboard_role'): UserConfig
     {
         $userConfig = new UserConfig([
             'side_menu_open' => true,
+            'home_page_role' => $homePage
         ]);
         $userConfig->user()->associate($this);
         $userConfig->save();

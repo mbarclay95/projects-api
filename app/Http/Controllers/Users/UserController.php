@@ -24,8 +24,6 @@ class UserController extends ApiCrudController
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
-        'username' => 'required|string',
-        'password' => 'required|string',
         'roles' => 'present|array',
         'userConfig.sideMenuOpen' => 'required|bool',
         'userConfig.homePageRole' => 'required|string'
@@ -39,6 +37,8 @@ class UserController extends ApiCrudController
      */
     public function index(Request $request): JsonResponse
     {
+        $validated = $request->validate(static::$indexRules);
+
         /** @var User[] $users */
         $users = User::query()
                      ->with('roles')
@@ -57,14 +57,16 @@ class UserController extends ApiCrudController
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        /** @var User $user */
-        $user = User::query()->find($id);
+        $validated = $request->validate(static::$updateRules);
 
-        $user->name = $request['name'];
-        $user->userConfig->side_menu_open = $request['userConfig']['sideMenuOpen'];
-        $user->userConfig->home_page_role = $request['userConfig']['homePageRole'];
+        /** @var User $user */
+        $user = User::query()->with('userConfig')->find($id);
+
+        $user->name = $validated['name'];
+        $user->userConfig->side_menu_open = $validated['userConfig']['sideMenuOpen'];
+        $user->userConfig->home_page_role = $validated['userConfig']['homePageRole'];
         $roles = Role::query()
-                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
+                     ->whereIn('id', Collection::make($validated['roles'])->map(function ($role) {
                          return $role['id'];
                      }))
                      ->get();

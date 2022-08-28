@@ -141,8 +141,8 @@ class Task extends BaseApiModel
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
             ]);
-            $task->updateTags($request['tags']);
             $task->save();
+            $task->updateTags($request['tags']);
         }
 
         return $task;

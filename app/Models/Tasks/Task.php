@@ -32,6 +32,9 @@ use JetBrains\PhpStorm\Pure;
  * @property integer recurring_task_id
  * @property RecurringTask recurringTask
  *
+ * @property integer task_point_id
+ * @property TaskPoint taskPoint
+ *
  * @property string owner_type
  * @property integer owner_id
  * @property User|Family owner
@@ -48,7 +51,8 @@ class Task extends BaseApiModel
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring'];
     protected static array $apiModelEntities = [
-        'completedBy' => User::class
+        'completedBy' => User::class,
+        'taskPoint' => TaskPoint::class
     ];
     protected static array $apiModelArrayEntities = [
         'tags' => Tag::class
@@ -141,6 +145,9 @@ class Task extends BaseApiModel
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
             ]);
+            if ($request['taskPoint']) {
+                $task->taskPoint()->associate($request['taskPoint']['id']);
+            }
             $task->save();
             $task->updateTags($request['tags']);
         }
@@ -180,6 +187,11 @@ class Task extends BaseApiModel
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
+    public function taskPoint(): BelongsTo
+    {
+        return $this->belongsTo(TaskPoint::class);
+    }
+
     /**
      * @param Task $entity
      * @param $request
@@ -193,12 +205,18 @@ class Task extends BaseApiModel
         $entity->due_date = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString();
         $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
         $entity->owner_id = $request['ownerId'];
+        if ($request['taskPoint']) {
+            $entity->taskPoint()->associate($request['taskPoint']['id']);
+        }
 
         if ($entity->recurring_task_id) {
             $entity->recurringTask->name = $request['name'];
             $entity->recurringTask->description = $request['description'];
             $entity->recurringTask->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
             $entity->recurringTask->owner_id = $request['ownerId'];
+            if ($request['taskPoint']) {
+                $entity->recurringTask->taskPoint()->associate($request['taskPoint']['id']);
+            }
             $entity->recurringTask->save();
         }
 
@@ -250,6 +268,9 @@ class Task extends BaseApiModel
             'owner_type' => $recurringTask->owner_type,
             'owner_id' => $recurringTask->owner_id,
         ]);
+        if ($recurringTask->task_point_id) {
+            $task->taskPoint()->associate($recurringTask->task_point_id);
+        }
         $task->recurringTask()->associate($recurringTask);
         $task->save();
         $task->updateTags($tags);

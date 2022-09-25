@@ -6,6 +6,7 @@ use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,6 +28,9 @@ use Illuminate\Support\Collection;
  * @property string owner_type
  * @property integer owner_id
  * @property User|Family owner
+ *
+ * @property integer task_point_id
+ * @property TaskPoint taskPoint
  *
  * @property Collection|Tag[] tags
  */
@@ -51,6 +55,9 @@ class RecurringTask extends BaseApiModel
             'frequency_amount' => $request['frequencyAmount'],
             'frequency_unit' => $request['frequencyUnit'],
         ]);
+        if (isset($request['taskPoint'])) {
+            $task->taskPoint()->associate($request['taskPoint']['id']);
+        }
         $task->save();
 
         return $task;
@@ -82,6 +89,11 @@ class RecurringTask extends BaseApiModel
         }
 
         return $date->addMonths($this->frequency_amount);
+    }
+
+    public function taskPoint(): BelongsTo
+    {
+        return $this->belongsTo(TaskPoint::class);
     }
 
     public function owner(): MorphTo

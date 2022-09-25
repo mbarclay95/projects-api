@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Enums\FamilyTaskStrategyEnum;
 use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
@@ -9,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Collection;
 
 /**
@@ -21,20 +21,28 @@ use Illuminate\Support\Collection;
  *
  * @property string name
  * @property string color
+ * @property string task_strategy
  *
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
+ * @property Collection|TaskPoint[] taskPoints
  */
 class Family extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'color', 'tasks_per_week', 'total_family_tasks'];
+    protected static array $apiModelAttributes = ['id', 'name', 'color', 'tasks_per_week', 'total_family_tasks',
+        'task_strategy'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'members' => User::class
+        'members' => User::class,
+        'taskPoints' => TaskPoint::class
+    ];
+
+    protected $casts = [
+        'task_strategy' => FamilyTaskStrategyEnum::class
     ];
 
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
@@ -62,7 +70,8 @@ class Family extends BaseApiModel
     {
         $family = new Family([
             'name' => $request['name'],
-            'color' => $request['color']
+            'color' => $request['color'],
+            'task_strategy' => $request['taskStrategy']
         ]);
         $members = User::query()
                        ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
@@ -74,28 +83,6 @@ class Family extends BaseApiModel
         $family->refresh();
 
         return $family;
-    }
-
-    /**
-     * @param Family $entity
-     * @param $request
-     * @param User $auth
-     * @return Model
-     */
-    public static function updateEntity(Model $entity, $request, User $auth): Model
-    {
-        $entity->name = $request['name'];
-        $entity->color = $request['color'];
-        $members = User::query()
-                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
-                           return $user['id'];
-                       }))
-                       ->get();
-        $entity->syncMembers($members);
-        $entity->save();
-        $entity->refresh();
-
-        return $entity;
     }
 
     /**
@@ -117,19 +104,54 @@ class Family extends BaseApiModel
         }
     }
 
+    /**
+     * @param Family $entity
+     * @param $request
+     * @param User $auth
+     * @return Model
+     */
+    public static function updateEntity(Model $entity, $request, User $auth): Model
+    {
+        $entity->name = $request['name'];
+        $entity->color = $request['color'];
+        $entity->task_strategy = $request['taskStrategy'];
+        $members = User::query()
+                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
+                           return $user['id'];
+                       }))
+                       ->get();
+        $entity->syncMembers($members);
+        $entity->save();
+        $entity->refresh();
+
+        return $entity;
+    }
+
     public function getTasksPerWeekAttribute(): float|int
     {
-        $dayCount = RecurringTask::query()
-                                 ->selectRaw("sum(case
+        $dayCountQuery = RecurringTask::query();
+        if ($this->task_strategy == FamilyTaskStrategyEnum::PER_TASK) {
+            $dayCountQuery->selectRaw("sum(case
 when frequency_unit = 'week'
 then 1.0 / (frequency_amount * 7.0)
 when frequency_unit = 'month'
 then 1.0 / (frequency_amount * 30.0)
 else frequency_amount
-end)")
-                                 ->where('owner_type', '=', Family::class)
-                                 ->where('owner_id', '=', $this->id)
-                                 ->first();
+end)");
+        } else {
+            $dayCountQuery->join('task_points', 'recurring_tasks.task_point_id', '=', 'task_points.id')
+                          ->selectRaw("sum(case
+when frequency_unit = 'week'
+then points / (frequency_amount * 7.0)
+when frequency_unit = 'month'
+then points / (frequency_amount * 30.0)
+else frequency_amount
+end)");
+        }
+
+        $dayCount = $dayCountQuery->where('owner_type', '=', Family::class)
+                                  ->where('owner_id', '=', $this->id)
+                                  ->first();
         $weekCount = $dayCount['sum'] * 7;
 
         return $weekCount / count($this->members);
@@ -148,6 +170,11 @@ end)")
     public function userConfigs(): HasMany
     {
         return $this->hasMany(TaskUserConfig::class);
+    }
+
+    public function taskPoints(): HasMany
+    {
+        return $this->hasMany(TaskPoint::class);
     }
 
     public function members(): HasManyThrough

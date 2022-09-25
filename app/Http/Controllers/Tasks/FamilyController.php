@@ -13,10 +13,12 @@ class FamilyController extends ApiCrudController
         'name' => 'required|string',
         'members' => 'required|array',
         'color' => 'required|string',
+        'taskStrategy' => 'required|string',
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
         'color' => 'required|string',
-        'members' => 'present|array'
+        'members' => 'present|array',
+        'taskStrategy' => 'required|string',
     ];
 }

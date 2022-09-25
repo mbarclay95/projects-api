@@ -8,12 +8,11 @@ use App\Models\ApiModels\RoleApiModel;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
 use App\Models\Tasks\Family;
-use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
+use App\Models\Tasks\TaskPoint;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -39,42 +38,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createEventsRole();
     }
 
-    private function createEventsRole()
-    {
-        $this->createAndAssign(Roles::EVENT_ROLE, [
-
-            Event::viewAnyForUserPermission(),
-            Event::createPermission(),
-            Event::updateForUserPermission(),
-            Event::deleteForUserPermission(),
-
-            EventParticipant::updatePermission(),
-            EventParticipant::deletePermission(),
-
-            Permissions::VIEW_EVENTS_PAGE
-        ]);
-    }
-
-        private function createTasksRole()
-    {
-        $this->createAndAssign(Roles::TASK_ROLE, [
-            Task::viewAnyForUserPermission(),
-            Task::createPermission(),
-            Task::updatePermission(),
-            Task::deletePermission(),
-
-            Family::viewForUserPermission(),
-            Family::updatePermission(),
-
-            TaskUserConfig::viewAnyForUserPermission(),
-            TaskUserConfig::updatePermission(),
-
-            Tag::viewAnyForUserPermission(),
-
-            Permissions::VIEW_TASKS_PAGE
-        ]);
-    }
-
     private function createUsersRole()
     {
         $this->createAndAssign(Roles::USERS_ROLE, [
@@ -90,9 +53,29 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::updatePermission(),
             Family::deletePermission(),
 
+            TaskPoint::createPermission(),
+            TaskPoint::updatePermission(),
+            TaskPoint::deletePermission(),
+
             Permissions::VIEW_USERS_PAGE,
             Permissions::VIEW_FAMILIES_TAB,
         ]);
+    }
+
+    /**
+     * @param string $role
+     * @param string[] $permissions
+     * @return void
+     */
+    private function createAndAssign(string $role, array $permissions)
+    {
+        /** @var Role $role */
+        $role = Role::findOrCreate($role);
+        foreach ($permissions as $permission) {
+            /** @var Permission $permission */
+            $permission = Permission::findOrCreate($permission);
+            $permission->assignRole($role);
+        }
     }
 
     private function createGoalsRole()
@@ -153,19 +136,39 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    /**
-     * @param string $role
-     * @param string[] $permissions
-     * @return void
-     */
-    private function createAndAssign(string $role, array $permissions)
+    private function createTasksRole()
     {
-        /** @var Role $role */
-        $role = Role::findOrCreate($role);
-        foreach ($permissions as $permission) {
-            /** @var Permission $permission */
-            $permission = Permission::findOrCreate($permission);
-            $permission->assignRole($role);
-        }
+        $this->createAndAssign(Roles::TASK_ROLE, [
+            Task::viewAnyForUserPermission(),
+            Task::createPermission(),
+            Task::updatePermission(),
+            Task::deletePermission(),
+
+            Family::viewForUserPermission(),
+            Family::updatePermission(),
+
+            TaskUserConfig::viewAnyForUserPermission(),
+            TaskUserConfig::updatePermission(),
+
+            Tag::viewAnyForUserPermission(),
+
+            Permissions::VIEW_TASKS_PAGE
+        ]);
+    }
+
+    private function createEventsRole()
+    {
+        $this->createAndAssign(Roles::EVENT_ROLE, [
+
+            Event::viewAnyForUserPermission(),
+            Event::createPermission(),
+            Event::updateForUserPermission(),
+            Event::deleteForUserPermission(),
+
+            EventParticipant::updatePermission(),
+            EventParticipant::deletePermission(),
+
+            Permissions::VIEW_EVENTS_PAGE
+        ]);
     }
 }

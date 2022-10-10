@@ -66,9 +66,9 @@ Route::middleware('auth')->group(function () {
 // DASHBOARD
 Route::middleware('auth')->group(function () {
     Route::apiResource('folders', FolderController::class)->except('show');
-    Route::patch('folder-sorts', [FoldersController::class, 'updateFolderSorts']);
+    Route::patch('folder-sorts', [FolderController::class, 'updateFolderSorts']);
     Route::apiResource('sites', SiteController::class)->except('index', 'show');
-    Route::patch('site-sorts', [SitesController::class, 'updateSiteSorts']);
+    Route::patch('site-sorts', [SiteController::class, 'updateSiteSorts']);
     Route::apiResource('site-images', SiteImageController::class)->only('store');
 });
 Route::apiResource('site-images', SiteImageController::class)->only('show');

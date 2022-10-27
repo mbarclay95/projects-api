@@ -151,6 +151,7 @@ end)");
 
         $dayCount = $dayCountQuery->where('owner_type', '=', Family::class)
                                   ->where('owner_id', '=', $this->id)
+                                  ->where('is_active', '=', true)
                                   ->first();
         $weekCount = $dayCount['sum'] * 7;
 

@@ -32,6 +32,20 @@ class TaskFilter extends ModelFilter
         }
     }
 
+    public function showInactive($showInactive)
+    {
+        if ($showInactive == 0) {
+            $this->selectRaw('tasks.*')
+                 ->leftJoin('recurring_tasks', 'tasks.recurring_task_id', '=', 'recurring_tasks.id')
+                 ->where(function ($where) {
+                     $where->orWhereNull('tasks.recurring_task_id')
+                           ->orWhereHas('recurringTask', function ($has) {
+                               $has->where('is_active', '=', true);
+                           });
+                 });
+        }
+    }
+
     public function recurringType($recurringType)
     {
         if ($recurringType == 1) {
@@ -44,12 +58,12 @@ class TaskFilter extends ModelFilter
     public function ownerType($ownerType)
     {
         $ownerType = $ownerType === 'family' ? Family::class : User::class;
-        $this->where('owner_type', '=', $ownerType);
+        $this->where('tasks.owner_type', '=', $ownerType);
     }
 
     public function ownerId($ownerId)
     {
-        $this->where('owner_id', '=', $ownerId);
+        $this->where('tasks.owner_id', '=', $ownerId);
     }
 
     public function tags($tags)
@@ -62,8 +76,8 @@ class TaskFilter extends ModelFilter
     public function search($search)
     {
         $this->where(function ($where) use ($search) {
-            $where->orWhere('name', 'ilike', "%" . strtolower($search) . "%")
-                  ->orWhere('description', 'ilike', "%" . strtolower($search) . "%");
+            $where->orWhere('tasks.name', 'ilike', "%" . strtolower($search) . "%")
+                  ->orWhere('tasks.description', 'ilike', "%" . strtolower($search) . "%");
         });
     }
 }

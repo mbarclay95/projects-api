@@ -21,6 +21,7 @@ class TaskController extends ApiCrudController
         'recurringType' => 'string',
         'page' => 'int',
         'pageSize' => 'int',
+        'showInactive' => 'bool',
         'sort' => 'string',
         'sortDir' => 'string',
         'search' => 'string|nullable',
@@ -49,7 +50,8 @@ class TaskController extends ApiCrudController
         'frequencyUnit' => 'nullable|string',
         'completedAt' => 'nullable|date',
         'tags' => 'array|present',
-        'taskPoint' => 'nullable|array'
+        'taskPoint' => 'nullable|array',
+        'isActive' => 'required|bool'
     ];
 
     public function index(Request $request): JsonResponse
@@ -67,7 +69,10 @@ class TaskController extends ApiCrudController
                 'data' => $apiModels
             ]);
         }
+        $models = $query->get();
 
-        return new JsonResponse(Task::toApiModels($query->get()));
+        clock($models);
+
+        return new JsonResponse(Task::toApiModels($models));
     }
 }

@@ -71,8 +71,6 @@ class TaskController extends ApiCrudController
         }
         $models = $query->get();
 
-        clock($models);
-
         return new JsonResponse(Task::toApiModels($models));
     }
 }

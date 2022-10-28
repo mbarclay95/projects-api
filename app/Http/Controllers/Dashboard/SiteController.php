@@ -78,7 +78,10 @@ class SiteController extends Controller
         $site->show = $request->post('show');
         $site->description = $request->post('description');
         $site->url = $request->post('url');
-        $site->folder()->associate($request->post('folderId'));
+        if ($request->post('folderId') !== $site->folder_id) {
+            // need to redo sort if this happens
+            $site->folder()->associate($request->post('folderId'));
+        }
         if ($request->post('siteImage') && $request->post('siteImage')['id']) {
             $site->siteImage()->associate($request->post('siteImage')['id']);
         }

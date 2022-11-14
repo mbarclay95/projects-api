@@ -84,8 +84,6 @@ class TaskUserConfig extends BaseApiModel
                    ->whereNotNull('completed_at')
                    ->where('completed_by_id', '=', $this->user_id)
                    ->where('completed_at', '>', $startOfWeek)
-                   ->where('owner_type', '=', Family::class)
-                   ->where('owner_id', '=', $this->family_id)
                    ->get();
     }
 

@@ -215,6 +215,8 @@ class Task extends BaseApiModel
             $entity->recurringTask->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
             $entity->recurringTask->owner_id = $request['ownerId'];
             $entity->recurringTask->is_active = $request['isActive'];
+$entity->recurringTask->frequency_amount = $request['frequencyAmount'];
+ $entity->recurringTask->frequency_unit = $request['frequencyUnit'];
             if ($request['taskPoint']) {
                 $entity->recurringTask->taskPoint()->associate($request['taskPoint']['id']);
             }

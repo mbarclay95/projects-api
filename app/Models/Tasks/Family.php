@@ -145,7 +145,7 @@ when frequency_unit = 'week'
 then points / (frequency_amount * 7.0)
 when frequency_unit = 'month'
 then points / (frequency_amount * 30.0)
-else frequency_amount
+else points / (frequency_amount * 1.0)
 end)");
         }
 

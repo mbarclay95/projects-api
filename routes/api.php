@@ -30,6 +30,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// HEALTH CHECK
+Route::get('health-check', function () {
+    return new \Illuminate\Http\JsonResponse(['success' => true]);
+});
+
 // LOGIN
 Route::controller(AuthController::class)->group(function () {
     Route::get('/me', 'me')->middleware('auth');

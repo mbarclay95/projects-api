@@ -37,7 +37,8 @@ class TaskController extends ApiCrudController
         'frequencyAmount' => 'nullable|int',
         'frequencyUnit' => 'nullable|string',
         'tags' => 'array|present',
-        'taskPoint' => 'nullable|array'
+        'taskPoint' => 'nullable|array',
+        'priority' => 'int|required',
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
@@ -51,7 +52,8 @@ class TaskController extends ApiCrudController
         'completedAt' => 'nullable|date',
         'tags' => 'array|present',
         'taskPoint' => 'nullable|array',
-        'isActive' => 'required|bool'
+        'isActive' => 'required|bool',
+        'priority' => 'int|required',
     ];
 
     public function index(Request $request): JsonResponse

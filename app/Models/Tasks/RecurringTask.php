@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
  *
  * @property string name
  * @property string description
+ * @property integer priority
  * @property integer frequency_amount
  * @property string frequency_unit
  * @property boolean is_active
@@ -40,7 +41,7 @@ class RecurringTask extends BaseApiModel
     use HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'description', 'frequency_amount', 'frequency_unit',
-        'owner_type', 'owner_id', 'is_active'];
+        'owner_type', 'owner_id', 'is_active', 'priority'];
 
     protected static array $apiModelEntities = [];
 
@@ -55,7 +56,8 @@ class RecurringTask extends BaseApiModel
             'owner_id' => $request['ownerId'],
             'frequency_amount' => $request['frequencyAmount'],
             'frequency_unit' => $request['frequencyUnit'],
-            'is_active' => true
+            'is_active' => true,
+            'priority' => $request['priority'],
         ]);
         if (isset($request['taskPoint'])) {
             $task->taskPoint()->associate($request['taskPoint']['id']);

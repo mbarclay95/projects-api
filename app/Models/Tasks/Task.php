@@ -25,6 +25,7 @@ use JetBrains\PhpStorm\Pure;
  *
  * @property string name
  * @property string description
+ * @property integer priority
  * @property Carbon completed_at
  * @property Carbon cleared_at
  * @property Carbon due_date
@@ -49,7 +50,7 @@ class Task extends BaseApiModel
     use HasFactory, Filterable;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
-        'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active'];
+        'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority'];
     protected static array $apiModelEntities = [
         'completedBy' => User::class,
         'taskPoint' => TaskPoint::class
@@ -144,6 +145,7 @@ class Task extends BaseApiModel
                 'due_date' => $dueDate->toDateString(),
                 'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
                 'owner_id' => $request['ownerId'],
+                'priority' => $request['priority'],
             ]);
             if ($request['taskPoint']) {
                 $task->taskPoint()->associate($request['taskPoint']['id']);
@@ -205,6 +207,7 @@ class Task extends BaseApiModel
         $entity->due_date = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString();
         $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
         $entity->owner_id = $request['ownerId'];
+        $entity->priority = $request['priority'];
         if ($request['taskPoint']) {
             $entity->taskPoint()->associate($request['taskPoint']['id']);
         }
@@ -215,6 +218,7 @@ class Task extends BaseApiModel
             $entity->recurringTask->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
             $entity->recurringTask->owner_id = $request['ownerId'];
             $entity->recurringTask->is_active = $request['isActive'];
+            $entity->recurringTask->priority = $request['priority'];
 $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
  $entity->recurringTask->frequency_unit = $request['frequencyUnit'];
             if ($request['taskPoint']) {
@@ -270,6 +274,7 @@ $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
             'due_date' => $dueDate->toDateString(),
             'owner_type' => $recurringTask->owner_type,
             'owner_id' => $recurringTask->owner_id,
+            'priority' => $recurringTask->priority
         ]);
         if ($recurringTask->task_point_id) {
             $task->taskPoint()->associate($recurringTask->task_point_id);

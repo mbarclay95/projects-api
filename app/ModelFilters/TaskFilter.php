@@ -19,8 +19,8 @@ class TaskFilter extends ModelFilter
 
     public function numOfDays($numOfDays)
     {
-        $nextNDays = Carbon::today()->addDays($numOfDays);
-        $this->where('due_date', '<', $nextNDays);
+        $nextNDays = Carbon::today()->addDays($numOfDays)->toDateString();
+        $this->where('due_date', '<=', $nextNDays);
     }
 
     public function completedStatus($completedStatus)

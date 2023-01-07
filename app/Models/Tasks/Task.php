@@ -147,7 +147,7 @@ class Task extends BaseApiModel
                 'owner_id' => $request['ownerId'],
                 'priority' => $request['priority'],
             ]);
-            if ($request['taskPoint']) {
+            if (array_key_exists('taskPoint', $request)) {
                 $task->taskPoint()->associate($request['taskPoint']['id']);
             }
             $task->save();
@@ -208,7 +208,7 @@ class Task extends BaseApiModel
         $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
         $entity->owner_id = $request['ownerId'];
         $entity->priority = $request['priority'];
-        if ($request['taskPoint']) {
+        if (array_key_exists('taskPoint', $request)) {
             $entity->taskPoint()->associate($request['taskPoint']['id']);
         }
 
@@ -221,7 +221,7 @@ class Task extends BaseApiModel
             $entity->recurringTask->priority = $request['priority'];
 $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
  $entity->recurringTask->frequency_unit = $request['frequencyUnit'];
-            if ($request['taskPoint']) {
+            if (array_key_exists('taskPoint', $request)) {
                 $entity->recurringTask->taskPoint()->associate($request['taskPoint']['id']);
             }
             $entity->recurringTask->save();

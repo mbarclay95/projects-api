@@ -16,6 +16,5 @@ class TaskPointController extends ApiCrudController
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
-        'points' => 'int|required|min:0',
     ];
 }

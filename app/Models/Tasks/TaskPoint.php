@@ -56,7 +56,6 @@ class TaskPoint extends BaseApiModel
     public static function updateEntity(Model $entity, $request, User $auth): Model|TaskPoint
     {
         $entity->name = $request['name'];
-        $entity->points = $request['points'];
         $entity->save();
 
         return $entity;

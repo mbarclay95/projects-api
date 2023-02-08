@@ -104,7 +104,9 @@ class FolderController extends Controller
      */
     public function destroy(Folder $folder): JsonResponse
     {
+        $userId = Auth::id();
         $updateSortFolders = Folder::query()
+                                   ->where('user_id', '=', $userId)
                                    ->where('sort', '>', $folder->sort)
                                    ->get();
 

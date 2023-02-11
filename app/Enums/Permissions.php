@@ -69,5 +69,6 @@ class Permissions
     const VIEW_TASKS_PAGE = self::CLIENT . 'view_tasks_page';
     const VIEW_FAMILIES_TAB = self::CLIENT . 'view_families_tab';
     const VIEW_EVENTS_PAGE = self::CLIENT . 'view_events_page';
+    const VIEW_FILE_EXPLORER_PAGE = self::CLIENT . 'view_file_explorer_page';
 
 }

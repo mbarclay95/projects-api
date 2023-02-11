@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
+use App\Http\Controllers\FileExplorer\DirectoryItemController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Tasks\TaskPointController;
 use App\Http\Controllers\Tasks\TaskUserConfigController;
 use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,7 +34,7 @@ use Illuminate\Support\Facades\Route;
 
 // HEALTH CHECK
 Route::get('health-check', function () {
-    return new \Illuminate\Http\JsonResponse(['success' => true]);
+    return new JsonResponse(['success' => true]);
 });
 
 // LOGIN
@@ -84,3 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('event-participants', EventParticipantController::class)->only('update');
 });
 
+// FILE EXPLORER
+Route::middleware('auth')->prefix('file-explorer')->group(function () {
+    Route::apiResource('directory-items', DirectoryItemController::class)->except('show');
+});

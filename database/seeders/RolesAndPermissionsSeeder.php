@@ -36,6 +36,14 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createDashboardRole();
         $this->createTasksRole();
         $this->createEventsRole();
+        $this->createFileExplorerRole();
+    }
+
+    private function createFileExplorerRole()
+    {
+        $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
+            Permissions::VIEW_FILE_EXPLORER_PAGE
+        ]);
     }
 
     private function createUsersRole()

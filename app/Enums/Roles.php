@@ -10,4 +10,5 @@ class Roles
     const DASHBOARD_ROLE = 'dashboard_role';
     const TASK_ROLE  = 'task_role';
     const EVENT_ROLE  = 'event_role';
+    const FILE_EXPLORER_ROLE  = 'file_explorer_role';
 }

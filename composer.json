@@ -4,6 +4,12 @@
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "ssh://git@10.5.10.11:222/mbarclay36/laravel-crud-package.git"
+        }
+    ],
     "require": {
         "php": "^8.1",
         "aws/aws-sdk-php": "^3.231",
@@ -13,6 +19,7 @@
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "mbarclay36/laravel-crud": "^1.0",
         "php-open-source-saver/jwt-auth": "^1.4",
         "spatie/laravel-permission": "^5.5",
         "tucker-eric/eloquentfilter": "^3.1"

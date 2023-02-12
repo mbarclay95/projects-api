@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9fdcdb75391350182e917fdd21e04c83",
+    "content-hash": "64b253dd5fc05af1a7c2a697f1a135be",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -2272,7 +2272,7 @@
             "version": "1.0.1",
             "source": {
                 "type": "git",
-                "url": "ssh://git@10.5.10.11:222/mbarclay36/laravel-crud-package.git",
+                "url": "https://mbarclay36:TUP8XdX64JJTtN7emL@gitea.bigmike.dev/mbarclay36/laravel-crud-package.git",
                 "reference": "04c865839f3c542c116330d6e330ec06f55976e1"
             },
             "require": {

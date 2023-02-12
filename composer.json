@@ -7,7 +7,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "ssh://git@10.5.10.11:222/mbarclay36/laravel-crud-package.git"
+            "url": "https://mbarclay36:TUP8XdX64JJTtN7emL@gitea.bigmike.dev/mbarclay36/laravel-crud-package.git"
         }
     ],
     "require": {

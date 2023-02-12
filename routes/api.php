@@ -88,5 +88,7 @@ Route::middleware('auth')->group(function () {
 
 // FILE EXPLORER
 Route::middleware('auth')->prefix('file-explorer')->group(function () {
-    Route::apiResource('directory-items', DirectoryItemController::class)->except('show');
+    Route::apiResource('directory-items', DirectoryItemController::class)->only('index', 'store');
+    Route::patch('directory-items', [DirectoryItemController::class, 'update']);
+    Route::patch('directory-items/delete', [DirectoryItemController::class, 'destroy']);
 });

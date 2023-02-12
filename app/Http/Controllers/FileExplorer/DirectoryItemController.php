@@ -18,6 +18,15 @@ class DirectoryItemController extends Controller
         'workingDirectory' => 'required|string',
     ];
     protected static array $updateRules = [
+        'id' => 'required|string',
+        'type' => 'required|string',
+        'newName' => 'required|string',
+        'workingDirectory' => 'required|string',
+    ];
+    protected static array $destroyRules = [
+        'id' => 'required|string',
+        'type' => 'required|string',
+        'workingDirectory' => 'required|string',
     ];
 
     /**
@@ -80,36 +89,47 @@ class DirectoryItemController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param  int  $id
-     * @return Response
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request): JsonResponse
     {
-        //
+        $validated = $request->validate(static::$updateRules);
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root' => '/mnt/media'
+        ]);
+        $disk->move($validated['workingDirectory'] . '/' . $validated['id'], $validated['workingDirectory'] . '/' . $validated['newName']);
+
+        return new JsonResponse([
+            'id' => $validated['newName'],
+            'type' => $validated['type']
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Request $request): JsonResponse
     {
-        //
+        $validated = $request->validate(static::$destroyRules);
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root' => '/mnt/media'
+        ]);
+        if ($validated['type'] === 'dir') {
+            $disk->deleteDirectory($validated['workingDirectory'] . '/' . $validated['id']);
+        } else {
+            $disk->delete($validated['workingDirectory'] . '/' . $validated['id']);
+        }
+
+        return new JsonResponse([
+            'success' => true
+        ]);
     }
 }

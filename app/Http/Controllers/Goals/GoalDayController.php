@@ -2,65 +2,20 @@
 
 namespace App\Http\Controllers\Goals;
 
-use App\Http\Controllers\Controller;
-use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
-use Illuminate\Http\Request;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class GoalDayController extends Controller
+class GoalDayController extends CrudController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Goal $goal)
-    {
-        //
-    }
+    protected static string $modelClass = GoalDay::class;
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Goal $goal, Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Goals\GoalDay  $goalDay
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Goal $goal, GoalDay $goalDay)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Goals\GoalDay  $goalDay
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Goal $goal, Request $request, GoalDay $goalDay)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Goals\GoalDay  $goalDay
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Goal $goal, GoalDay $goalDay)
-    {
-        //
-    }
+    protected static array $indexRules = [];
+    protected static array $storeRules = [
+        'amount' => 'int|required',
+        'date' => 'date|required',
+        'goalId' => 'int|required',
+    ];
+    protected static array $updateRules = [
+        'amount' => 'int|required',
+    ];
 }

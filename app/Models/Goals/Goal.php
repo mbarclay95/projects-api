@@ -3,13 +3,18 @@
 namespace App\Models\Goals;
 
 use App\Models\User;
+use App\Repositories\GoalsRepository;
 use App\Traits\HasApiModel;
 use Carbon\Carbon;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Mbarclay36\LaravelCrud\ApiModel;
+use Mbarclay36\LaravelCrud\Traits\HasRepository;
 
 /**
  * Class Goal
@@ -31,18 +36,18 @@ use Illuminate\Support\Collection;
  *
  * @property Collection|GoalDay[] goalDays
  */
-class Goal extends Model
+class Goal extends ApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory, HasRepository, Filterable;
+
+    protected static string $repository = GoalsRepository::class;
 
     protected static array $apiModelAttributes = ['id', 'created_at', 'title', 'expected_amount', 'unit',
-        'length_of_time', 'equality', 'verb'];
-
+        'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit'];
     protected static array $apiModelEntities = [];
-
-    protected static array $apiModelArrayEntities = [];
-
-    protected static $unguarded = true;
+    protected static array $apiModelArrayEntities = [
+        'goalDays' => GoalDay::class
+    ];
 
     public function user(): BelongsTo
     {
@@ -52,5 +57,15 @@ class Goal extends Model
     public function goalDays(): HasMany
     {
         return $this->hasMany(GoalDay::class);
+    }
+
+    public function getSingularUnitAttribute(): string
+    {
+        return (Str::singular($this->unit));
+    }
+
+    public function getPluralUnitAttribute(): string
+    {
+        return (Str::plural($this->unit));
     }
 }

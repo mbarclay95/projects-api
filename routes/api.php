@@ -11,6 +11,7 @@ use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
 use App\Http\Controllers\Goals\GoalController;
+use App\Http\Controllers\Goals\GoalDayController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
 // GOALS
 Route::middleware('auth')->group(function () {
     Route::apiResource('goals', GoalController::class)->except('show');
+    Route::apiResource('goal-days', GoalDayController::class)->except('index', 'show');
 });
 
 // BACKUPS

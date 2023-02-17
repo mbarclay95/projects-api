@@ -70,7 +70,7 @@ class Task extends BaseApiModel
      * @param Task $model
      * @return mixed|void
      */
-    #[Pure] public static function buildFromAttributes(string $attributeKey, Model $model)
+    public static function buildFromAttributes(string $attributeKey, Model $model)
     {
         if ($attributeKey == 'owner_type') {
             return $model->owner_type == User::class ? 'user' : 'family';

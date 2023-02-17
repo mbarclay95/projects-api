@@ -7,6 +7,8 @@ use App\Enums\Roles;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
+use App\Models\Goals\Goal;
+use App\Models\Goals\GoalDay;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
@@ -89,12 +91,16 @@ class RolesAndPermissionsSeeder extends Seeder
     private function createGoalsRole()
     {
         $this->createAndAssign(Roles::GOALS_ROLE, [
-            Permissions::GOALS_VIEW_ANY_FOR_USER,
-            Permissions::GOALS_VIEW_FOR_USER,
-            Permissions::GOALS_CREATE,
-            Permissions::GOALS_UPDATE_FOR_USER,
-            Permissions::GOALS_DELETE_FOR_USER,
-            Permissions::GOALS_RESTORE_FOR_USER,
+            Goal::viewAnyForUserPermission(),
+            Goal::viewForUserPermission(),
+            Goal::createPermission(),
+            Goal::updateForUserPermission(),
+            Goal::deleteForUserPermission(),
+            Goal::restoreForUserPermission(),
+
+            GoalDay::createPermission(),
+            GoalDay::updateForUserPermission(),
+            GoalDay::deleteForUserPermission(),
 
             Permissions::VIEW_GOALS_PAGE,
         ]);

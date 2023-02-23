@@ -30,6 +30,7 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
  * @property string equality
  * @property string verb
  * @property integer expected_amount
+ * @property integer current_amount
  *
  * @property integer user_id
  * @property User user
@@ -43,11 +44,13 @@ class Goal extends ApiModel
     protected static string $repository = GoalsRepository::class;
 
     protected static array $apiModelAttributes = ['id', 'created_at', 'title', 'expected_amount', 'unit',
-        'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit'];
+        'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit', 'current_amount'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [
         'goalDays' => GoalDay::class
     ];
+
+    protected $appends = ['current_amount'];
 
     public function user(): BelongsTo
     {
@@ -67,5 +70,15 @@ class Goal extends ApiModel
     public function getPluralUnitAttribute(): string
     {
         return (Str::plural($this->unit));
+    }
+
+    public function getCurrentAmount(Carbon $date): self
+    {
+        $this->current_amount = match ($this->length_of_time) {
+            'week' => GoalDay::sumWeeklyAmount($date, $this->id),
+            'month' => GoalDay::sumMonthlyAmount($date, $this->id)
+        };
+
+        return $this;
     }
 }

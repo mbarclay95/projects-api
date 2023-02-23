@@ -54,4 +54,22 @@ class GoalDay extends ApiModel
     {
         return Carbon::createFromFormat('Y-m-d', $value, 'America/Los_Angeles')->startOfDay();
     }
+
+    public static function sumWeeklyAmount(Carbon $date, int $goalId): int
+    {
+        return GoalDay::query()
+                      ->where('date', '>=', $date->startOfWeek()->toDateString())
+                      ->where('date', '<=', $date->endOfWeek()->toDateString())
+                      ->where('goal_id', '=', $goalId)
+                      ->sum('amount');
+    }
+
+    public static function sumMonthlyAmount(Carbon $date, int $goalId): int
+    {
+        return GoalDay::query()
+                      ->where('date', '>=', $date->startOfMonth()->toDateString())
+                      ->where('date', '<=', $date->endOfMonth()->toDateString())
+                      ->where('goal_id', '=', $goalId)
+                      ->sum('amount');
+    }
 }

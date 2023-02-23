@@ -25,5 +25,13 @@ class GoalController extends CrudController
         'expectedAmount' => 'int|required',
         'unit' => 'string|required',
     ];
-    protected static array $updateRules = [];
+    protected static array $updateRules = [
+        'title' => 'string|required',
+        'verb' => 'string|required',
+        'lengthOfTime' => 'string|required',
+        'equality' => 'string|required',
+        'expectedAmount' => 'int|required',
+        'unit' => 'string|required',
+        'weekOffset' => 'int|required'
+    ];
 }

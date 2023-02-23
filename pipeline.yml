@@ -55,8 +55,8 @@ jobs:
             - -c
             - |
               apk add curl
-              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' --header 'Content-Type: application/json' \
-              --data-raw '{"message": "project-api pipline success","priority": 10,"title": "Concourse Success"}'
+              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AfI_HNqzh6EXFk0' --header 'Content-Type: application/json' \
+              --data-raw '{"message": "project-api pipeline success","priority": 10,"title": "Concourse Success"}'
     on_failure:
       task: job-failure
       config:
@@ -72,7 +72,7 @@ jobs:
             - -c
             - |
               apk add curl
-              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AAH6wQ5ptCpidhV' --header 'Content-Type: application/json' \
-              --data-raw '{"message": "project-api pipline failed","priority": 10,"title": "Concourse Failure"}'
+              curl --location --request POST 'https://gotify.bigmike.dev/message?token=AfI_HNqzh6EXFk0' --header 'Content-Type: application/json' \
+              --data-raw '{"message": "project-api pipeline failed","priority": 10,"title": "Concourse Failure"}'
 
 

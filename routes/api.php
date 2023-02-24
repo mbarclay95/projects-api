@@ -12,6 +12,7 @@ use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
+use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;
@@ -93,4 +94,10 @@ Route::middleware('auth')->prefix('file-explorer')->group(function () {
     Route::apiResource('directory-items', DirectoryItemController::class)->only('index', 'store');
     Route::patch('directory-items', [DirectoryItemController::class, 'update']);
     Route::patch('directory-items/delete', [DirectoryItemController::class, 'destroy']);
+});
+
+// LOGGING
+Route::controller(LoggingController::class)->group(function () {
+    Route::post('log-smartctl', 'logSmartResults');
+    Route::get('validate-smartctl-logs', 'validateSmartLogs');
 });

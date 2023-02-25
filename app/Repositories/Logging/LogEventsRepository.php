@@ -31,6 +31,6 @@ class LogEventsRepository extends DefaultRepository
             LogItem::createEntity($item, $user);
         }
 
-        return $logEvent;
+        return LogEvent::toApiModel($logEvent);
     }
 }

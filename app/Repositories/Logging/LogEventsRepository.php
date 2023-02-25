@@ -23,7 +23,6 @@ class LogEventsRepository extends DefaultRepository
         $logEvent->save();
 
         foreach ($request['results'] as $result) {
-            clock($result);
             $item = [
                 'result' => $result,
                 'logEventId' => $logEvent->id

@@ -77,7 +77,7 @@ class GoalsRepository extends DefaultRepository
         $model->length_of_time = $request['lengthOfTime'];
         $model->save();
 
-        $date = Carbon::now()->setTimezone('America/Los_Angeles')->addWeeks($request['weekOffset']);
+        $date = Carbon::now('America/Los_Angeles')->addWeeks($request['weekOffset']);
         $model->getCurrentAmount($date);
 
         return $model;

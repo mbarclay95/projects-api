@@ -22,27 +22,27 @@ use Illuminate\Support\Collection;
  * @property string name
  * @property string color
  * @property string task_strategy
+ * @property array task_points
  *
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
- * @property Collection|TaskPoint[] taskPoints
  */
 class Family extends BaseApiModel
 {
     use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'color', 'tasks_per_week', 'total_family_tasks',
-        'task_strategy'];
+        'task_strategy', 'task_points'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
         'members' => User::class,
-        'taskPoints' => TaskPoint::class
     ];
 
     protected $casts = [
-        'task_strategy' => FamilyTaskStrategyEnum::class
+        'task_strategy' => FamilyTaskStrategyEnum::class,
+        'task_points' => 'array'
     ];
 
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
@@ -115,6 +115,11 @@ class Family extends BaseApiModel
         $entity->name = $request['name'];
         $entity->color = $request['color'];
         $entity->task_strategy = $request['taskStrategy'];
+        if (array_key_exists('taskPoints', $request)) {
+            $entity->task_points = [
+                'points' => $request['taskPoints']
+            ];
+        }
         $members = User::query()
                        ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
                            return $user['id'];
@@ -139,13 +144,12 @@ then 1.0 / (frequency_amount * 30.0)
 else frequency_amount
 end)");
         } else {
-            $dayCountQuery->join('task_points', 'recurring_tasks.task_point_id', '=', 'task_points.id')
-                          ->selectRaw("sum(case
+            $dayCountQuery->selectRaw("sum(case
 when frequency_unit = 'week'
-then points / (frequency_amount * 7.0)
+then task_point / (frequency_amount * 7.0)
 when frequency_unit = 'month'
-then points / (frequency_amount * 30.0)
-else points / (frequency_amount * 1.0)
+then task_point / (frequency_amount * 30.0)
+else task_point / (frequency_amount * 1.0)
 end)");
         }
 
@@ -173,13 +177,22 @@ end)");
         return $this->hasMany(TaskUserConfig::class);
     }
 
-    public function taskPoints(): HasMany
-    {
-        return $this->hasMany(TaskPoint::class);
-    }
-
     public function members(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id');
+    }
+
+    public function getTaskPointsAttribute($value): array
+    {
+        if ($value) {
+            $valueArray = json_decode($value, true);
+            if (array_key_exists('points', $valueArray)) {
+                $numbers = $valueArray['points'];
+                sort($numbers);
+                return $numbers;
+            }
+        }
+
+        return [];
     }
 }

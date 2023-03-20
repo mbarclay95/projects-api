@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use JetBrains\PhpStorm\Pure;
 
 /**
  * Class Task
@@ -29,12 +28,10 @@ use JetBrains\PhpStorm\Pure;
  * @property Carbon completed_at
  * @property Carbon cleared_at
  * @property Carbon due_date
+ * @property integer task_point
  *
  * @property integer recurring_task_id
  * @property RecurringTask recurringTask
- *
- * @property integer task_point_id
- * @property TaskPoint taskPoint
  *
  * @property string owner_type
  * @property integer owner_id
@@ -50,10 +47,9 @@ class Task extends BaseApiModel
     use HasFactory, Filterable;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
-        'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority'];
+        'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority', 'task_point'];
     protected static array $apiModelEntities = [
         'completedBy' => User::class,
-        'taskPoint' => TaskPoint::class
     ];
     protected static array $apiModelArrayEntities = [
         'tags' => Tag::class
@@ -101,7 +97,7 @@ class Task extends BaseApiModel
                            });
                    })
                    ->orderBy('due_date')
-                   ->with('tags', 'recurringTask', 'taskPoint')
+                   ->with('tags', 'recurringTask')
                    ->filter($request);
     }
 
@@ -148,7 +144,7 @@ class Task extends BaseApiModel
                 'priority' => $request['priority'],
             ]);
             if (array_key_exists('taskPoint', $request)) {
-                $task->taskPoint()->associate($request['taskPoint']['id']);
+                $task->task_point = $request['taskPoint'];
             }
             $task->save();
             $task->updateTags($request['tags']);
@@ -189,11 +185,6 @@ class Task extends BaseApiModel
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
-    public function taskPoint(): BelongsTo
-    {
-        return $this->belongsTo(TaskPoint::class);
-    }
-
     /**
      * @param Task $entity
      * @param $request
@@ -209,7 +200,7 @@ class Task extends BaseApiModel
         $entity->owner_id = $request['ownerId'];
         $entity->priority = $request['priority'];
         if (array_key_exists('taskPoint', $request)) {
-            $entity->taskPoint()->associate($request['taskPoint']['id']);
+            $entity->task_point = $request['taskPoint'];
         }
 
         if ($entity->recurring_task_id) {
@@ -222,7 +213,7 @@ class Task extends BaseApiModel
 $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
  $entity->recurringTask->frequency_unit = $request['frequencyUnit'];
             if (array_key_exists('taskPoint', $request)) {
-                $entity->recurringTask->taskPoint()->associate($request['taskPoint']['id']);
+                $entity->recurringTask->task_point = $request['taskPoint'];
             }
             $entity->recurringTask->save();
         }
@@ -262,7 +253,12 @@ $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
      */
     public static function destroyEntity(Model $entity, User $auth): void
     {
-        $entity->recurringTask?->delete();
+        if ($entity->recurring_task_id) {
+            Task::query()
+                ->where('recurring_task_id', '=', $entity->recurring_task_id)
+                ->update(['recurring_task_id' => null]);
+            $entity->recurringTask->delete();
+        }
         $entity->delete();
     }
 
@@ -274,11 +270,9 @@ $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
             'due_date' => $dueDate->toDateString(),
             'owner_type' => $recurringTask->owner_type,
             'owner_id' => $recurringTask->owner_id,
-            'priority' => $recurringTask->priority
+            'priority' => $recurringTask->priority,
+            'task_point' => $recurringTask->task_point
         ]);
-        if ($recurringTask->task_point_id) {
-            $task->taskPoint()->associate($recurringTask->task_point_id);
-        }
         $task->recurringTask()->associate($recurringTask);
         $task->save();
         $task->updateTags($tags);

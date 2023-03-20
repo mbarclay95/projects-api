@@ -26,13 +26,11 @@ use Illuminate\Support\Collection;
  * @property integer frequency_amount
  * @property string frequency_unit
  * @property boolean is_active
+ * @property integer task_point
  *
  * @property string owner_type
  * @property integer owner_id
  * @property User|Family owner
- *
- * @property integer task_point_id
- * @property TaskPoint taskPoint
  *
  * @property Collection|Tag[] tags
  */
@@ -60,7 +58,7 @@ class RecurringTask extends BaseApiModel
             'priority' => $request['priority'],
         ]);
         if (isset($request['taskPoint'])) {
-            $task->taskPoint()->associate($request['taskPoint']['id']);
+            $task->task_point = $request['taskPoint'];
         }
         $task->save();
 
@@ -93,11 +91,6 @@ class RecurringTask extends BaseApiModel
         }
 
         return $date->addMonths($this->frequency_amount);
-    }
-
-    public function taskPoint(): BelongsTo
-    {
-        return $this->belongsTo(TaskPoint::class);
     }
 
     public function owner(): MorphTo

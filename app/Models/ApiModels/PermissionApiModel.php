@@ -2,17 +2,17 @@
 
 namespace App\Models\ApiModels;
 
-use App\Traits\HasApiModel;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Models\Permission;
+use Mbarclay36\LaravelCrud\Traits\HasApiModel;
 
 class PermissionApiModel
 {
     use HasApiModel;
 
     /**
-     * @param Permission $model
-     * @return array|string
+     * @param Model|null $model
+     * @param array $hideItem
+     * @return array|string|null
      */
     public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {

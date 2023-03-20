@@ -37,7 +37,7 @@ class TaskController extends ApiCrudController
         'frequencyAmount' => 'nullable|int',
         'frequencyUnit' => 'nullable|string',
         'tags' => 'array|present',
-        'taskPoint' => 'nullable|array',
+        'taskPoint' => 'nullable|int',
         'priority' => 'int|required',
     ];
     protected static array $updateRules = [
@@ -51,7 +51,7 @@ class TaskController extends ApiCrudController
         'frequencyUnit' => 'nullable|string',
         'completedAt' => 'nullable|date',
         'tags' => 'array|present',
-        'taskPoint' => 'nullable|array',
+        'taskPoint' => 'nullable|int',
         'isActive' => 'required|bool',
         'priority' => 'int|required',
     ];

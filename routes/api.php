@@ -16,7 +16,6 @@ use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;
-use App\Http\Controllers\Tasks\TaskPointController;
 use App\Http\Controllers\Tasks\TaskUserConfigController;
 use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
@@ -69,8 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('tasks', TaskController::class)->except('show');
     Route::apiResource('tags', TagController::class)->only('index');
     Route::apiResource('families', FamilyController::class);
-    Route::apiResource('task-user-config', TaskUserConfigController::class)->only('update');
-    Route::apiResource('task-points', TaskPointController::class)->only('store', 'update', 'destroy');
+    Route::apiResource('task-user-config', TaskUserConfigController::class)->only('index', 'update');
 });
 
 // DASHBOARD

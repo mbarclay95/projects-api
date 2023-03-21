@@ -1,0 +1,45 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::dropIfExists('family_settings');
+
+        Schema::table('families', function (Blueprint $table) {
+            $table->dropColumn('color');
+        });
+
+        Schema::table('task_user_configs', function (Blueprint $table) {
+            $table->dropColumn('color');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('families', function (Blueprint $table) {
+            $table->string('color')->nullable();
+        });
+
+        Schema::table('task_user_configs', function (Blueprint $table) {
+            $table->string('color')->nullable();
+            $table->dropColumn('start_date');
+            $table->dropColumn('end_date');
+        });
+    }
+};

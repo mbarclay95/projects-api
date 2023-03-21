@@ -50,11 +50,10 @@ class User extends Authenticatable implements JWTSubject
 
     protected static $unguarded = true;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at'];
+    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at', 'family_id'];
 
     protected static array $apiModelEntities = [
         'userConfig' => UserConfig::class,
-        'taskUserConfig' => TaskUserConfig::class
     ];
 
     protected static array $apiModelArrayEntities = [
@@ -142,5 +141,10 @@ class User extends Authenticatable implements JWTSubject
                     ->filter(function ($value) {
                         return str_contains($value, 'client_');
                     });
+    }
+
+    public function getFamilyIdAttribute(): int | null
+    {
+        return $this->taskUserConfig?->family_id;
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\BaseApiModel;
 use App\Models\User;
+use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Mbarclay36\LaravelCrud\ApiModel;
+use Mbarclay36\LaravelCrud\Traits\HasRepository;
 
 /**
  * Class Family
@@ -17,7 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon updated_at
  *
  * @property integer tasks_per_week
- * @property string color
+ * @property Carbon start_date
+ * @property Carbon end_date
  *
  * @property integer family_id
  * @property Family family
@@ -25,31 +28,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property integer user_id
  * @property User user
  */
-class TaskUserConfig extends BaseApiModel
+class TaskUserConfig extends ApiModel
 {
-    use HasFactory;
+    use HasFactory, HasRepository;
 
-    protected static array $apiModelAttributes = ['id', 'tasks_per_week', 'family_id', 'color',
-        'total_user_tasks'];
+    protected static string $repository = TaskUserConfigsRepository::class;
+
+    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'family_id', 'total_user_tasks'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
         'completedFamilyTasks' => Task::class
     ];
-
-    public static function createNewEntity(User $user, Family $family): TaskUserConfig
-    {
-        $config = new TaskUserConfig([
-            'tasks_per_week' => 5,
-            'color' => '#994455'
-        ]);
-        $config->family()->associate($family);
-        $config->user()->associate($user);
-        $config->save();
-
-        return $config;
-    }
 
     public function family(): BelongsTo
     {
@@ -61,29 +52,13 @@ class TaskUserConfig extends BaseApiModel
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @param TaskUserConfig $entity
-     * @param $request
-     * @param User $auth
-     * @return Model|TaskUserConfig
-     */
-    public static function updateEntity(Model $entity, $request, User $auth): Model|TaskUserConfig
+    public function getCompletedFamilyTasks(Carbon $startDate, Carbon $endDate)
     {
-        $entity->tasks_per_week = $request['tasksPerWeek'];
-        $entity->color = $request['color'];
-        $entity->save();
-
-        return $entity;
-    }
-
-    public function getCompletedFamilyTasksAttribute()
-    {
-        $startOfWeek = Carbon::now('America/Los_Angeles')->startOfWeek()->setTimeZone('UTC');
-
         return Task::query()
                    ->whereNotNull('completed_at')
                    ->where('completed_by_id', '=', $this->user_id)
-                   ->where('completed_at', '>', $startOfWeek)
+                   ->where('completed_at', '>', $startDate)
+                   ->where('completed_at', '<', $endDate)
                    ->get();
     }
 
@@ -95,5 +70,10 @@ class TaskUserConfig extends BaseApiModel
                    ->whereNull('completed_at')
                    ->whereNull('cleared_at')
                    ->count();
+    }
+
+    public function getUserNameAttribute(): string
+    {
+        return $this->user->name;
     }
 }

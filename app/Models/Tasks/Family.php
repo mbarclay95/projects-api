@@ -3,8 +3,10 @@
 namespace App\Models\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
+use App\Models\ApiModels\FamilyMemberApiModel;
 use App\Models\BaseApiModel;
 use App\Models\User;
+use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +22,6 @@ use Illuminate\Support\Collection;
  * @property Carbon updated_at
  *
  * @property string name
- * @property string color
  * @property string task_strategy
  * @property array task_points
  *
@@ -31,13 +32,13 @@ class Family extends BaseApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'color', 'tasks_per_week', 'total_family_tasks',
-        'task_strategy', 'task_points'];
+    protected static array $apiModelAttributes = ['id', 'name', 'tasks_per_week', 'total_family_tasks',
+        'task_strategy', 'task_points', 'min_week_offset'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'members' => User::class,
+        'members' => FamilyMemberApiModel::class,
     ];
 
     protected $casts = [
@@ -47,9 +48,7 @@ class Family extends BaseApiModel
 
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
-        return Family::query()
-                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
-                     ->get();
+        return Family::query()->get();
     }
 
     public static function getEntity(int $entityId, User $auth, bool $viewForUser)
@@ -70,7 +69,6 @@ class Family extends BaseApiModel
     {
         $family = new Family([
             'name' => $request['name'],
-            'color' => $request['color'],
             'task_strategy' => $request['taskStrategy']
         ]);
         $members = User::query()
@@ -99,7 +97,7 @@ class Family extends BaseApiModel
         /** @var User $newMember */
         foreach ($newMembers as $newMember) {
             if ($this->members->doesntContain('id', $newMember->id)) {
-                TaskUserConfig::createNewEntity($newMember, $this);
+                TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'tasksPerWeek' => 5], $newMember);
             }
         }
     }
@@ -113,7 +111,6 @@ class Family extends BaseApiModel
     public static function updateEntity(Model $entity, $request, User $auth): Model
     {
         $entity->name = $request['name'];
-        $entity->color = $request['color'];
         $entity->task_strategy = $request['taskStrategy'];
         if (array_key_exists('taskPoints', $request)) {
             $entity->task_points = [
@@ -194,5 +191,21 @@ end)");
         }
 
         return [];
+    }
+
+    public function getMinWeekOffsetAttribute(): int
+    {
+        /** @var TaskUserConfig $config */
+        $config = TaskUserConfig::query()
+                                ->where('family_id', '=', $this->id)
+                                ->whereIn('user_id', $this->members->pluck('id'))
+                                ->orderBy('start_date')
+                                ->first();
+
+        if (!$config) {
+            return 0;
+        }
+
+        return Carbon::now('America/Los_Angeles')->diffInWeeks($config->start_date, false);
     }
 }

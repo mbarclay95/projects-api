@@ -12,7 +12,6 @@ use App\Models\Goals\GoalDay;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
-use App\Models\Tasks\TaskPoint;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -62,10 +61,6 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::createPermission(),
             Family::updatePermission(),
             Family::deletePermission(),
-
-            TaskPoint::createPermission(),
-            TaskPoint::updatePermission(),
-            TaskPoint::deletePermission(),
 
             Permissions::VIEW_USERS_PAGE,
             Permissions::VIEW_FAMILIES_TAB,
@@ -161,7 +156,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::viewForUserPermission(),
             Family::updatePermission(),
 
-            TaskUserConfig::viewAnyForUserPermission(),
+            TaskUserConfig::viewAnyPermission(),
             TaskUserConfig::updatePermission(),
 
             Tag::viewAnyForUserPermission(),

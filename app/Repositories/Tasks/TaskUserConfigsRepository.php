@@ -44,11 +44,9 @@ class TaskUserConfigsRepository extends DefaultRepository
             }
         }
 
-        $startDate = $date->clone()->startOfWeek()->setTimezone('UTC');
-        $endDate = $date->endOfWeek()->setTimezone('UTC');
         /** @var TaskUserConfig $entity */
         foreach ($entities as $entity) {
-            $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($startDate, $endDate);
+            $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date);
         }
 
         return $entities;
@@ -58,13 +56,15 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $date = Carbon::now('America/Los_Angeles');
         $config = new TaskUserConfig([
-            'tasks_per_week' => $request['tasksPerWeek'],
+            'tasks_per_week' => $request['tasksPerWeek'] ?? 5,
             'start_date' => array_key_exists('startDate', $request) ? $request['startDate'] : $date->startOfWeek()->toDateString(),
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
         $config->family()->associate($request['family']);
         $config->user()->associate($user);
         $config->save();
+
+        $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date);
 
         return $config;
     }
@@ -79,6 +79,7 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
         $model->save();
+        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::now('America/Los_Angeles'));
 
         return $model;
     }

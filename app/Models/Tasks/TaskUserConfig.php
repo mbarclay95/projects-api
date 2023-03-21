@@ -52,8 +52,11 @@ class TaskUserConfig extends ApiModel
         return $this->belongsTo(User::class);
     }
 
-    public function getCompletedFamilyTasks(Carbon $startDate, Carbon $endDate)
+    public function getCompletedFamilyTasks(Carbon $date)
     {
+        $startDate = $date->clone()->startOfWeek()->setTimezone('UTC');
+        $endDate = $date->clone()->endOfWeek()->setTimezone('UTC');
+
         return Task::query()
                    ->whereNotNull('completed_at')
                    ->where('completed_by_id', '=', $this->user_id)

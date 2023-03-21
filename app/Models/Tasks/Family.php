@@ -84,14 +84,14 @@ class Family extends BaseApiModel
     }
 
     /**
-     * @param array|Collection $newMembers
+     * @param User[]|Collection $newMembers
      * @return void
      */
     public function syncMembers($newMembers): void
     {
         foreach ($this->members as $member) {
             if ($newMembers->doesntContain('id', $member->id)) {
-                $member->taskUserConfig()->delete();
+                $member->taskUserConfig()->where('family_id', '=', $this->id)->delete();
             }
         }
         /** @var User $newMember */
@@ -171,12 +171,18 @@ end)");
 
     public function userConfigs(): HasMany
     {
-        return $this->hasMany(TaskUserConfig::class);
+        $date = Carbon::now('America/Los_Angeles')->toDateString();
+        return $this->hasMany(TaskUserConfig::class)
+                    ->where('task_user_configs.start_date', '<=', $date)
+                    ->where('task_user_configs.end_date', '>=', $date);
     }
 
     public function members(): HasManyThrough
     {
-        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id');
+        $date = Carbon::now('America/Los_Angeles')->toDateString();
+        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id')
+                    ->where('task_user_configs.start_date', '<=', $date)
+                    ->where('task_user_configs.end_date', '>=', $date);
     }
 
     public function getTaskPointsAttribute($value): array

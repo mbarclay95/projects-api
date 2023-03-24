@@ -35,6 +35,7 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @property string name
  * @property string username
+ * @property string password
  *
  * @property UserConfig userConfig
  * @property TaskUserConfig taskUserConfig

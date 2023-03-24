@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\ApiCrudController;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -54,9 +55,15 @@ class UserController extends ApiCrudController
      * @param Request $request
      * @param int $id
      * @return JsonResponse
+     * @throws AuthenticationException
      */
     public function update(Request $request, int $id): JsonResponse
     {
+        /** @var User $auth */
+        $auth = Auth::user();
+        if (!$auth->hasPermissionTo(User::updatePermission())) {
+            throw new AuthenticationException();
+        }
         $validated = $request->validate(static::$updateRules);
 
         /** @var User $user */

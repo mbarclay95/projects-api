@@ -40,7 +40,11 @@ Route::get('health-check', function () {
 
 // LOGIN
 Route::controller(AuthController::class)->group(function () {
-    Route::get('/me', 'me')->middleware('auth');
+    Route::middleware('auth')->group(function () {
+        Route::get('/me', 'me');
+        Route::post('/change-password', 'changePassword');
+        Route::patch('/update-me', 'updateMe');
+    });
     Route::post('/login', 'login');
 });
 

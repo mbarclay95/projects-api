@@ -42,11 +42,11 @@ class UserController extends ApiCrudController
 
         /** @var User[] $users */
         $users = User::query()
-                     ->with('roles')
+                     ->with('roles', 'userConfig')
                      ->orderBy('id')
                      ->get();
 
-        return new JsonResponse(User::toApiModels($users, ['clientPermissions']));
+        return new JsonResponse(User::toApiModels($users, ['clientPermissions', 'family_id']));
     }
 
     /**

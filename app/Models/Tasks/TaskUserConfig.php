@@ -34,7 +34,7 @@ class TaskUserConfig extends ApiModel
 
     protected static string $repository = TaskUserConfigsRepository::class;
 
-    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'family_id', 'total_user_tasks'];
+    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'family_id'];
 
     protected static array $apiModelEntities = [];
 

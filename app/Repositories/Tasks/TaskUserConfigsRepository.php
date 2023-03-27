@@ -25,28 +25,33 @@ class TaskUserConfigsRepository extends DefaultRepository
                                   ->where('family_id', '=', $request['familyId'])
                                   ->where('start_date', '<=', $date->toDateString())
                                   ->where('end_date', '>=', $date->toDateString())
-                                  ->whereIn('user_id', $family->members->pluck('id'))
+                                  ->whereIn('user_id', $family->userConfigs->pluck('user_id'))
+                                  ->with('user')
                                   ->get();
 
-        if ($weekOffset === 0) {
-            foreach ($family->members as $member) {
-                $config = $entities->where('user_id', '=', $member->id)->first();
-                if (!$config) {
-                    /** @var TaskUserConfig $lastConfig */
-                    $lastConfig = TaskUserConfig::query()
-                                                ->where('user_id', '=', $member->id)
-                                                ->orderBy('end_date', 'desc')
-                                                ->first();
-                    /** @var TaskUserConfig $newConfig */
-                    $newConfig = $this->createEntity(['family' => $family, 'tasksPerWeek' => $lastConfig?->tasks_per_week ?? 5], $member);
-                    $entities->add($newConfig);
-                }
+        $alreadyLoadedTasks = false;
+        if ($weekOffset == 0 && $family->userConfigs->count() == 0) {
+            $alreadyLoadedTasks = true;
+            $lastWeek = Carbon::now('America/Los_Angeles')->subWeek()->toDateString();
+            /** @var TaskUserConfig[] $currentConfigs */
+            $currentConfigs = TaskUserConfig::query()
+                                            ->where('family_id', '=', $request['familyId'])
+                                            ->where('start_date', '<=', $lastWeek)
+                                            ->where('end_date', '>=', $lastWeek)
+                                            ->get();
+
+            foreach ($currentConfigs as $currentConfig) {
+                /** @var TaskUserConfig $newConfig */
+                $newConfig = $this->createEntity(['family' => $family, 'tasksPerWeek' => $currentConfig->tasks_per_week, 'user_id' => $currentConfig->user_id], $user);
+                $entities->add($newConfig);
             }
         }
 
-        /** @var TaskUserConfig $entity */
-        foreach ($entities as $entity) {
-            $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date);
+        if (!$alreadyLoadedTasks) {
+            /** @var TaskUserConfig $entity */
+            foreach ($entities as $entity) {
+                $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date);
+            }
         }
 
         return $entities;
@@ -61,7 +66,7 @@ class TaskUserConfigsRepository extends DefaultRepository
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
         $config->family()->associate($request['family']);
-        $config->user()->associate($user);
+        $config->user()->associate($request['user_id']);
         $config->save();
 
         $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date);

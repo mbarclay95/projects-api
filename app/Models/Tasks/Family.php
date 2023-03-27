@@ -156,7 +156,7 @@ end)");
                                   ->first();
         $weekCount = $dayCount['sum'] * 7;
 
-        return $weekCount / count($this->members);
+        return $weekCount / (count($this->members) ?? 1);
     }
 
     public function getTotalFamilyTasksAttribute(): int

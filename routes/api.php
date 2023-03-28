@@ -38,12 +38,13 @@ Route::get('health-check', function () {
     return new JsonResponse(['success' => true]);
 });
 
-// LOGIN
+// AUTH
 Route::controller(AuthController::class)->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/me', 'me');
         Route::post('/change-password', 'changePassword');
         Route::patch('/update-me', 'updateMe');
+        Route::post('/logout', 'logout');
     });
     Route::post('/login', 'login');
 });

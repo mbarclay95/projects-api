@@ -14,13 +14,13 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $credentials = [
-            'username' => $request->post('username'),
+            'username' => strtolower($request->post('username')),
             'password' => $request->post('password')
         ];
         $token = auth('api')->attempt($credentials);
 
         if (!$token) {
-            return new JsonResponse(['error' => 'Unauthorized'], 401);
+            return new JsonResponse(['message' => 'Bad credentials'], 401);
         }
 
         /** @var User $user */
@@ -33,6 +33,21 @@ class AuthController extends Controller
             'type' => 'bearer',
             'expiresIn' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+//        $token = auth()->getToken()->get();
+
+//        /** @var JwtToken $jwtToken */
+//        $jwtToken = JwtToken::query()->where('token', '=', $token)->first();
+//        if ($jwtToken) {
+//            $jwtToken->revoked_at = Carbon::now();
+//            $jwtToken->save();
+//        }
+        auth()->logout(true);
+
+        return response()->json(['success' => true]);
     }
 
     public function me(): JsonResponse

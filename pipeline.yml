@@ -19,12 +19,31 @@ jobs:
       - get: ((project-name))-repo
         trigger: true
         version: latest
-      - put: ((project-name))-image
-        params:
-          build: ((project-name))-repo
-          dockerfile: ((project-name))-repo/docker/Dockerfile
-          tag_file: ((project-name))-repo/.git/ref
-          tag_as_latest: true
+      - in_parallel:
+        - task: run-tests
+          config:
+            platform: linux
+            params:
+              APP_ENV: staging
+            inputs:
+              - name: ((project-name))-repo
+            image_resource:
+              type: docker-image
+              source:
+                repository: php
+                tag: 8.1-cli-alpine
+            run:
+              path: /bin/sh
+              args:
+                - -c
+                - |
+                  /usr/local/bin/php artisan env
+        - put: ((project-name))-image
+          params:
+            build: ((project-name))-repo
+            dockerfile: ((project-name))-repo/docker/Dockerfile
+            tag_file: ((project-name))-repo/.git/ref
+            tag_as_latest: true
       - task: run-portainer-webhook
         config:
           platform: linux

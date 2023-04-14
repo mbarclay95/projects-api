@@ -2,7 +2,6 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
@@ -11,9 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Task
@@ -42,7 +40,7 @@ use Illuminate\Support\Facades\Auth;
  *
  * @property Collection|Tag[] tags
  */
-class Task extends BaseApiModel
+class Task extends ApiModel
 {
     use HasFactory, Filterable;
 
@@ -60,98 +58,6 @@ class Task extends BaseApiModel
         'completed_at',
         'cleared_at'
     ];
-
-    /**
-     * @param string $attributeKey
-     * @param Task $model
-     * @return mixed|void
-     */
-    public static function buildFromAttributes(string $attributeKey, Model $model)
-    {
-        if ($attributeKey == 'owner_type') {
-            return $model->owner_type == User::class ? 'user' : 'family';
-        }
-
-        return parent::buildFromAttributes($attributeKey, $model);
-    }
-
-    /**
-     * @param $request
-     * @param User $auth
-     * @return Builder
-     */
-    public static function buildIndexQuery($request, User $auth)
-    {
-        return Task::query()
-                   ->where(function ($innerWhere) use ($auth) {
-                       $innerWhere
-                           ->orWhere(function ($userWhere) use ($auth) {
-                               $userWhere->where('tasks.owner_type', '=', User::class)
-                                         ->where('tasks.owner_id', '=', $auth->id);
-                           })
-                           ->when($auth->family, function ($familyCondition) use ($auth) {
-                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
-                                   $familyWhere->where('tasks.owner_type', '=', Family::class)
-                                               ->where('tasks.owner_id', '=', $auth->family->id);
-                               });
-                           });
-                   })
-                   ->orderBy('due_date')
-                   ->with('tags', 'recurringTask')
-                   ->filter($request);
-    }
-
-    public static function getEntities($request, User $auth, bool $viewAnyForUser)
-    {
-        return Task::query()
-                   ->where(function ($innerWhere) use ($auth) {
-                       $innerWhere
-                           ->orWhere(function ($userWhere) use ($auth) {
-                               $userWhere->where('owner_type', '=', User::class)
-                                         ->where('owner_id', '=', $auth->id);
-                           })
-                           ->when($auth->family, function ($familyCondition) use ($auth) {
-                               $familyCondition->orWhere(function ($familyWhere) use ($auth) {
-                                   $familyWhere->where('owner_type', '=', Family::class)
-                                               ->where('owner_id', '=', $auth->family->id);
-                               });
-                           });
-                   })
-                   ->orderBy('due_date')
-                   ->with('tags', 'recurringTask')
-                   ->filter($request)
-                   ->get();
-    }
-
-    /**
-     * @param $request
-     * @param User $auth
-     * @return Task|RecurringTask
-     */
-    public static function createEntity($request, User $auth): Task|RecurringTask
-    {
-        $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
-        if ($request['recurring']) {
-            $recurringTask = RecurringTask::createEntity($request, $auth);
-            $task = $recurringTask->createFutureTask($request['tags'], $dueDate);
-        } else {
-            $task = new Task([
-                'name' => $request['name'],
-                'description' => $request['description'] ?? null,
-                'due_date' => $dueDate->toDateString(),
-                'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
-                'owner_id' => $request['ownerId'],
-                'priority' => $request['priority'],
-            ]);
-            if (array_key_exists('taskPoint', $request)) {
-                $task->task_point = $request['taskPoint'];
-            }
-            $task->save();
-            $task->updateTags($request['tags']);
-        }
-
-        return $task;
-    }
 
     public function updateTags(array $newTags): Task
     {
@@ -183,83 +89,6 @@ class Task extends BaseApiModel
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable');
-    }
-
-    /**
-     * @param Task $entity
-     * @param $request
-     * @param User $auth
-     * @return Task
-     */
-    public static function updateEntity(Model $entity, $request, User $auth): Task
-    {
-        $entity->name = $request['name'];
-        $entity->description = $request['description'];
-        $entity->due_date = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString();
-        $entity->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
-        $entity->owner_id = $request['ownerId'];
-        $entity->priority = $request['priority'];
-        if (array_key_exists('taskPoint', $request)) {
-            $entity->task_point = $request['taskPoint'];
-        }
-
-        if ($entity->recurring_task_id) {
-            $entity->recurringTask->name = $request['name'];
-            $entity->recurringTask->description = $request['description'];
-            $entity->recurringTask->owner_type = $request['ownerType'] === 'family' ? Family::class : User::class;
-            $entity->recurringTask->owner_id = $request['ownerId'];
-            $entity->recurringTask->is_active = $request['isActive'];
-            $entity->recurringTask->priority = $request['priority'];
-$entity->recurringTask->frequency_amount = $request['frequencyAmount'];
- $entity->recurringTask->frequency_unit = $request['frequencyUnit'];
-            if (array_key_exists('taskPoint', $request)) {
-                $entity->recurringTask->task_point = $request['taskPoint'];
-            }
-            $entity->recurringTask->save();
-        }
-
-        $taskCompleted = false;
-        if ($entity->completed_at == null && isset($request['completedAt'])) {
-            $entity->completed_at = Carbon::parse($request['completedAt']);
-            $entity->completed_by_id = Auth::id();
-            $taskCompleted = true;
-        }
-        if ($entity->completed_at && !isset($request['completedAt'])) {
-            $entity->completed_at = null;
-            $entity->completed_by_id = null;
-            if ($entity->recurring_task_id) {
-                Task::query()
-                    ->whereNull('completed_at')
-                    ->whereNull('completed_by_id')
-                    ->where('due_date', '>', $entity->due_date)
-                    ->where('recurring_task_id', '=', $entity->recurring_task_id)
-                    ->delete();
-            }
-        }
-        $entity->updateTags($request['tags']);
-        $entity->save();
-
-        if ($taskCompleted) {
-            $entity->recurringTask?->createFutureTask($request['tags']);
-        }
-
-        return $entity;
-    }
-
-    /**
-     * @param Task $entity
-     * @param User $auth
-     * @return void
-     */
-    public static function destroyEntity(Model $entity, User $auth): void
-    {
-        if ($entity->recurring_task_id) {
-            Task::query()
-                ->where('recurring_task_id', '=', $entity->recurring_task_id)
-                ->update(['recurring_task_id' => null]);
-            $entity->recurringTask->delete();
-        }
-        $entity->delete();
     }
 
     public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate, array $tags): Task
@@ -335,6 +164,11 @@ $entity->recurringTask->frequency_amount = $request['frequencyAmount'];
     public function getRecurringAttribute(): bool
     {
         return !!$this->recurring_task_id;
+    }
+
+    public function getOwnerTypeAttribute($value): string
+    {
+        return $value == User::class ? 'user' : 'family';
     }
 
     public function owner(): MorphTo

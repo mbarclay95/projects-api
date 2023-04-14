@@ -4,15 +4,14 @@ namespace App\Models\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
 use App\Models\ApiModels\FamilyMemberApiModel;
-use App\Models\BaseApiModel;
 use App\Models\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Family
@@ -28,7 +27,7 @@ use Illuminate\Support\Collection;
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
  */
-class Family extends BaseApiModel
+class Family extends ApiModel
 {
     use HasFactory;
 
@@ -45,43 +44,6 @@ class Family extends BaseApiModel
         'task_strategy' => FamilyTaskStrategyEnum::class,
         'task_points' => 'array'
     ];
-
-    public static function getEntities($request, User $auth, bool $viewAnyForUser)
-    {
-        return Family::query()->get();
-    }
-
-    public static function getEntity(int $entityId, User $auth, bool $viewForUser)
-    {
-        return Family::query()->find($entityId);
-//        return Family::query()
-//                     ->with('members.roles', 'members.permissions', 'members.userConfig', 'members.taskUserConfig')
-//                     ->whereExists(function ($whereIn) use ($entityId, $auth) {
-//                         $whereIn->select(new Expression('1'))
-//                                 ->from('task_user_configs')
-//                                 ->where('family_id', '=', $entityId)
-//                                 ->where('user_id', '=', $auth->id);
-//                     })
-//                     ->first();
-    }
-
-    public static function createEntity($request, User $auth): Family
-    {
-        $family = new Family([
-            'name' => $request['name'],
-            'task_strategy' => $request['taskStrategy']
-        ]);
-        $members = User::query()
-                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
-                           return $user['id'];
-                       }))
-                       ->get();
-        $family->save();
-        $family->syncMembers($members);
-        $family->refresh();
-
-        return $family;
-    }
 
     /**
      * @param User[]|Collection $newMembers
@@ -100,33 +62,6 @@ class Family extends BaseApiModel
                 TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'tasksPerWeek' => 5], $newMember);
             }
         }
-    }
-
-    /**
-     * @param Family $entity
-     * @param $request
-     * @param User $auth
-     * @return Model
-     */
-    public static function updateEntity(Model $entity, $request, User $auth): Model
-    {
-        $entity->name = $request['name'];
-        $entity->task_strategy = $request['taskStrategy'];
-        if (array_key_exists('taskPoints', $request)) {
-            $entity->task_points = [
-                'points' => $request['taskPoints']
-            ];
-        }
-        $members = User::query()
-                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
-                           return $user['id'];
-                       }))
-                       ->get();
-        $entity->syncMembers($members);
-        $entity->save();
-        $entity->refresh();
-
-        return $entity;
     }
 
     public function getTasksPerWeekAttribute(): float|int

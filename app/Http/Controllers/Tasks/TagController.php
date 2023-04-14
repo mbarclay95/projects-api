@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Http\Controllers\ApiCrudController;
 use App\Models\Tasks\Tag;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class TagController extends ApiCrudController
+class TagController extends CrudController
 {
     protected static string $modelClass = Tag::class;
     protected static array $indexRules = [];

@@ -24,7 +24,12 @@ jobs:
           config:
             platform: linux
             params:
-              APP_ENV: staging
+              DB_CONNECTION: pgsql
+              DB_HOST: 10.5.10.11
+              DB_PORT: 5432
+              DB_DATABASE: projects-testing
+              DB_USERNAME: mbarclay36
+              DB_PASSWORD: ((pgsql-password))
             inputs:
               - name: ((project-name))-repo
             image_resource:
@@ -37,7 +42,11 @@ jobs:
               args:
                 - -c
                 - |
-                  /usr/local/bin/php artisan env
+                  apk add git
+                  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
+                  cd ((project-name))-repo
+                  /usr/local/bin/composer install
+                  /usr/local/bin/php artisan test
         - put: ((project-name))-image
           params:
             build: ((project-name))-repo

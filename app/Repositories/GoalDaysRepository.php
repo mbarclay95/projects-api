@@ -12,8 +12,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GoalDaysRepository extends DefaultRepository
 {
-    protected static string|null $modelClass = GoalDay::class;
-
     public function createEntity($request, User $user): Model|array
     {
         $goalDay = new GoalDay([

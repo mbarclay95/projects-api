@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Http\Controllers\ApiCrudController;
 use App\Models\Tasks\Task;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class TaskController extends ApiCrudController
+class TaskController extends CrudController
 {
     protected static string $modelClass = Task::class;
 
@@ -19,9 +20,9 @@ class TaskController extends ApiCrudController
         'ownerId' => 'int',
         'completedStatus' => 'string',
         'recurringType' => 'string',
-        'page' => 'int',
-        'pageSize' => 'int',
-        'showInactive' => 'bool',
+//        'page' => 'int',
+//        'pageSize' => 'int',
+        'showPaused' => 'bool',
         'sort' => 'string',
         'sortDir' => 'string',
         'search' => 'string|nullable',
@@ -31,7 +32,7 @@ class TaskController extends ApiCrudController
         'name' => 'required|string',
         'description' => 'present|string|nullable',
         'ownerType' => 'required|string',
-        'ownerId' => 'required|int',
+//        'ownerId' => 'required|int',
         'recurring' => 'required|bool',
         'dueDate' => 'required|date',
         'frequencyAmount' => 'nullable|int',
@@ -55,24 +56,4 @@ class TaskController extends ApiCrudController
         'isActive' => 'required|bool',
         'priority' => 'int|required',
     ];
-
-    public function index(Request $request): JsonResponse
-    {
-        /** @var User $user */
-        $user = Auth::user();
-        $validated = $request->validate(static::$indexRules);
-        $query = Task::buildIndexQuery($validated, $user);
-
-        if (array_key_exists('page', $validated) && array_key_exists('pageSize', $validated)) {
-            $pagination = $query->paginate($validated['pageSize']);
-            $apiModels = Task::toApiModels($pagination->items());
-            return new JsonResponse([
-                'total' => $pagination->total(),
-                'data' => $apiModels
-            ]);
-        }
-        $models = $query->get();
-
-        return new JsonResponse(Task::toApiModels($models));
-    }
 }

@@ -32,9 +32,9 @@ class TaskFilter extends ModelFilter
         }
     }
 
-    public function showInactive($showInactive)
+    public function showPaused($showPaused)
     {
-        if ($showInactive == 0) {
+        if ($showPaused == 0) {
             $this->selectRaw('tasks.*')
                  ->leftJoin('recurring_tasks', 'tasks.recurring_task_id', '=', 'recurring_tasks.id')
                  ->where(function ($where) {

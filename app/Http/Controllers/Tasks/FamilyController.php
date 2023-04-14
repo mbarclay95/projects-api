@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Http\Controllers\ApiCrudController;
 use App\Models\Tasks\Family;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class FamilyController extends ApiCrudController
+class FamilyController extends CrudController
 {
     protected static string $modelClass = Family::class;
     protected static array $indexRules = [];

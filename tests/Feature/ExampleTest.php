@@ -12,9 +12,9 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    public function test_the_application_returns_a_successful_response()
+    public function test_health_check_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/api/health-check');
 
         $response->assertStatus(200);
     }

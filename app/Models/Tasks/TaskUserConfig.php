@@ -30,9 +30,7 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
  */
 class TaskUserConfig extends ApiModel
 {
-    use HasFactory, HasRepository;
-
-    protected static string $repository = TaskUserConfigsRepository::class;
+    use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'family_id'];
 

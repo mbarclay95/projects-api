@@ -2,15 +2,14 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\BaseApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class RecurringTask
@@ -34,7 +33,7 @@ use Illuminate\Support\Collection;
  *
  * @property Collection|Tag[] tags
  */
-class RecurringTask extends BaseApiModel
+class RecurringTask extends ApiModel
 {
     use HasFactory, SoftDeletes;
 
@@ -44,26 +43,6 @@ class RecurringTask extends BaseApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
-
-    public static function createEntity($request, User $auth): RecurringTask
-    {
-        $task = new RecurringTask([
-            'name' => $request['name'],
-            'description' => $request['description'],
-            'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
-            'owner_id' => $request['ownerId'],
-            'frequency_amount' => $request['frequencyAmount'],
-            'frequency_unit' => $request['frequencyUnit'],
-            'is_active' => true,
-            'priority' => $request['priority'],
-        ]);
-        if (isset($request['taskPoint'])) {
-            $task->task_point = $request['taskPoint'];
-        }
-        $task->save();
-
-        return $task;
-    }
 
     public function createFutureTask(array $tags, ?Carbon $dueDate = null): Task
     {

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 use Spatie\Permission\Models\Permission;
 
 /**
@@ -23,7 +24,7 @@ use Spatie\Permission\Models\Permission;
  * @property Collection|Task[] tasks
  * @property Collection|RecurringTask[] recurringTasks
  */
-class Tag extends BaseApiModel
+class Tag extends ApiModel
 {
     use HasFactory;
 
@@ -35,29 +36,6 @@ class Tag extends BaseApiModel
     public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {
         return $model->tag;
-    }
-
-    public static function getEntities($request, User $auth, bool $viewAnyForUser)
-    {
-        return Tag::query()
-            ->whereHas('tasks', function ($where) use ($auth) {
-                $where->where(function ($innerWhere) use ($auth) {
-                    $innerWhere
-                        ->orWhere(function ($userWhere) use ($auth) {
-                            $userWhere->where('owner_type', '=', User::class)
-                                      ->where('owner_id', '=', $auth->id);
-                        })
-                        ->when($auth->family, function ($familyCondition) use ($auth) {
-                            $familyCondition->orWhere(function ($familyWhere) use ($auth) {
-                                $familyWhere->where('owner_type', '=', Family::class)
-                                            ->where('owner_id', '=', $auth->family->id);
-                            });
-                        });
-                });
-            })
-            ->select('tag')
-            ->distinct()
-            ->get();
     }
 
     public function tasks(): MorphToMany

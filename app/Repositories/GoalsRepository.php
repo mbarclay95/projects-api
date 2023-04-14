@@ -12,8 +12,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GoalsRepository extends DefaultRepository
 {
-    protected static string|null $modelClass = Goal::class;
-
     /**
      * @param $request
      * @param User $user

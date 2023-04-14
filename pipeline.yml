@@ -30,20 +30,19 @@ jobs:
               DB_DATABASE: projects-testing
               DB_USERNAME: mbarclay36
               DB_PASSWORD: ((pgsql-password))
+              JWT_SECRET: ((jwt-secret))
             inputs:
               - name: ((project-name))-repo
             image_resource:
               type: docker-image
               source:
-                repository: php
-                tag: 8.1-cli-alpine
+                repository: webdevops/php-nginx
+                tag: 8.1
             run:
               path: /bin/sh
               args:
                 - -c
                 - |
-                  apk add git
-                  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
                   cd ((project-name))-repo
                   /usr/local/bin/composer install
                   /usr/local/bin/php artisan test

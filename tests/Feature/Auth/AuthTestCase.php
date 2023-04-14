@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class AuthTestCase extends TestCase
 {
-//    use RefreshDatabase;
+    use RefreshDatabase;
 
     protected User|null $goodUser = null;
 

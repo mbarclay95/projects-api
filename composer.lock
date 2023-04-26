@@ -2403,11 +2403,11 @@
         },
         {
             "name": "mbarclay36/laravel-crud",
-            "version": "1.2.6",
+            "version": "1.2.8",
             "source": {
                 "type": "git",
                 "url": "https://mbarclay36:TUP8XdX64JJTtN7emL@gitea.bigmike.dev/mbarclay36/laravel-crud-package.git",
-                "reference": "bb3c2e4558266be7d47fd172c238307849d64017"
+                "reference": "2d28192f4777d579f7635732b8cb722963fa9dd6"
             },
             "require": {
                 "laravel/framework": ">=v9.0.0",
@@ -2433,7 +2433,7 @@
                 }
             ],
             "description": "A package for quickly building a crud api",
-            "time": "2023-04-13T23:09:51+00:00"
+            "time": "2023-04-26T18:01:21+00:00"
         },
         {
             "name": "monolog/monolog",

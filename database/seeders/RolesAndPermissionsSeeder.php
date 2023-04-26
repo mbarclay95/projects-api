@@ -150,6 +150,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createAndAssign(Roles::TASK_ROLE, [
             Task::viewAnyForUserPermission(),
             Task::createPermission(),
+            Task::viewForUserPermission(),
             Task::updatePermission(),
             Task::deletePermission(),
 

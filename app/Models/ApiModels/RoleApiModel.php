@@ -2,22 +2,14 @@
 
 namespace App\Models\ApiModels;
 
-use App\Models\User;
-use App\Traits\HasApiModel;
-use App\Traits\HasCrudIndexable;
-use App\Traits\HasCrudPermissions;
-use Illuminate\Database\Eloquent\Collection;
-use Spatie\Permission\Models\Role;
-
+use App\Repositories\Users\RolesRepository;
+use Mbarclay36\LaravelCrud\Traits\IsApiModel;
 
 class RoleApiModel
 {
-    use HasApiModel, HasCrudIndexable, HasCrudPermissions;
+    use IsApiModel;
+
+    protected static string $repositoryClass = RolesRepository::class;
 
     protected static array $apiModelAttributes = ['id', 'name'];
-
-    public static function getEntities($request, User $auth, bool $viewAnyForUser): Collection|array
-    {
-        return Role::query()->get();
-    }
 }

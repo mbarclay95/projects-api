@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Models\ApiModels\FamilyMemberApiModel;
 use App\Models\User;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
@@ -47,7 +48,7 @@ class Task extends ApiModel
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority', 'task_point'];
     protected static array $apiModelEntities = [
-        'completedBy' => User::class,
+        'completedBy' => FamilyMemberApiModel::class,
     ];
     protected static array $apiModelArrayEntities = [
         'tags' => Tag::class
@@ -171,6 +172,11 @@ class Task extends ApiModel
         return $value == User::class ? 'user' : 'family';
     }
 
+    public function getCompletedByNameAttribute(): string
+    {
+        return $this->completedBy?->name;
+    }
+
     public function owner(): MorphTo
     {
         return $this->morphTo('owner', 'owner_type', 'owner_id');
@@ -178,6 +184,6 @@ class Task extends ApiModel
 
     public function completedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

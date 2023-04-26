@@ -12,8 +12,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class TaskUserConfigsRepository extends DefaultRepository
 {
-    protected static string|null $modelClass = TaskUserConfig::class;
-
     public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
     {
         $weekOffset = min($request['weekOffset'], 0);

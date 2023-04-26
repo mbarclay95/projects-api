@@ -57,6 +57,7 @@ class TaskUserConfig extends ApiModel
 
         return Task::query()
                    ->whereNotNull('completed_at')
+                   ->with('completedBy')
                    ->where('completed_by_id', '=', $this->user_id)
                    ->where('completed_at', '>', $startDate)
                    ->where('completed_at', '<', $endDate)

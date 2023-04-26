@@ -16,6 +16,7 @@ use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;
+use App\Http\Controllers\Tasks\TaskHistoryController;
 use App\Http\Controllers\Tasks\TaskUserConfigController;
 use App\Http\Controllers\Users\RoleController;
 use App\Http\Controllers\Users\UserController;
@@ -74,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('tags', TagController::class)->only('index');
     Route::apiResource('families', FamilyController::class);
     Route::apiResource('task-user-config', TaskUserConfigController::class)->only('index', 'update');
+    Route::apiResource('tasks.history', TaskHistoryController::class)->only('index');
 });
 
 // DASHBOARD

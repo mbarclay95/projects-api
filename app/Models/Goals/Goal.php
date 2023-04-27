@@ -41,7 +41,7 @@ class Goal extends ApiModel
 {
     use HasFactory, HasRepository, Filterable;
 
-    protected static string $repository = GoalsRepository::class;
+    protected static string $repositoryClass = GoalsRepository::class;
 
     protected static array $apiModelAttributes = ['id', 'created_at', 'title', 'expected_amount', 'unit',
         'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit', 'current_amount'];

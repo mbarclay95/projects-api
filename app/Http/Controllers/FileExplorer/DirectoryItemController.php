@@ -44,6 +44,8 @@ class DirectoryItemController extends Controller
         ]);
         $directories = $disk->directories($validated['path'] ?? '');
         $files = $disk->files($validated['path'] ?? '');
+        sort($directories, SORT_NATURAL);
+        sort($files, SORT_NATURAL);
         $items = [];
         foreach ($directories as $directory) {
             if (isset($validated['path'])) {

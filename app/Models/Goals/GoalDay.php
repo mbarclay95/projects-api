@@ -32,7 +32,7 @@ class GoalDay extends ApiModel
 {
     use HasFactory, Filterable, HasRepository;
 
-    protected static string $repository = GoalDaysRepository::class;
+    protected static string $repositoryClass = GoalDaysRepository::class;
 
     protected static array $apiModelAttributes = ['id', 'date', 'amount'];
     protected static array $apiModelEntities = [];

@@ -5,6 +5,7 @@ namespace App\Repositories\Tasks;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\User;
+use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -30,19 +31,7 @@ class TaskUserConfigsRepository extends DefaultRepository
         $alreadyLoadedTasks = false;
         if ($weekOffset == 0 && $family->userConfigs->count() == 0) {
             $alreadyLoadedTasks = true;
-            $lastWeek = Carbon::now('America/Los_Angeles')->subWeek()->toDateString();
-            /** @var TaskUserConfig[] $currentConfigs */
-            $currentConfigs = TaskUserConfig::query()
-                                            ->where('family_id', '=', $request['familyId'])
-                                            ->where('start_date', '<=', $lastWeek)
-                                            ->where('end_date', '>=', $lastWeek)
-                                            ->get();
-
-            foreach ($currentConfigs as $currentConfig) {
-                /** @var TaskUserConfig $newConfig */
-                $newConfig = $this->createEntity(['family' => $family, 'tasksPerWeek' => $currentConfig->tasks_per_week, 'user_id' => $currentConfig->user_id], $user);
-                $entities->add($newConfig);
-            }
+            $entities = BackfillTaskUserConfigService::run($family, $user);
         }
 
         if (!$alreadyLoadedTasks) {
@@ -64,7 +53,7 @@ class TaskUserConfigsRepository extends DefaultRepository
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
         $config->family()->associate($request['family']);
-        $config->user()->associate($request['user_id']);
+        $config->user()->associate($request['userId']);
         $config->save();
 
         $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date);

@@ -59,7 +59,7 @@ class Family extends ApiModel
         /** @var User $newMember */
         foreach ($newMembers as $newMember) {
             if ($this->members->doesntContain('id', $newMember->id)) {
-                TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'tasksPerWeek' => 5], $newMember);
+                TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'userId' => $newMember->id,'tasksPerWeek' => 5], $newMember);
             }
         }
     }

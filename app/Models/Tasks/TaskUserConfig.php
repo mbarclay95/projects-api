@@ -3,13 +3,10 @@
 namespace App\Models\Tasks;
 
 use App\Models\User;
-use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Mbarclay36\LaravelCrud\ApiModel;
-use Mbarclay36\LaravelCrud\Traits\HasRepository;
 
 /**
  * Class Family
@@ -57,7 +54,7 @@ class TaskUserConfig extends ApiModel
 
         return Task::query()
                    ->whereNotNull('completed_at')
-                   ->with('completedBy')
+                   ->with('completedBy', 'tags', 'recurringTask')
                    ->where('completed_by_id', '=', $this->user_id)
                    ->where('completed_at', '>', $startDate)
                    ->where('completed_at', '<', $endDate)
@@ -78,4 +75,5 @@ class TaskUserConfig extends ApiModel
     {
         return $this->user->name;
     }
+
 }

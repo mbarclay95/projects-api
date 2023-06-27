@@ -58,6 +58,12 @@ class SiteImageController extends Controller
     public function show(SiteImage $siteImage): StreamedResponse
     {
         $file = Storage::disk('s3')->get($siteImage->s3_path);
+        
+        if (str_contains($siteImage->s3_path, '.svg')) {
+            return response()->stream(function () use ($file) {
+                echo $file;
+            }, 200, ['Content-Type' => 'image/svg+xml']);
+        }
 
         return response()->stream(function () use ($file) {
             echo $file;

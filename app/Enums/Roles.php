@@ -11,4 +11,5 @@ class Roles
     const TASK_ROLE  = 'task_role';
     const EVENT_ROLE  = 'event_role';
     const FILE_EXPLORER_ROLE  = 'file_explorer_role';
+    const MONEY_APP_ROLE  = 'money_app_role';
 }

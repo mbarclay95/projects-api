@@ -46,7 +46,7 @@ class UserController extends ApiCrudController
                      ->orderBy('id')
                      ->get();
 
-        return new JsonResponse(User::toApiModels($users, ['clientPermissions', 'family_id']));
+        return new JsonResponse(User::toApiModels($users, ['clientPermissions', 'family_id', 'userConfig.money_app_token']));
     }
 
     /**

@@ -52,18 +52,41 @@ trait HasApiModel
             }
         }
 
+        $hideItemsExploded = [];
+        foreach ($hideItem as $item) {
+            $temp = explode('.', $item);
+            if (count($temp) > 1) {
+                $hideItemsExploded[] = $temp;
+            }
+        }
+
         foreach ($entities as $entity => $class) {
             if (!in_array($entity, $hideItem)) {
-                $returnArray[$entity] = $class::toApiModel($model->$entity);
+                $entityHideItems = static::pullOutEntitiesHideItems($hideItemsExploded, $entity);
+                $returnArray[$entity] = $class::toApiModel($model->$entity, $entityHideItems);
             }
         }
 
         foreach ($arrayEntities as $arrayEntity => $class) {
             if (!in_array($arrayEntity, $hideItem)) {
-                $returnArray[$arrayEntity] = $class::toApiModels($model->$arrayEntity);
+                $entityHideItems = static::pullOutEntitiesHideItems($hideItemsExploded, $arrayEntity);
+                $returnArray[$arrayEntity] = $class::toApiModels($model->$arrayEntity, $entityHideItems);
             }
         }
 
         return $returnArray;
+    }
+
+    private static function pullOutEntitiesHideItems($hideItemsExploded, $entityName): array
+    {
+        $entityHideItems = [];
+        foreach ($hideItemsExploded as $item) {
+            if ($entityName == $item[0]) {
+                array_shift($item);
+                $entityHideItems[] = implode('.', $item);
+            }
+        }
+
+        return $entityHideItems;
     }
 }

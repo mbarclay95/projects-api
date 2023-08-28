@@ -18,7 +18,9 @@ class TaskUserConfigsRepository extends DefaultRepository
         $weekOffset = min($request['weekOffset'], 0);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         /** @var Family $family */
-        $family = Family::query()->find($request['familyId']);
+        $family = Family::query()
+                        ->with('userConfigs')
+                        ->find($request['familyId']);
         /** @var TaskUserConfig|Collection $entities */
         $entities = TaskUserConfig::query()
                                   ->where('family_id', '=', $request['familyId'])
@@ -37,7 +39,7 @@ class TaskUserConfigsRepository extends DefaultRepository
         if (!$alreadyLoadedTasks) {
             /** @var TaskUserConfig $entity */
             foreach ($entities as $entity) {
-                $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date);
+                $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date, $entity->user);
             }
         }
 
@@ -47,6 +49,8 @@ class TaskUserConfigsRepository extends DefaultRepository
     public function createEntity($request, User $user): Model|array
     {
         $date = Carbon::now('America/Los_Angeles');
+        /** @var User $configUser */
+        $configUser = User::query()->find($request['userId']);
         $config = new TaskUserConfig([
             'tasks_per_week' => $request['tasksPerWeek'] ?? 5,
             'start_date' => array_key_exists('startDate', $request) ? $request['startDate'] : $date->startOfWeek()->toDateString(),
@@ -56,7 +60,7 @@ class TaskUserConfigsRepository extends DefaultRepository
         $config->user()->associate($request['userId']);
         $config->save();
 
-        $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date);
+        $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date, $configUser);
 
         return $config;
     }
@@ -71,7 +75,7 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
         $model->save();
-        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::now('America/Los_Angeles'));
+        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::now('America/Los_Angeles'), $model->user);
 
         return $model;
     }

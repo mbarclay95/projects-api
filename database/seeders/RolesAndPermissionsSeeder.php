@@ -26,7 +26,7 @@ class RolesAndPermissionsSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -38,16 +38,24 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createTasksRole();
         $this->createEventsRole();
         $this->createFileExplorerRole();
+        $this->createMoneyAppRole();
     }
 
-    private function createFileExplorerRole()
+    private function createFileExplorerRole(): void
     {
         $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
             Permissions::VIEW_FILE_EXPLORER_PAGE
         ]);
     }
 
-    private function createUsersRole()
+    private function createMoneyAppRole(): void
+    {
+        $this->createAndAssign(Roles::MONEY_APP_ROLE, [
+            Permissions::VIEW_MONEY_APP_PAGE
+        ]);
+    }
+
+    private function createUsersRole(): void
     {
         $this->createAndAssign(Roles::USERS_ROLE, [
             User::viewAnyPermission(),
@@ -72,7 +80,7 @@ class RolesAndPermissionsSeeder extends Seeder
      * @param string[] $permissions
      * @return void
      */
-    private function createAndAssign(string $role, array $permissions)
+    private function createAndAssign(string $role, array $permissions): void
     {
         /** @var Role $role */
         $role = Role::findOrCreate($role);
@@ -83,7 +91,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
     }
 
-    private function createGoalsRole()
+    private function createGoalsRole(): void
     {
         $this->createAndAssign(Roles::GOALS_ROLE, [
             Goal::viewAnyForUserPermission(),
@@ -101,7 +109,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    private function createBackupsRole()
+    private function createBackupsRole(): void
     {
         $this->createAndAssign(Roles::BACKUPS_ROLE, [
             Permissions::BACKUPS_VIEW_ANY_FOR_USER,
@@ -126,7 +134,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    private function createDashboardRole()
+    private function createDashboardRole(): void
     {
         $this->createAndAssign(Roles::DASHBOARD_ROLE, [
             Permissions::FOLDERS_VIEW_ANY_FOR_USER,
@@ -145,7 +153,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    private function createTasksRole()
+    private function createTasksRole(): void
     {
         $this->createAndAssign(Roles::TASK_ROLE, [
             Task::viewAnyForUserPermission(),
@@ -166,7 +174,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    private function createEventsRole()
+    private function createEventsRole(): void
     {
         $this->createAndAssign(Roles::EVENT_ROLE, [
 

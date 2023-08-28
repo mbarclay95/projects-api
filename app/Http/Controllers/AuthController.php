@@ -86,7 +86,8 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'userConfig.sideMenuOpen' => 'required|bool',
-            'userConfig.homePageRole' => 'required|string'
+            'userConfig.homePageRole' => 'required|string',
+            'userConfig.moneyAppToken' => 'nullable|string',
         ]);
 
         /** @var User $user */
@@ -94,6 +95,7 @@ class AuthController extends Controller
         $user->name = $validated['name'];
         $user->userConfig->side_menu_open = $validated['userConfig']['sideMenuOpen'];
         $user->userConfig->home_page_role = $validated['userConfig']['homePageRole'];
+        $user->userConfig->money_app_token = $validated['userConfig']['moneyAppToken'];
 
         $user->save();
         $user->userConfig->save();

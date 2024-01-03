@@ -32,7 +32,7 @@ class Family extends ApiModel
     use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'tasks_per_week', 'total_family_tasks',
-        'task_strategy', 'task_points', 'min_week_offset'];
+        'task_strategy', 'task_points', 'min_week_offset', 'min_year'];
 
     protected static array $apiModelEntities = [];
 
@@ -144,8 +144,11 @@ end)");
                                 ->first();
 
         if (!$config) {
+            $this->setAttribute('min_year', Carbon::today()->year);
             return 0;
         }
+
+        $this->setAttribute('min_year', Carbon::parse($config->start_date)->year);
 
         return Carbon::now('America/Los_Angeles')->diffInWeeks($config->start_date, false);
     }

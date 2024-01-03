@@ -14,6 +14,7 @@ use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
 use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tasks\FamilyController;
+use App\Http\Controllers\Tasks\FamilyStatsController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;
 use App\Http\Controllers\Tasks\TaskHistoryController;
@@ -74,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('tasks', TaskController::class)->except('show');
     Route::apiResource('tags', TagController::class)->only('index');
     Route::apiResource('families', FamilyController::class);
+    Route::apiResource('family-stats', FamilyStatsController::class)->only('index');
     Route::apiResource('task-user-config', TaskUserConfigController::class)->only('index', 'update');
     Route::apiResource('tasks.history', TaskHistoryController::class)->only('index');
 });

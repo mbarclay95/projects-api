@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Permissions;
 use App\Enums\Roles;
+use App\Models\ApiModels\FamilyMemberStatsApiModel;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
@@ -164,6 +165,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
             Family::viewForUserPermission(),
             Family::updatePermission(),
+
+            FamilyMemberStatsApiModel::viewAnyForUserPermission(),
 
             TaskUserConfig::viewAnyPermission(),
             TaskUserConfig::updatePermission(),

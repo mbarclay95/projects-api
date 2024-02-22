@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Site
@@ -32,9 +33,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property integer user_id
  * @property User user
  */
-class Site extends Model
+class Site extends ApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'sort', 'show', 'description', 'url', 'folder_id'];
 
@@ -43,8 +44,6 @@ class Site extends Model
     ];
 
     protected static array $apiModelArrayEntities = [];
-
-    protected static $unguarded = true;
 
     public function folder(): BelongsTo
     {

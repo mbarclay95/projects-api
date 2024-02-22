@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * Class Family
+ * Class TaskUserConfig
  *
  * @property integer id
  * @property Carbon created_at

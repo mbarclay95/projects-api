@@ -10,13 +10,10 @@ use App\Repositories\Tasks\FamiliesRepository;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class BackfillTaskUserConfigTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function testAddingMember()
     {
         $this->generateAndAssertTaskUserConfigs(false);

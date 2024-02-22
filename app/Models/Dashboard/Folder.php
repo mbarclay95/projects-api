@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Folder
@@ -28,9 +29,9 @@ use Illuminate\Support\Collection;
 
  * @property Collection|Site[] sites
  */
-class Folder extends Model
+class Folder extends ApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'sort', 'show'];
 
@@ -40,8 +41,6 @@ class Folder extends Model
         'sites' => Site::class,
     ];
 
-    protected static $unguarded = true;
-
     public function sites(): HasMany
     {
         return $this->hasMany(Site::class);
@@ -50,5 +49,23 @@ class Folder extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function recalculateSitesSorting(): void
+    {
+        $sort = 1;
+        /** @var Site $site */
+        foreach ($this->sites->sortBy('sort') as $site) {
+            if ($site->show) {
+                if ($site->sort !== $sort) {
+                    $site->sort = $sort;
+                    $site->save();
+                }
+                $sort++;
+            } elseif (!$site->show && $site->sort !== null) {
+                $site->sort = null;
+                $site->save();
+            }
+        }
     }
 }

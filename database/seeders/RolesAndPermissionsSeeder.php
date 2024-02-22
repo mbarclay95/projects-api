@@ -6,6 +6,9 @@ use App\Enums\Permissions;
 use App\Enums\Roles;
 use App\Models\ApiModels\FamilyMemberStatsApiModel;
 use App\Models\ApiModels\RoleApiModel;
+use App\Models\Dashboard\Folder;
+use App\Models\Dashboard\Site;
+use App\Models\Dashboard\SiteImage;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
 use App\Models\Goals\Goal;
@@ -138,17 +141,17 @@ class RolesAndPermissionsSeeder extends Seeder
     private function createDashboardRole(): void
     {
         $this->createAndAssign(Roles::DASHBOARD_ROLE, [
-            Permissions::FOLDERS_VIEW_ANY_FOR_USER,
-            Permissions::FOLDERS_CREATE,
-            Permissions::FOLDERS_UPDATE_FOR_USER,
-            Permissions::FOLDERS_DELETE_FOR_USER,
+            Folder::viewAnyForUserPermission(),
+            Folder::createPermission(),
+            Folder::updateForUserPermission(),
+            Folder::deleteForUserPermission(),
 
-            Permissions::SITES_CREATE,
-            Permissions::SITES_UPDATE_FOR_USER,
-            Permissions::SITES_DELETE_FOR_USER,
+            Site::createPermission(),
+            Site::updateForUserPermission(),
+            Site::deleteForUserPermission(),
 
-            Permissions::SITE_IMAGES_CREATE,
-            Permissions::SITE_IMAGES_VIEW_FOR_USER,
+            SiteImage::createPermission(),
+            SiteImage::viewForUserPermission(),
 
             Permissions::VIEW_DASHBOARD_PAGE,
         ]);

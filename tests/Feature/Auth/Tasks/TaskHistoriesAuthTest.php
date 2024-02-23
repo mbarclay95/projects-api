@@ -4,7 +4,7 @@ namespace Tests\Feature\Auth\Tasks;
 
 use App\Enums\Roles;
 use App\Models\Tasks\Task;
-use App\Models\User;
+use App\Models\Users\User;
 use Tests\Feature\Auth\AuthTestCase;
 
 class TaskHistoriesAuthTest extends AuthTestCase

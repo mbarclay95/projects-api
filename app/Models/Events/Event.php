@@ -3,7 +3,7 @@
 namespace App\Models\Events;
 
 use App\Models\BaseApiModel;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

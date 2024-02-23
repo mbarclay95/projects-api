@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use App\Enums\Permissions;
-use App\Models\User;
+use App\Models\Users\User;
 
 trait HasCrudPermissions
 {

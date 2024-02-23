@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Http\Controllers\Controller;
 use App\Models\ApiModels\TaskHistoryApiModel;
-use App\Models\Tasks\Family;
 use App\Models\Tasks\Task;
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

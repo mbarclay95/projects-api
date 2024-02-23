@@ -4,7 +4,7 @@ namespace App\Models\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
 use App\Models\ApiModels\FamilyMemberApiModel;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

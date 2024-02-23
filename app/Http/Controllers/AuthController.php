@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Enums\Roles;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -86,8 +89,11 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'userConfig.sideMenuOpen' => 'required|bool',
-            'userConfig.homePageRole' => 'required|string',
+            'userConfig.homePageRole' => 'nullable|string',
             'userConfig.moneyAppToken' => 'nullable|string',
+            'roles' => 'array',
+            'roles.*.id' => 'required|int',
+            'roles.*.name' => 'required|string',
         ]);
 
         /** @var User $user */
@@ -96,6 +102,21 @@ class AuthController extends Controller
         $user->userConfig->side_menu_open = $validated['userConfig']['sideMenuOpen'];
         $user->userConfig->home_page_role = $validated['userConfig']['homePageRole'];
         $user->userConfig->money_app_token = $validated['userConfig']['moneyAppToken'];
+        $roles = Role::query()
+                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
+                         return $role['id'];
+                     }))
+                     ->get();
+        if ($user->roles->doesntContain(function ($role) {
+                return $role->name == Roles::ADMIN_ROLE;
+            }) && $roles->contains(function ($role) {
+                return $role->name == Roles::ADMIN_ROLE;
+            })) {
+            $roles = $roles->filter(function ($role) {
+                return $role->name != Roles::ADMIN_ROLE;
+            });
+        }
+        $user->syncRoles($roles);
 
         $user->save();
         $user->userConfig->save();

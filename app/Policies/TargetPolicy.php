@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Enums\Permissions;
 use App\Models\Backups\Target;
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 

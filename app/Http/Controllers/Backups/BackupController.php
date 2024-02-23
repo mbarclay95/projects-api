@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Backups;
 
-use App\Http\Controllers\ApiCrudController;
 use App\Http\Requests\Backups\BackupStoreRequest;
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class BackupController extends ApiCrudController
+class BackupController extends CrudController
 {
     protected static string $modelClass = Backup::class;
 

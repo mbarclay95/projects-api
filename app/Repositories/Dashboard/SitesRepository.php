@@ -3,20 +3,18 @@
 namespace App\Repositories\Dashboard;
 
 use App\Models\Dashboard\Site;
-use App\Models\Tasks\Family;
-use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class SitesRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $maxSort = (Site::query()
                         ->where('folder_id', '=', $request['folderId'])
@@ -43,10 +41,10 @@ class SitesRepository extends DefaultRepository
     /**
      * @param Site $model
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function updateEntity(Model $model, $request, User $user): Model|array
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $show = $request['show'];
         if ($model->show != $show) {
@@ -85,7 +83,7 @@ class SitesRepository extends DefaultRepository
         return $model;
     }
 
-    public static function updateSitesSorts($request, User $user): bool
+    public static function updateSitesSorts($request, Authenticatable $user): bool
     {
         $maxSort = (Site::query()
                         ->where('folder_id', '=', $request['folderId'])
@@ -106,10 +104,10 @@ class SitesRepository extends DefaultRepository
 
     /**
      * @param Site $model
-     * @param User $user
+     * @param Authenticatable $user
      * @return bool
      */
-    public function destroyEntity(Model $model, User $user): bool
+    public function destroyEntity(Model $model, Authenticatable $user): bool
     {
         $folder = $model->folder;
         $model->delete();

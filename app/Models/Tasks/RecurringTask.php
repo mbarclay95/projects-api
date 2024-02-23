@@ -2,8 +2,9 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -54,22 +55,29 @@ class RecurringTask extends ApiModel
 
         if (!$dueDate) {
             $lastCompletedTask = Task::getLastCompletedTask($this->id);
-            $dueDate = $this->incrementDateByFrequency($lastCompletedTask->completed_at);
+            $dueDate = $this->incrementDateByFrequency($lastCompletedTask?->completed_at ?? Carbon::today());
         }
 
         return Task::createFromRecurring($this, $dueDate, $tags);
     }
 
+    /**
+     * @throws Exception
+     */
     public function incrementDateByFrequency(Carbon $date): Carbon
     {
-        if ($this->frequency_unit == 'day') {
-            return $date->addDays($this->frequency_amount);
-        }
-        if ($this->frequency_unit == 'week') {
-            return $date->addWeeks($this->frequency_amount);
+        switch ($this->frequency_unit) {
+            case 'day':
+                return $date->addDays($this->frequency_amount);
+            case 'week':
+                return $date->addWeeks($this->frequency_amount);
+            case 'month':
+                return $date->addMonths($this->frequency_amount);
+            case 'year':
+                return $date->addYears($this->frequency_amount);
         }
 
-        return $date->addMonths($this->frequency_amount);
+        throw new Exception('Invalid frequency unit');
     }
 
     public function owner(): MorphTo

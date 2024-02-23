@@ -2,12 +2,11 @@
 
 namespace App\Models\Goals;
 
-use App\Models\User;
+use App\Models\Users\User;
 use App\Repositories\GoalDaysRepository;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Mbarclay36\LaravelCrud\ApiModel;
 use Mbarclay36\LaravelCrud\Traits\HasRepository;
@@ -32,13 +31,16 @@ class GoalDay extends ApiModel
 {
     use HasFactory, Filterable, HasRepository;
 
-    protected static string $repositoryClass = GoalDaysRepository::class;
-
     protected static array $apiModelAttributes = ['id', 'date', 'amount'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [];
 
     protected $dateFormat = 'Y-m-d H:i:sO';
+
+    protected static function getRepositoryClass(): string
+    {
+        return GoalDaysRepository::class;
+    }
 
     public function user(): BelongsTo
     {

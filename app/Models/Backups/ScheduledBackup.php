@@ -2,7 +2,7 @@
 
 namespace App\Models\Backups;
 
-use App\Models\User;
+use App\Models\Users\User;
 use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

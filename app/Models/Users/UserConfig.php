@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
 use App\Traits\HasApiModel;
 use Carbon\Carbon;

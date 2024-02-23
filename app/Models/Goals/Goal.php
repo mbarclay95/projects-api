@@ -2,7 +2,7 @@
 
 namespace App\Models\Goals;
 
-use App\Models\User;
+use App\Models\Users\User;
 use App\Repositories\GoalsRepository;
 use App\Traits\HasApiModel;
 use Carbon\Carbon;
@@ -41,14 +41,17 @@ class Goal extends ApiModel
 {
     use HasFactory, HasRepository, Filterable;
 
-    protected static string $repositoryClass = GoalsRepository::class;
-
     protected static array $apiModelAttributes = ['id', 'created_at', 'title', 'expected_amount', 'unit',
         'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit', 'current_amount'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [
         'goalDays' => GoalDay::class
     ];
+
+    protected static function getRepositoryClass(): string
+    {
+        return GoalsRepository::class;
+    }
 
     protected $appends = ['current_amount'];
 

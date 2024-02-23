@@ -17,7 +17,7 @@ use App\Models\Tasks\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -35,7 +35,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $this->createUsersRole();
+        $this->createAdminRole();
         $this->createGoalsRole();
         $this->createBackupsRole();
         $this->createDashboardRole();
@@ -44,6 +44,13 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createFileExplorerRole();
         $this->createMoneyAppRole();
     }
+
+//    private function createDefaultRole(): void
+//    {
+//        $this->createAndAssign(Roles::DEFAULT_ROLE, [
+//            RoleApiModel::viewAnyForUserPermission()
+//        ]);
+//    }
 
     private function createFileExplorerRole(): void
     {
@@ -59,9 +66,9 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
     }
 
-    private function createUsersRole(): void
+    private function createAdminRole(): void
     {
-        $this->createAndAssign(Roles::USERS_ROLE, [
+        $this->createAndAssign(Roles::ADMIN_ROLE, [
             User::viewAnyPermission(),
             User::createPermission(),
             User::updatePermission(),

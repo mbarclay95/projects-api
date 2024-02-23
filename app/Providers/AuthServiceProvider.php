@@ -9,7 +9,7 @@ use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Policies\BackupPolicy;
 use App\Policies\FolderPolicy;
 use App\Policies\GoalDayPolicy;

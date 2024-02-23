@@ -4,7 +4,8 @@ namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\RecurringTask;
-use App\Models\User;
+use App\Models\Users\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
@@ -12,10 +13,10 @@ class RecurringTasksRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $task = new RecurringTask([
             'name' => $request['name'],

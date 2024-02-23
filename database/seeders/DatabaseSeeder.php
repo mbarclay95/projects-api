@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Roles;
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('1234'),
         ]);
         $user->save();
-        $role = Role::findByName(Roles::USERS_ROLE);
+        $role = Role::findByName(Roles::ADMIN_ROLE);
         $user->syncRoles([$role]);
     }
 }

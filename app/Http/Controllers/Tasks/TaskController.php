@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Models\Tasks\Task;
-use App\Models\User;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Mbarclay36\LaravelCrud\CrudController;
 
 class TaskController extends CrudController

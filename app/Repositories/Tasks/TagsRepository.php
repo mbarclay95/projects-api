@@ -4,7 +4,8 @@ namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Tag;
-use App\Models\User;
+use App\Models\Users\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
@@ -12,11 +13,11 @@ class TagsRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @param bool $viewOnlyForUser
      * @return Collection|array
      */
-    public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Tag::query()
                   ->whereHas('tasks', function ($where) use ($user) {

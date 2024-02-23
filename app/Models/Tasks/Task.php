@@ -3,10 +3,11 @@
 namespace App\Models\Tasks;
 
 use App\Models\ApiModels\FamilyMemberApiModel;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -116,7 +117,7 @@ class Task extends ApiModel
 
     /**
      * @param int $recurringTaskId
-     * @return Task
+     * @return Model|Task
      */
     public static function getFutureIncompleteTask(int $recurringTaskId)
     {
@@ -129,7 +130,7 @@ class Task extends ApiModel
 
     /**
      * @param int $recurringTaskId
-     * @return Task
+     * @return Model|Task
      */
     public static function getLastCompletedTask(int $recurringTaskId)
     {

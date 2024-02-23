@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dashboard\Folder;
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

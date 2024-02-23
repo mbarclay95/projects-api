@@ -14,7 +14,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_get_families_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], []);
+        $this->initRoles([Roles::ADMIN_ROLE], []);
         $this->runTestsGET('api/families');
     }
 
@@ -24,7 +24,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_get_families_no_task_role_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], [Roles::TASK_ROLE]);
+        $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
         $this->runTestsGET('api/families');
     }
 
@@ -34,7 +34,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_post_task_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], []);
+        $this->initRoles([Roles::ADMIN_ROLE], []);
         $this->runTestsPOST('api/families');
     }
 
@@ -44,7 +44,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_post_task_no_task_role_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], [Roles::TASK_ROLE]);
+        $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
         $this->runTestsPOST('api/families');
     }
 
@@ -78,7 +78,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_delete_task_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], []);
+        $this->initRoles([Roles::ADMIN_ROLE], []);
         /** @var Family $family */
         $family = Family::factory()->create();
         $this->runTestsDELETE("api/families/{$family->id}");
@@ -90,7 +90,7 @@ class FamiliesAuthTest extends AuthTestCase
      */
     public function test_delete_task_no_task_role_user_permissions(): void
     {
-        $this->initRoles([Roles::USERS_ROLE], [Roles::TASK_ROLE]);
+        $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
         /** @var Family $family */
         $family = Family::factory()->create();
         $this->runTestsDELETE("api/families/{$family->id}");

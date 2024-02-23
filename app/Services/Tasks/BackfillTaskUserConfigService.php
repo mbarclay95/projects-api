@@ -4,9 +4,10 @@ namespace App\Services\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\TaskUserConfig;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 
 class BackfillTaskUserConfigService
@@ -16,7 +17,7 @@ class BackfillTaskUserConfigService
      * @param User $user
      * @return Collection
      */
-    public static function run(Family $family, User $user): Collection
+    public static function run(Family $family, Authenticatable $user): Collection
     {
         $newConfigs = new Collection();
 

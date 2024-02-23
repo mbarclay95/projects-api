@@ -2,21 +2,20 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
+use App\Enums\Roles;
+use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Tests\TestCase;
+use Spatie\Permission\Models\Role;
 
-class GeneralAuthTest extends TestCase
+class GeneralAuthTest extends AuthTestCase
 {
-    use RefreshDatabase;
-
     /**
      * A basic feature test example.
      *
      * @return void
      */
-    public function test_logging_in()
+    public function testLoggingIn()
     {
         User::factory()->create([
             'username' => 'mbarclay',
@@ -35,4 +34,6 @@ class GeneralAuthTest extends TestCase
         ]);
         $badResponse->assertUnauthorized();
     }
+
+
 }

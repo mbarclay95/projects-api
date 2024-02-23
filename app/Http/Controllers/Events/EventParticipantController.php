@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Events;
 
-use App\Http\Controllers\ApiCrudController;
 use App\Models\Events\EventParticipant;
+use Mbarclay36\LaravelCrud\CrudController;
 
-class EventParticipantController extends ApiCrudController
+class EventParticipantController extends CrudController
 {
     protected static string $modelClass = EventParticipant::class;
 

@@ -9,7 +9,10 @@ class RoleApiModel
 {
     use IsApiModel;
 
-    protected static string $repositoryClass = RolesRepository::class;
-
     protected static array $apiModelAttributes = ['id', 'name'];
+
+    protected static function getRepositoryClass(): string
+    {
+        return RolesRepository::class;
+    }
 }

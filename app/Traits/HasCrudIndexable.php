@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Models\User;
+use App\Models\Users\User;
 
 trait HasCrudIndexable
 {

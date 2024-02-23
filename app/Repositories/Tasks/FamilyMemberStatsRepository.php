@@ -4,9 +4,9 @@ namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Task;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -15,11 +15,11 @@ class FamilyMemberStatsRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @param bool $viewOnlyForUser
      * @return Collection|array
      */
-    public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         $familyId = $request['familyId'];
         $startDate = Carbon::today('America/Los_Angeles')->setDate($request['year'], 1, 1);

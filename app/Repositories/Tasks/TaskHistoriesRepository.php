@@ -3,13 +3,13 @@
 namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Task;
-use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class TaskHistoriesRepository extends DefaultRepository
 {
-    public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         /** @var Task $task */
         $task = Task::query()->find($request['taskId']);

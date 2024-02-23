@@ -3,7 +3,7 @@
 namespace App\ModelFilters;
 
 use App\Models\Tasks\Family;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\ModelFilter;
 

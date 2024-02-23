@@ -3,7 +3,8 @@
 namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
-use App\Models\User;
+use App\Models\Users\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -12,10 +13,10 @@ class FamiliesRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $family = new Family([
             'name' => $request['name'],
@@ -36,10 +37,10 @@ class FamiliesRepository extends DefaultRepository
     /**
      * @param Family $model
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function updateEntity(Model $model, $request, User $user): Model|array
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->name = $request['name'];
         $model->task_strategy = $request['taskStrategy'];

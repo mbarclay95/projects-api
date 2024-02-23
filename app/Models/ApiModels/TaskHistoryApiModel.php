@@ -10,7 +10,13 @@ class TaskHistoryApiModel extends Model
 {
     use IsApiModel;
 
-    protected static string $repositoryClass = TaskHistoriesRepository::class;
-
     protected static array $apiModelAttributes = ['id', 'completed_at', 'completed_by_name'];
+
+    /**
+     * @return string
+     */
+    public static function getRepositoryClass(): string
+    {
+        return TaskHistoriesRepository::class;
+    }
 }

@@ -3,7 +3,7 @@
 namespace App\Models\Backups;
 
 use App\Models\BaseApiModel;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

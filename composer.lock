@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1d507885a17a347c709268d94abe3091",
+    "content-hash": "5332576e153a0558115434efd965bf7b",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -2403,11 +2403,11 @@
         },
         {
             "name": "mbarclay36/laravel-crud",
-            "version": "1.2.8",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://mbarclay36:TUP8XdX64JJTtN7emL@gitea.bigmike.dev/mbarclay36/laravel-crud-package.git",
-                "reference": "2d28192f4777d579f7635732b8cb722963fa9dd6"
+                "reference": "28384e703d4da27240d8efb48f920d0b490b949e"
             },
             "require": {
                 "laravel/framework": ">=v9.0.0",
@@ -2433,7 +2433,7 @@
                 }
             ],
             "description": "A package for quickly building a crud api",
-            "time": "2023-04-26T18:01:21+00:00"
+            "time": "2024-02-23T22:34:14+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -9208,5 +9208,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.6.0"
 }

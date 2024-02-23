@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -14,11 +14,11 @@ class GoalsRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @param bool $viewOnlyForUser
      * @return Collection|array
      */
-    public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         /** @var Goal[] $goals */
         $goals = Goal::query()
@@ -39,10 +39,10 @@ class GoalsRepository extends DefaultRepository
 
     /**
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $goal = new Goal([
             'title' => $request['title'],
@@ -62,10 +62,10 @@ class GoalsRepository extends DefaultRepository
     /**
      * @param Goal $model
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function updateEntity(Model $model, $request, User $user): Model|array
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->title = $request['title'];
         $model->verb = $request['verb'];
@@ -83,10 +83,10 @@ class GoalsRepository extends DefaultRepository
 
     /**
      * @param Goal $model
-     * @param User $user
+     * @param Authenticatable $user
      * @return bool
      */
-    public function destroyEntity(Model $model, User $user): bool
+    public function destroyEntity(Model $model, Authenticatable $user): bool
     {
         $model->delete();
 

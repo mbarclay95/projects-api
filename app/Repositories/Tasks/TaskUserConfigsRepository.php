@@ -4,16 +4,17 @@ namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\TaskUserConfig;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class TaskUserConfigsRepository extends DefaultRepository
 {
-    public function getEntities($request, User $user, bool $viewOnlyForUser): Collection|array
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         $weekOffset = min($request['weekOffset'], 0);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
@@ -46,7 +47,7 @@ class TaskUserConfigsRepository extends DefaultRepository
         return $entities;
     }
 
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $date = Carbon::now('America/Los_Angeles');
         /** @var User $configUser */
@@ -68,10 +69,10 @@ class TaskUserConfigsRepository extends DefaultRepository
     /**
      * @param TaskUserConfig $model
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function updateEntity(Model $model, $request, User $user): Model|array
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
         $model->save();

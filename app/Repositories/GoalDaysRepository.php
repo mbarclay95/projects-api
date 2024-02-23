@@ -2,17 +2,15 @@
 
 namespace App\Repositories;
 
-use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GoalDaysRepository extends DefaultRepository
 {
-    public function createEntity($request, User $user): Model|array
+    public function createEntity($request, Authenticatable $user): Model|array
     {
         $goalDay = new GoalDay([
             'amount' => $request['amount'],
@@ -28,10 +26,10 @@ class GoalDaysRepository extends DefaultRepository
     /**
      * @param GoalDay $model
      * @param $request
-     * @param User $user
+     * @param Authenticatable $user
      * @return Model|array
      */
-    public function updateEntity(Model $model, $request, User $user): Model|array
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->amount = $request['amount'];
         $model->save();

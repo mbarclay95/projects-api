@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
-use App\Models\User;
+use App\Models\Users\User;
 use App\Repositories\Dashboard\SitesRepository;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Logging;
 use App\Enums\LogSourceEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Logging\LogEvent;
-use App\Models\User;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
+use Mbarclay36\LaravelCrud\CrudController;
 use App\Models\Dashboard\SiteImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,23 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SiteImageController extends Controller
+class SiteImageController extends CrudController
 {
-    public function __construct()
-    {
-        $this->authorizeResource(SiteImage::class, 'site-image', ['except' => ['show']]);
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
+    protected static string $modelClass = SiteImage::class;
+    protected static array $indexRules = [];
+    protected static array $storeRules = [];
+    protected static array $updateRules = [];
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -68,28 +58,5 @@ class SiteImageController extends Controller
         return response()->stream(function () use ($file) {
             echo $file;
         }, 200, ['Content-Type' => 'image/png']);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param SiteImage $siteImage
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, SiteImage $siteImage)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param SiteImage $siteImage
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(SiteImage $siteImage)
-    {
-        //
     }
 }

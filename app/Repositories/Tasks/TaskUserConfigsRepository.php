@@ -16,7 +16,7 @@ class TaskUserConfigsRepository extends DefaultRepository
 {
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
-        $weekOffset = min($request['weekOffset'], 0);
+        $weekOffset = min($request['weekOffset'], 1);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         /** @var Family $family */
         $family = Family::query()
@@ -32,7 +32,7 @@ class TaskUserConfigsRepository extends DefaultRepository
                                   ->get();
 
         $alreadyLoadedTasks = false;
-        if ($weekOffset == 0 && $family->userConfigs->count() == 0) {
+        if (($weekOffset == 0 || $weekOffset == 1) && $entities->count() == 0) {
             $alreadyLoadedTasks = true;
             $entities = BackfillTaskUserConfigService::run($family, $user);
         }
@@ -51,14 +51,14 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $date = Carbon::now('America/Los_Angeles');
         /** @var User $configUser */
-        $configUser = User::query()->find($request['userId']);
+        $configUser = $request['user'];
         $config = new TaskUserConfig([
             'tasks_per_week' => $request['tasksPerWeek'] ?? 5,
             'start_date' => array_key_exists('startDate', $request) ? $request['startDate'] : $date->startOfWeek()->toDateString(),
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
         $config->family()->associate($request['family']);
-        $config->user()->associate($request['userId']);
+        $config->user()->associate($configUser);
         $config->save();
 
         $config->completedFamilyTasks = $config->getCompletedFamilyTasks($date, $configUser);

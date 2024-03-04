@@ -36,6 +36,7 @@ class BackfillTaskUserConfigTest extends TestCase
         /** @var Family $family */
         $family = $this->initFamilyAndMembers($familyMember);
         $date = Carbon::now('America/Los_Angeles');
+
         if ($shouldBackfill) {
             /** @var TaskUserConfig $config */
             $config = TaskUserConfig::query()->first();
@@ -51,8 +52,10 @@ class BackfillTaskUserConfigTest extends TestCase
         $configs = TaskUserConfig::query()
                                  ->orderBy('end_date')
                                  ->get();
+        // backfilling will include the upcoming week, so it will include 1 additional config
+        $expectedConfigsCount = $numOfWeeks + ($shouldBackfill ? 2 : 1);
 
-        $this->assertEquals($configs->count(), $numOfWeeks + 1);
+        $this->assertEquals($expectedConfigsCount , $configs->count());
         foreach ($configs as $config) {
             $this->assertEquals($config->user_id, $familyMember->id);
             $this->assertEquals($config->family_id, $family->id);

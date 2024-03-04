@@ -29,7 +29,7 @@ class BackfillTaskUserConfigService
         [$lastConfigs, $date] = $lastConfigsAndDate;
         /** @var Carbon $newConfigWeek */
         $newConfigWeek = $date->addWeek();
-        $endOfThisWeek = Carbon::now('America/Los_Angeles')->endOfWeek();
+        $endOfThisWeek = Carbon::now('America/Los_Angeles')->addWeek()->endOfWeek();
 
         while ($endOfThisWeek->greaterThan($newConfigWeek)) {
             /** @var TaskUserConfig $lastConfig */
@@ -37,7 +37,7 @@ class BackfillTaskUserConfigService
                 $configParams = [
                     'family' => $family,
                     'tasksPerWeek' => $lastConfig->tasks_per_week,
-                    'userId' => $lastConfig->user_id,
+                    'user' => $lastConfig->user,
                     'startDate' => (clone $newConfigWeek)->startOfWeek()->toDateString(),
                     'endDate' => (clone $newConfigWeek)->endOfWeek()->toDateString(),
                 ];

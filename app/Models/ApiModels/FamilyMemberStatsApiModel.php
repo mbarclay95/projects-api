@@ -11,7 +11,7 @@ class FamilyMemberStatsApiModel
 {
     use HasApiModel, HasRepository, HasCrudPermissions;
 
-    protected static array $apiModelAttributes = ['name', 'topTasks', 'totalTasks', 'totalPoints'];
+    protected static array $apiModelAttributes = ['name', 'topTasks', 'totalTasks', 'totalExpectedPoints', 'totalEarnedPoints'];
 
     protected static function getRepositoryClass(): string
     {

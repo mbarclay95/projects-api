@@ -4,6 +4,7 @@ namespace App\Repositories\Tasks;
 
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Task;
+use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -58,6 +59,19 @@ class FamilyMemberStatsRepository extends DefaultRepository
                       ->groupBy('completed_by_id')
                       ->get();
 
+        $expectedEndDate = $endDate;
+        $today = Carbon::today('America/Los_Angeles');
+        if ($expectedEndDate->greaterThan($today)) {
+            $expectedEndDate = $today;
+        }
+        $expectedPointsCount = TaskUserConfig::query()
+                                             ->selectRaw("user_id, sum(tasks_per_week)")
+                                             ->where('family_id', '=', $familyId)
+                                             ->where('start_date', '>', $startDate)
+                                             ->where('start_date', '<', $expectedEndDate)
+                                             ->groupBy('user_id')
+                                             ->get();
+
         foreach ($familyMembers as $member) {
             $topTasks = $topThree
                 ->filter(function ($item) use ($member) {
@@ -72,9 +86,11 @@ class FamilyMemberStatsRepository extends DefaultRepository
                 ->values();
             $member->setAttribute('topTasks', $topTasks);
             $membersCounts = $counts->where('completed_by_id', '=', $member->id)->first();
+            $memberExpectedCounts = $expectedPointsCount->where('user_id', '=', $member->id)->first();
             if ($membersCounts) {
                 $member->setAttribute('totalTasks', $membersCounts->count);
-                $member->setAttribute('totalPoints', $membersCounts->sum);
+                $member->setAttribute('totalEarnedPoints', $membersCounts->sum);
+                $member->setAttribute('totalExpectedPoints', $memberExpectedCounts->sum);
             }
         }
 

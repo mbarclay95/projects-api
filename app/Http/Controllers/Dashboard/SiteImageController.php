@@ -16,39 +16,19 @@ class SiteImageController extends CrudController
     protected static array $indexRules = [];
     protected static array $storeRules = [];
     protected static array $updateRules = [];
-    
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $userId = Auth::id();
-        $file = $request->file('file');
-        $path = Storage::disk('s3')->put('site-images', $file);
-
-        $siteImage = new SiteImage([
-            's3_path' => $path,
-            'original_file_name' => $file->getClientOriginalName()
-        ]);
-        $siteImage->user()->associate($userId);
-        $siteImage->save();
-
-        return new JsonResponse(SiteImage::toApiModel($siteImage));
-    }
 
     /**
      * Display the specified resource.
      *
-     * @param SiteImage $siteImage
+     * @param int $id
      * @return StreamedResponse
      */
-    public function show(SiteImage $siteImage): StreamedResponse
+    public function show(int $id): StreamedResponse
     {
+        /** @var SiteImage $siteImage */
+        $siteImage = SiteImage::query()->find($id);
         $file = Storage::disk('s3')->get($siteImage->s3_path);
-        
+
         if (str_contains($siteImage->s3_path, '.svg')) {
             return response()->stream(function () use ($file) {
                 echo $file;

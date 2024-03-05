@@ -7,14 +7,10 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production",
+        "prepare": "husky"
     },
     "devDependencies": {
         "husky": "^9.0.11"
-    },
-    "husky": {
-        "hooks": {
-            "pre-push": "php artisan test"
-        }
     }
 }

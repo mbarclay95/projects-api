@@ -18,7 +18,7 @@ class SiteImagesRepository extends DefaultRepository
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
-        $file = $request->file('file');
+        $file = $request['file'];
         $path = Storage::disk('s3')->put('site-images', $file);
 
         $siteImage = new SiteImage([

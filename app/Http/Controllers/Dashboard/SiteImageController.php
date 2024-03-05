@@ -14,7 +14,9 @@ class SiteImageController extends CrudController
 {
     protected static string $modelClass = SiteImage::class;
     protected static array $indexRules = [];
-    protected static array $storeRules = [];
+    protected static array $storeRules = [
+        'file' => 'file'
+    ];
     protected static array $updateRules = [];
 
     /**

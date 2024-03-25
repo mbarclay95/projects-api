@@ -29,6 +29,7 @@ class TaskUserConfigsRepository extends DefaultRepository
                                   ->where('end_date', '>=', $date->toDateString())
                                   ->whereIn('user_id', $family->userConfigs->pluck('user_id'))
                                   ->with('user')
+                                  ->orderBy('user_id')
                                   ->get();
 
         $alreadyLoadedTasks = false;
@@ -76,7 +77,7 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
         $model->save();
-        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::now('America/Los_Angeles'), $model->user);
+        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::parse($model->start_date)->addDay(), $model->user);
 
         return $model;
     }

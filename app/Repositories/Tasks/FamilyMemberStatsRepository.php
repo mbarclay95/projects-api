@@ -30,6 +30,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
                              ->whereHas('family', function ($query) use ($familyId) {
                                  $query->where('family_id', '=', $familyId);
                              })
+                             ->orderBy('id')
                              ->get();
 
         $topThree = DB::table(function ($query) use ($startDate, $endDate, $familyId) {

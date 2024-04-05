@@ -17,14 +17,6 @@ class Permissions
     const RESTORE = '_restore';
     const RESTORE_FOR_USER = '_restore_for_user';
 
-    private const GOALS = 'goals';
-    const GOALS_VIEW_ANY_FOR_USER = self::GOALS . self::VIEW_ANY_FOR_USER;
-    const GOALS_VIEW_FOR_USER = self::GOALS . self::VIEW_FOR_USER;
-    const GOALS_CREATE = self::GOALS . self::CREATE;
-    const GOALS_UPDATE_FOR_USER = self::GOALS . self::UPDATE_FOR_USER;
-    const GOALS_DELETE_FOR_USER = self::GOALS . self::DELETE_FOR_USER;
-    const GOALS_RESTORE_FOR_USER = self::GOALS . self::RESTORE_FOR_USER;
-
     private const BACKUPS = 'backups';
     const BACKUPS_VIEW_ANY_FOR_USER = self::BACKUPS . self::VIEW_ANY_FOR_USER;
     const BACKUPS_VIEW_FOR_USER = self::BACKUPS . self::VIEW_FOR_USER;
@@ -56,5 +48,6 @@ class Permissions
     const VIEW_EVENTS_PAGE = self::CLIENT . 'view_events_page';
     const VIEW_FILE_EXPLORER_PAGE = self::CLIENT . 'view_file_explorer_page';
     const VIEW_MONEY_APP_PAGE = self::CLIENT . 'view_money_app_page';
+    const LISTEN_TO_UPTIME_KUMA_WEBSOCKET = self::CLIENT . 'listen_to_uptime_kuma_websocket';
 
 }

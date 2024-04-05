@@ -83,6 +83,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             Permissions::VIEW_USERS_PAGE,
             Permissions::VIEW_FAMILIES_TAB,
+            Permissions::LISTEN_TO_UPTIME_KUMA_WEBSOCKET,
         ]);
     }
 

@@ -72,7 +72,9 @@ class Family extends ApiModel
 when frequency_unit = 'week'
 then 1.0 / (frequency_amount * 7.0)
 when frequency_unit = 'month'
-then 1.0 / (frequency_amount * 30.0)
+then 1.0 / (frequency_amount * 30.437)
+when frequency_unit = 'year'
+then 1.0 / (frequency_amount * 365.25)
 else frequency_amount
 end)");
         } else {
@@ -80,7 +82,9 @@ end)");
 when frequency_unit = 'week'
 then task_point / (frequency_amount * 7.0)
 when frequency_unit = 'month'
-then task_point / (frequency_amount * 30.0)
+then task_point / (frequency_amount * 30.437)
+when frequency_unit = 'year'
+then task_point / (frequency_amount * 365.25)
 else task_point / (frequency_amount * 1.0)
 end)");
         }

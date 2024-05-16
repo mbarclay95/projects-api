@@ -13,6 +13,7 @@ use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
+use App\Models\Logging\LogEvent;
 use App\Models\Tasks\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
@@ -81,9 +82,12 @@ class RolesAndPermissionsSeeder extends Seeder
             Family::updatePermission(),
             Family::deletePermission(),
 
+            LogEvent::viewAnyPermission(),
+
             Permissions::VIEW_USERS_PAGE,
             Permissions::VIEW_FAMILIES_TAB,
             Permissions::LISTEN_TO_UPTIME_KUMA_WEBSOCKET,
+            Permissions::VIEW_LOGGING_PAGE,
         ]);
     }
 

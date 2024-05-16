@@ -77,7 +77,8 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
         $model->save();
-        $model->completedFamilyTasks = $model->getCompletedFamilyTasks(Carbon::parse($model->start_date)->addDay(), $model->user);
+        $date = Carbon::parse($model->start_date, 'America/Los_Angeles')->addDay();
+        $model->completedFamilyTasks = $model->getCompletedFamilyTasks($date, $model->user);
 
         return $model;
     }

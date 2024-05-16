@@ -12,6 +12,7 @@ use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
+use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tasks\FamilyController;
 use App\Http\Controllers\Tasks\FamilyStatsController;
@@ -103,8 +104,13 @@ Route::middleware('auth')->prefix('file-explorer')->group(function () {
     Route::patch('directory-items/delete', [DirectoryItemController::class, 'destroy']);
 });
 
-// LOGGING
+// LOGGING FOR PROXMOX
 Route::controller(LoggingController::class)->group(function () {
     Route::post('log-smartctl', 'logSmartResults');
     Route::get('validate-smartctl-logs', 'validateSmartLogs');
+});
+
+// LOGGING CRUD
+Route::middleware('auth')->group(function () {
+    Route::apiResource('log-events', LogEventController::class)->only('index');
 });

@@ -48,6 +48,7 @@ class Permissions
     const VIEW_EVENTS_PAGE = self::CLIENT . 'view_events_page';
     const VIEW_FILE_EXPLORER_PAGE = self::CLIENT . 'view_file_explorer_page';
     const VIEW_MONEY_APP_PAGE = self::CLIENT . 'view_money_app_page';
+    const VIEW_LOGGING_PAGE = self::CLIENT . 'view_logging_page';
     const LISTEN_TO_UPTIME_KUMA_WEBSOCKET = self::CLIENT . 'listen_to_uptime_kuma_websocket';
 
 }

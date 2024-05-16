@@ -27,7 +27,7 @@ class LogEvent extends ApiModel
     use HasFactory, HasRepository;
 
     protected static string $repository = LogEventsRepository::class;
-    protected static array $apiModelAttributes = ['id', 'source'];
+    protected static array $apiModelAttributes = ['id', 'source', 'created_at'];
     protected static array $apiModelEntities = [];
     protected static array $apiModelArrayEntities = [
         'logItems' => LogItem::class,

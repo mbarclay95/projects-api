@@ -17,6 +17,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  *
  * @property integer tasks_per_week
+ * @property integer default_tasks_per_week
  * @property Carbon start_date
  * @property Carbon end_date
  *
@@ -30,7 +31,7 @@ class TaskUserConfig extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'family_id'];
+    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'default_tasks_per_week', 'family_id'];
 
     protected static array $apiModelEntities = [];
 

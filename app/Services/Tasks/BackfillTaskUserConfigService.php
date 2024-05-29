@@ -36,7 +36,8 @@ class BackfillTaskUserConfigService
             foreach ($lastConfigs as $lastConfig) {
                 $configParams = [
                     'family' => $family,
-                    'tasksPerWeek' => $lastConfig->tasks_per_week,
+                    'tasksPerWeek' => $lastConfig->default_tasks_per_week,
+                    'defaultTasksPerWeek' => $lastConfig->default_tasks_per_week,
                     'user' => $lastConfig->user,
                     'startDate' => (clone $newConfigWeek)->startOfWeek()->toDateString(),
                     'endDate' => (clone $newConfigWeek)->endOfWeek()->toDateString(),

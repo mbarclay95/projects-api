@@ -14,6 +14,8 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class TaskUserConfigsRepository extends DefaultRepository
 {
+    public const DEFAULT_TASKS_PER_WEEK = 5;
+
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         $weekOffset = min($request['weekOffset'], 1);
@@ -54,7 +56,8 @@ class TaskUserConfigsRepository extends DefaultRepository
         /** @var User $configUser */
         $configUser = $request['user'];
         $config = new TaskUserConfig([
-            'tasks_per_week' => $request['tasksPerWeek'] ?? 5,
+            'tasks_per_week' => $request['tasksPerWeek'] ?? self::DEFAULT_TASKS_PER_WEEK,
+            'default_tasks_per_week' => $request['defaultTasksPerWeek'] ?? self::DEFAULT_TASKS_PER_WEEK,
             'start_date' => array_key_exists('startDate', $request) ? $request['startDate'] : $date->startOfWeek()->toDateString(),
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
@@ -76,6 +79,7 @@ class TaskUserConfigsRepository extends DefaultRepository
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->tasks_per_week = $request['tasksPerWeek'];
+        $model->default_tasks_per_week = $request['defaultTasksPerWeek'];
         $model->save();
         $date = Carbon::parse($model->start_date, 'America/Los_Angeles')->addDay();
         $model->completedFamilyTasks = $model->getCompletedFamilyTasks($date, $model->user);

@@ -16,5 +16,6 @@ class TaskUserConfigController extends CrudController
     ];
     protected static array $updateRules = [
         'tasksPerWeek' => 'required|int',
+        'defaultTasksPerWeek' => 'required|int',
     ];
 }

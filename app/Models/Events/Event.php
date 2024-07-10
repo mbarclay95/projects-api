@@ -46,8 +46,8 @@ class Event extends BaseApiModel
         'eventParticipants' => EventParticipant::class
     ];
 
-    protected $dates = [
-        'event_date'
+    protected $casts = [
+        'event_date' => 'datetime'
     ];
 
     protected $dateFormat = 'Y-m-d H:i:sO';

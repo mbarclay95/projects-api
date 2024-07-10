@@ -43,10 +43,10 @@ class Backup extends BaseApiModel
         'backupSteps' => BackupStep::class,
     ];
 
-    protected $dates = [
-        'started_at',
-        'completed_at',
-        'errored_at',
+    protected $casts = [
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'errored_at' => 'datetime',
     ];
 
     public static function create(string $name, int $userId, ?int $scheduled_backup_id = null): Backup

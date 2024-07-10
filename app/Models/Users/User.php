@@ -67,8 +67,8 @@ class User extends Authenticatable implements JWTSubject
         'password',
     ];
 
-    protected $dates = [
-        'last_logged_in_at'
+    protected $casts = [
+        'last_logged_in_at' => 'datetime'
     ];
 
     public function userConfig(): HasOne

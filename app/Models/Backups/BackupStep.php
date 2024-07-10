@@ -54,10 +54,10 @@ class BackupStep extends Model
 
     protected static $unguarded = true;
 
-    protected $dates = [
-        'started_at',
-        'completed_at',
-        'errored_at',
+    protected $casts = [
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'errored_at' => 'datetime',
     ];
 
     public static function createFromRequest(array $request, int $userId, int $backupId): BackupStep

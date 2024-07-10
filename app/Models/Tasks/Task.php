@@ -55,9 +55,9 @@ class Task extends ApiModel
     ];
     protected $dateFormat = 'Y-m-d H:i:sO';
 
-    protected $dates = [
-        'completed_at',
-        'cleared_at'
+    protected $casts = [
+        'completed_at' => 'datetime',
+        'cleared_at' => 'datetime'
     ];
 
     public function updateTags(array $newTags): Task

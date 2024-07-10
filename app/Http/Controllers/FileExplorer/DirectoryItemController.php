@@ -5,8 +5,8 @@ namespace App\Http\Controllers\FileExplorer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class DirectoryItemController extends Controller
 {
@@ -16,12 +16,14 @@ class DirectoryItemController extends Controller
     protected static array $storeRules = [
         'newName' => 'required|string',
         'workingDirectory' => 'required|string',
+        'type' => 'required|string'
     ];
     protected static array $updateRules = [
         'id' => 'required|string',
         'type' => 'required|string',
-        'newName' => 'required|string',
+        'newPath' => 'required|string',
         'workingDirectory' => 'required|string',
+        'mode' => 'required|string' // mv or cp
     ];
     protected static array $destroyRules = [
         'id' => 'required|string',
@@ -95,6 +97,7 @@ class DirectoryItemController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function update(Request $request): JsonResponse
     {
@@ -103,10 +106,17 @@ class DirectoryItemController extends Controller
             'driver' => 'local',
             'root' => '/mnt/media'
         ]);
-        $disk->move($validated['workingDirectory'] . '/' . $validated['id'], $validated['workingDirectory'] . '/' . $validated['newName']);
+        if ($validated['mode'] == 'mv') {
+            $disk->move($validated['workingDirectory'] . '/' . $validated['id'], $validated['newPath']);
+        } elseif ($validated['mode'] == 'cp') {
+            $disk->copy($validated['workingDirectory'] . '/' . $validated['id'], $validated['newPath']);
+        } else {
+            throw ValidationException::withMessages(['mode must be mv or cp']);
+        }
+        $split = explode('/', $validated['newPath']);
 
         return new JsonResponse([
-            'id' => $validated['newName'],
+            'id' => $split[count($split) - 1],
             'type' => $validated['type']
         ]);
     }

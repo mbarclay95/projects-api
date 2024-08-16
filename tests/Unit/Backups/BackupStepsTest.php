@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Backups;
 
+use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
 use App\Models\Backups\Target;
 use App\Models\Users\User;
@@ -17,11 +18,14 @@ class BackupStepsTest extends TestCase
     {
         /** @var User $user */
         $user = User::factory()->create();
+        $backup = Backup::factory()->create([
+            'user_id' => $user->id
+        ]);
 
         $backupStep = BackupStep::factory()->create([
             'backup_step_type' => 'testing',
             'user_id' => $user->id,
-            'backup_id' => 1,
+            'backup_id' => $backup->id,
         ]);
         $backupStep->run();
 
@@ -49,12 +53,15 @@ class BackupStepsTest extends TestCase
             'target_url' => "{$base}/tests/Data/",
             'user_id' => $user->id
         ]);
+        $backup = Backup::factory()->create([
+            'user_id' => $user->id
+        ]);
 
         // BAD CONFIG, SHOULD ERROR
         $backupStep = BackupStep::factory()->create([
             'backup_step_type' => TarZipBackupStepType::$BACKUP_STEP_TYPE,
             'user_id' => $user->id,
-            'backup_id' => 1,
+            'backup_id' => $backup->id,
             'config' => []
         ]);
         $backupStep->run();
@@ -120,12 +127,15 @@ class BackupStepsTest extends TestCase
             'target_url' => "testing/",
             'user_id' => $user->id
         ]);
+        $backup = Backup::factory()->create([
+            'user_id' => $user->id
+        ]);
 
         // BAD CONFIG, SHOULD ERROR
         $backupStep = BackupStep::factory()->create([
             'backup_step_type' => S3UploadBackupStepType::$BACKUP_STEP_TYPE,
             'user_id' => $user->id,
-            'backup_id' => 1,
+            'backup_id' => $backup->id,
             'config' => []
         ]);
         $backupStep->run();

@@ -17,7 +17,7 @@ class BackupFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => 'testing backup'
         ];
     }
 }

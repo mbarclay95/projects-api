@@ -6,6 +6,9 @@ use App\Enums\Permissions;
 use App\Enums\Roles;
 use App\Models\ApiModels\FamilyMemberStatsApiModel;
 use App\Models\ApiModels\RoleApiModel;
+use App\Models\Backups\Backup;
+use App\Models\Backups\ScheduledBackup;
+use App\Models\Backups\Target;
 use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
@@ -128,23 +131,22 @@ class RolesAndPermissionsSeeder extends Seeder
     private function createBackupsRole(): void
     {
         $this->createAndAssign(Roles::BACKUPS_ROLE, [
-            Permissions::BACKUPS_VIEW_ANY_FOR_USER,
-            Permissions::BACKUPS_VIEW_FOR_USER,
-            Permissions::BACKUPS_CREATE,
-            Permissions::BACKUPS_UPDATE_FOR_USER,
-            Permissions::BACKUPS_RUN_ACTIONS,
+            Backup::viewAnyForUserPermission(),
+            Backup::viewForUserPermission(),
+            Backup::createPermission(),
+            Backup::updateForUserPermission(),
 
-            Permissions::SCHEDULED_BACKUPS_VIEW_ANY_FOR_USER,
-            Permissions::SCHEDULED_BACKUPS_VIEW_FOR_USER,
-            Permissions::SCHEDULED_BACKUPS_CREATE,
-            Permissions::SCHEDULED_BACKUPS_UPDATE_FOR_USER,
-            Permissions::SCHEDULED_BACKUPS_DELETE_FOR_USER,
-            Permissions::SCHEDULED_BACKUPS_RESTORE_FOR_USER,
+            ScheduledBackup::viewAnyForUserPermission(),
+            ScheduledBackup::viewForUserPermission(),
+            ScheduledBackup::createPermission(),
+            ScheduledBackup::updateForUserPermission(),
+            ScheduledBackup::deleteForUserPermission(),
+            ScheduledBackup::restoreForUserPermission(),
 
-            Permissions::TARGETS_VIEW_ANY_FOR_USER,
-            Permissions::TARGETS_CREATE,
-            Permissions::TARGETS_UPDATE_FOR_USER,
-            Permissions::TARGETS_DELETE_FOR_USER,
+            Target::viewAnyForUserPermission(),
+            Target::createPermission(),
+            Target::updateForUserPermission(),
+            Target::deleteForUserPermission(),
 
             Permissions::VIEW_BACKUPS_PAGE,
         ]);

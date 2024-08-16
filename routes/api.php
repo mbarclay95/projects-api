@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
 
 // BACKUPS
 Route::middleware('auth')->group(function () {
-    Route::apiResource('backups', BackupController::class)->only('index', 'create');
+    Route::apiResource('backups', BackupController::class)->only('index', 'store');
     Route::apiResource('scheduled-backups', ScheduledBackupController::class)->except('show');
     Route::apiResource('targets', TargetController::class)->except('show');
 });

@@ -5,18 +5,12 @@ namespace App\Http\Controllers\Backups;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Backups\ScheduledBackupStoreRequest;
 use App\Models\Backups\ScheduledBackup;
-use App\Models\Backups\ScheduledBackupStep;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduledBackupController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(ScheduledBackup::class, 'scheduled-backup');
-    }
-
     /**
      * Display a listing of the resource.
      *

@@ -2,13 +2,13 @@
 
 namespace App\Models\Backups;
 
-use App\Models\BaseApiModel;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Backup
@@ -30,7 +30,7 @@ use Illuminate\Support\Collection;
  *
  * @property Collection|BackupStep[] backupSteps
  */
-class Backup extends BaseApiModel
+class Backup extends ApiModel
 {
     use HasFactory;
 
@@ -48,18 +48,6 @@ class Backup extends BaseApiModel
         'completed_at' => 'datetime',
         'errored_at' => 'datetime',
     ];
-
-    public static function create(string $name, int $userId, ?int $scheduled_backup_id = null): Backup
-    {
-        $backup = new Backup([
-            'name' => $name,
-        ]);
-        $backup->user()->associate($userId);
-        $backup->scheduledBackup()->associate($scheduled_backup_id);
-        $backup->save();
-
-        return $backup;
-    }
 
     public function user(): BelongsTo
     {

@@ -29,7 +29,7 @@ class SiteImageController extends CrudController
     {
         /** @var SiteImage $siteImage */
         $siteImage = SiteImage::query()->find($id);
-        $file = Storage::disk('s3')->get($siteImage->s3_path);
+        $file = Storage::disk('minio-s3')->get($siteImage->s3_path);
 
         if (str_contains($siteImage->s3_path, '.svg')) {
             return response()->stream(function () use ($file) {

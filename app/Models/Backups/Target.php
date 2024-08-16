@@ -3,11 +3,10 @@
 namespace App\Models\Backups;
 
 use App\Models\Users\User;
-use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Target
@@ -24,17 +23,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property integer user_id
  * @property User user
  */
-class Target extends Model
+class Target extends ApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'target_url', 'host_name'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
-
-    protected static $unguarded = true;
 
     public function user(): BelongsTo
     {

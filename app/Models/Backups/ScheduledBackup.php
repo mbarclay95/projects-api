@@ -3,13 +3,12 @@
 namespace App\Models\Backups;
 
 use App\Models\Users\User;
-use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class ScheduledBackup
@@ -20,32 +19,26 @@ use Illuminate\Support\Collection;
  * @property Carbon deleted_at
  *
  * @property string name
- * @property integer start_time
  * @property array schedule
  * @property boolean enabled
- * @property integer full_every_n_days
  *
  * @property integer user_id
  * @property User user
  *
- * @property Collection|ScheduledBackupStep[] scheduledBackupSteps
+ * @property integer backup_id
+ * @property Backup backup
+ *
  * @property Collection|Backup[] backups
- * @property Collection|BackupStep[] backupSteps
  */
-class ScheduledBackup extends Model
+class ScheduledBackup extends ApiModel
 {
-    use HasFactory, HasApiModel;
+    use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'start_time', 'schedule', 'full_every_n_days',
-        'enabled'];
+    protected static array $apiModelAttributes = ['id', 'name', 'schedule', 'enabled'];
 
     protected static array $apiModelEntities = [];
 
-    protected static array $apiModelArrayEntities = [
-        'scheduledBackupSteps' => ScheduledBackupStep::class
-    ];
-
-    protected static $unguarded = true;
+    protected static array $apiModelArrayEntities = [];
 
     protected $casts = [
         'schedule' => 'jsonb'
@@ -56,19 +49,14 @@ class ScheduledBackup extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function scheduledBackupSteps(): HasMany
+    public function backup(): BelongsTo
     {
-        return $this->hasMany(ScheduledBackupStep::class);
+        return $this->belongsTo(Backup::class);
     }
 
     public function backups(): HasMany
     {
         return $this->hasMany(Backup::class);
-    }
-
-    public function backupSteps(): HasMany
-    {
-        return $this->hasMany(BackupStep::class);
     }
 
     public static function createFromRequest($request, int $userId): ScheduledBackup

@@ -10,6 +10,8 @@ use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
+use App\Http\Controllers\Gaming\GamingDeviceController;
+use App\Http\Controllers\Gaming\GamingSessionController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
 use App\Http\Controllers\Logging\LogEventController;
@@ -113,4 +115,10 @@ Route::controller(LoggingController::class)->group(function () {
 // LOGGING CRUD
 Route::middleware('auth')->group(function () {
     Route::apiResource('log-events', LogEventController::class)->only('index');
+});
+
+// GAMING SESSIONS
+Route::prefix('gaming')->group(function () {
+    Route::apiResource('sessions', GamingSessionController::class)->except('show', 'destroy');
+    Route::apiResource('devices', GamingDeviceController::class)->except('show');
 });

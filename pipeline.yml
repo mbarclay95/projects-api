@@ -30,6 +30,12 @@ jobs:
             DB_USERNAME: mbarclay36
             DB_PASSWORD: ((pgsql-password))
             JWT_SECRET: ((jwt-secret))
+            MINIO_ACCESS_KEY_ID: ((s3-access-key))
+            MINIO_SECRET_ACCESS_KEY: ((s3-secret-key))
+            MINIO_DEFAULT_REGION: home
+            MINIO_BUCKET: home-dashboard
+            LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
+            REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
           inputs:
             - name: ((project-name))-repo
           image_resource:

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('session_type');
+            $table->boolean('is_active');
         });
     }
 

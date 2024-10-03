@@ -3,38 +3,43 @@
 namespace App\Repositories\Gaming;
 
 use App\Models\Gaming\GamingDevice;
+use App\Models\Gaming\GamingSession;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
-class GamingDevicesRepository extends DefaultRepository
+class GamingSessionsRepository extends DefaultRepository
 {
     /**
      * @param $request
      * @param Authenticatable $user
-     * @return GamingDevice|array
+     * @return GamingSession|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
-        $device = new GamingDevice([
-            'device_communication_id' => $request['deviceCommunicationId'],
-            'last_seen' => Carbon::now()->subDay(),
+        $model = new GamingSession([
+            'name' => $request['name'],
+//            'code' => ,
+            'session_type' => $request['sessionType'],
+            'is_active' => true,
         ]);
-        $device->save();
+        $model->save();
 
-        return $device;
+        return $model;
     }
 
     /**
-     * @param GamingDevice $model
+     * @param GamingSession $model
      * @param $request
      * @param Authenticatable $user
-     * @return GamingDevice|array
+     * @return GamingSession|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
-        $model->device_communication_id = $request['deviceCommunicationId'];
+        $model->name = $request['name'];
+        $model->session_type = $request['sessionType'];
+        $model->is_active = $request['isActive'];
         $model->save();
 
         return $model;

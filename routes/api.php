@@ -12,6 +12,7 @@ use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
 use App\Http\Controllers\Gaming\GamingDeviceController;
 use App\Http\Controllers\Gaming\GamingSessionController;
+use App\Http\Controllers\Gaming\GamingSessionDeviceController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
 use App\Http\Controllers\Logging\LogEventController;
@@ -117,8 +118,15 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('log-events', LogEventController::class)->only('index');
 });
 
+// GAMING SESSIONS ADMIN
+Route::middleware('auth')->prefix('gaming')->group(function () {
+    Route::apiResource('sessions', GamingSessionController::class)->only('update', 'destroy');
+    Route::apiResource('devices', GamingDeviceController::class)->only('update', 'store');
+});
+
 // GAMING SESSIONS
 Route::prefix('gaming')->group(function () {
-    Route::apiResource('sessions', GamingSessionController::class)->except('show', 'destroy');
-    Route::apiResource('devices', GamingDeviceController::class)->except('show');
+    Route::apiResource('sessions', GamingSessionController::class)->only('index', 'store');
+    Route::apiResource('session_devices', GamingSessionDeviceController::class)->only('store', 'update', 'destroy');
+    Route::apiResource('devices', GamingDeviceController::class)->only('index');
 });

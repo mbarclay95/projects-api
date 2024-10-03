@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('device_communication_id');
+            $table->dateTime('last_seen');
+            $table->string('temp_name')->nullable();
         });
     }
 

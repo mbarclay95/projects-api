@@ -4,9 +4,9 @@ namespace App\Models\Gaming;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * @property integer id
@@ -16,14 +16,15 @@ use Illuminate\Support\Collection;
  * @property string name
  * @property string code
  * @property string session_type
+ * @property boolean is_active
  *
  * @property Collection|GamingSessionDevice[] gamingSessionDevices
  */
-class GamingSession extends Model
+class GamingSession extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'code', 'session_type'];
+    protected static array $apiModelAttributes = ['id', 'name', 'code', 'session_type', 'is_active'];
 
     protected static array $apiModelEntities = [];
 

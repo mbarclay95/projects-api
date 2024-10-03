@@ -14,6 +14,8 @@ use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
+use App\Models\Gaming\GamingDevice;
+use App\Models\Gaming\GamingSession;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
 use App\Models\Logging\LogEvent;
@@ -57,6 +59,19 @@ class RolesAndPermissionsSeeder extends Seeder
 //    }
 
     private function createFileExplorerRole(): void
+    {
+        $this->createAndAssign(Roles::GAMING_SESSION_ADMIN_ROLE, [
+            GamingSession::updatePermission(),
+            GamingSession::deletePermission(),
+
+            GamingDevice::createPermission(),
+            GamingDevice::updatePermission(),
+
+            Permissions::VIEW_GAMING_SESSION_ADMIN_PAGE
+        ]);
+    }
+
+    private function createGamingSessionAdminRole(): void
     {
         $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
             Permissions::VIEW_FILE_EXPLORER_PAGE

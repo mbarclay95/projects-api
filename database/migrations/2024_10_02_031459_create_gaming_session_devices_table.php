@@ -16,7 +16,6 @@ return new class extends Migration
             $table->timestamps();
             $table->integer('gaming_device_id')->index();
             $table->integer('gaming_session_id')->index();
-            $table->dateTime('last_seen');
             $table->string('name');
             $table->jsonb('metadata');
         });

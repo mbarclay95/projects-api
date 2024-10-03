@@ -10,7 +10,7 @@ use Mbarclay36\LaravelCrud\CrudController;
 class GamingDeviceController extends CrudController
 {
     protected static string $modelClass = GamingDevice::class;
-    protected static bool $controllerAuth = false;
+    protected static bool $indexAuth = false;
     protected static array $indexRules = [];
     protected static array $storeRules = [
         'deviceCommunicationId' => 'required|string',

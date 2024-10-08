@@ -13,16 +13,16 @@
     "require": {
         "php": "^8.1",
         "aws/aws-sdk-php": "^3.231",
-        "doctrine/dbal": "^3.3",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "10.0",
-        "laravel/sanctum": "^3.2",
+        "laravel/framework": "^11.0",
+        "laravel/reverb": "^1.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "mbarclay36/laravel-crud": "^10.0.2",
+        "mbarclay36/laravel-crud": "^11.0.0",
         "php-mqtt/client": "^2.1",
         "php-open-source-saver/jwt-auth": "^2.0.0",
-        "spatie/laravel-permission": "^5.5",
+        "spatie/laravel-permission": "^6.0",
         "tucker-eric/eloquentfilter": "^3.1"
     },
     "require-dev": {
@@ -30,8 +30,8 @@
         "itsgoingd/clockwork": "^5.1",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.5.10",
+        "nunomaduro/collision": "^8.1",
+        "phpunit/phpunit": "^11.0",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {

@@ -19,7 +19,7 @@ class GamingDevicesRepository extends DefaultRepository
     {
         $device = new GamingDevice([
             'device_communication_id' => $request['deviceCommunicationId'],
-            'last_seen' => Carbon::now()->subDay(),
+            'last_seen' => Carbon::now('America/Los_Angeles')->subDay(),
         ]);
         $device->save();
 

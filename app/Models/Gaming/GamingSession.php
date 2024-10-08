@@ -32,7 +32,7 @@ class GamingSession extends ApiModel
         'gamingSessionDevices' => GamingSessionDevice::class
     ];
 
-    public function gamingSessionDevice(): HasMany
+    public function gamingSessionDevices(): HasMany
     {
         return $this->hasMany(GamingSessionDevice::class);
     }

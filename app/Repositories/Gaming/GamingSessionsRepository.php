@@ -20,7 +20,7 @@ class GamingSessionsRepository extends DefaultRepository
     {
         $model = new GamingSession([
             'name' => $request['name'],
-//            'code' => ,
+            'code' => str()->random(4),
             'session_type' => $request['sessionType'],
             'is_active' => true,
         ]);

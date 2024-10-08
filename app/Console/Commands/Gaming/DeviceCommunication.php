@@ -28,6 +28,6 @@ class DeviceCommunication extends Command
     {
         /** @var GamingDevice $gamingDevice */
         $gamingDevice = GamingDevice::query()->find(1);
-        $gamingDevice->testingMqtt();
+//        $gamingDevice->testingMqtt();
     }
 }

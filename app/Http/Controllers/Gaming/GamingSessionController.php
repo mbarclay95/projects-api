@@ -14,10 +14,13 @@ class GamingSessionController extends CrudController
     protected static bool $storeAuth = false;
     protected static array $indexRules = [];
     protected static array $storeRules = [
-        'deviceCommunicationId' => 'required|string',
+        'name' => 'required|string',
+        'sessionType' => 'required|string',
     ];
     protected static array $updateRules = [
-        'deviceCommunicationId' => 'required|string',
+        'name' => 'required|string',
+        'sessionType' => 'required|string',
+        'isActive' => 'required|bool'
     ];
     protected static array $destroyRules = [];
 }

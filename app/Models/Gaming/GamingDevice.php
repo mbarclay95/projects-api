@@ -48,7 +48,7 @@ class GamingDevice extends ApiModel
 
     public function updateLastSeen(bool $save = true): void
     {
-        $this->last_seen = Carbon::now();
+        $this->last_seen = Carbon::now('America/Los_Angeles');
         if ($save) {
             $this->save();
         }

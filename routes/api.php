@@ -129,4 +129,5 @@ Route::prefix('gaming')->group(function () {
     Route::apiResource('sessions', GamingSessionController::class)->only('index', 'store');
     Route::apiResource('session_devices', GamingSessionDeviceController::class)->only('store', 'update', 'destroy');
     Route::apiResource('devices', GamingDeviceController::class)->only('index');
+    Route::patch('device-action/{deviceCommunicationId}', [GamingDeviceController::class, 'deviceAction']);
 });

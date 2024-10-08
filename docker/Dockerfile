@@ -1,4 +1,4 @@
-FROM webdevops/php-nginx:8.1 as develop
+FROM webdevops/php-nginx:8.2 as develop
 
 ARG env=dev
 

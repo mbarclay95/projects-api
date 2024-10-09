@@ -19,7 +19,7 @@ class TaskFilter extends ModelFilter
 
     public function numOfDays($numOfDays)
     {
-        $nextNDays = Carbon::today('America/Los_Angeles')->addDays($numOfDays)->toDateString();
+        $nextNDays = Carbon::today('America/Los_Angeles')->addDays(intval($numOfDays))->toDateString();
         $this->where('due_date', '<=', $nextNDays);
     }
 

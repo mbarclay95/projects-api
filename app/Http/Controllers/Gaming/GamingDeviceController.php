@@ -15,9 +15,11 @@ class GamingDeviceController extends CrudController
     protected static array $indexRules = [];
     protected static array $storeRules = [
         'deviceCommunicationId' => 'required|string',
+        'buttonColor' => 'required|string',
     ];
     protected static array $updateRules = [
         'deviceCommunicationId' => 'required|string',
+        'buttonColor' => 'required|string',
     ];
     protected static array $destroyRules = [];
 

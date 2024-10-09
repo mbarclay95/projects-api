@@ -15,10 +15,13 @@ class GamingSessionDeviceController extends CrudController
     protected static bool $destroyAuth = false;
     protected static array $indexRules = [];
     protected static array $storeRules = [
-        'deviceCommunicationId' => 'required|string',
+        'name' => 'required|string',
+        'gamingDevice' => 'required|array',
+        'gamingDevice.id' => 'required|int',
+        'gamingSessionId' => 'required|int',
     ];
     protected static array $updateRules = [
-        'deviceCommunicationId' => 'required|string',
+        'name' => 'required|string',
     ];
     protected static array $destroyRules = [];
 }

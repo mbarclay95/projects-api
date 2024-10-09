@@ -4,40 +4,27 @@ namespace App\Repositories\Gaming;
 
 use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
+use App\Models\Gaming\GamingSessionDevice;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
-class GamingSessionsRepository extends DefaultRepository
+class GamingSessionDevicesRepository extends DefaultRepository
 {
     /**
      * @param $request
      * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
-    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
-    {
-        return GamingSession::query()
-                            ->with('gamingSessionDevices.gamingDevice')
-                            ->get();
-    }
-
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return GamingSession|array
+     * @return GamingSessionDevice|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
-        $model = new GamingSession([
+        $model = new GamingSessionDevice([
             'name' => $request['name'],
-            'code' => str()->random(4),
-            'session_type' => $request['sessionType'],
-            'is_active' => true,
+            'metadata' => [],
         ]);
+        $model->gamingDevice()->associate($request['gamingDevice']['id']);
+        $model->gamingSession()->associate($request['gamingSessionId']);
         $model->save();
 
         return $model;

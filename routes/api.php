@@ -120,14 +120,14 @@ Route::middleware('auth')->group(function () {
 
 // GAMING SESSIONS ADMIN
 Route::middleware('auth')->prefix('gaming')->group(function () {
-    Route::apiResource('sessions', GamingSessionController::class)->only('update', 'destroy');
+    Route::apiResource('sessions', GamingSessionController::class)->only('destroy');
     Route::apiResource('devices', GamingDeviceController::class)->only('update', 'store');
 });
 
 // GAMING SESSIONS
 Route::prefix('gaming')->group(function () {
-    Route::apiResource('sessions', GamingSessionController::class)->only('index', 'store');
-    Route::apiResource('session_devices', GamingSessionDeviceController::class)->only('store', 'update', 'destroy');
+    Route::apiResource('sessions', GamingSessionController::class)->only('index', 'store', 'update');
+    Route::apiResource('session-devices', GamingSessionDeviceController::class)->only('store', 'update', 'destroy');
     Route::apiResource('devices', GamingDeviceController::class)->only('index');
     Route::patch('device-action/{deviceCommunicationId}', [GamingDeviceController::class, 'deviceAction']);
 });

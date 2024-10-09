@@ -20,12 +20,14 @@ use PhpMqtt\Client\MqttClient;
  * @property string device_communication_id
  * @property string temp_name
  * @property Carbon last_seen
+ * @property string button_color
  */
 class GamingDevice extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'device_communication_id', 'last_seen', 'temp_name'];
+    protected static array $apiModelAttributes = ['id', 'device_communication_id', 'last_seen', 'temp_name',
+        'button_color'];
 
     protected static array $apiModelEntities = [];
 

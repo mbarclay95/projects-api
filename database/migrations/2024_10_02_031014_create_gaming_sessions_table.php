@@ -15,9 +15,15 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name');
-            $table->string('code');
-            $table->string('session_type');
-            $table->boolean('is_active');
+            $table->dateTime('started_at');
+            $table->dateTime('ended_at');
+            $table->string('turn_order_type');
+            $table->integer('current_turn');
+            $table->boolean('allow_turn_passing');
+            $table->boolean('skip_after_passing');
+            $table->boolean('pause_at_beginning_of_round');
+            $table->boolean('is_paused');
+            $table->integer('turn_limit_seconds');
         });
     }
 

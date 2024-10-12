@@ -14,6 +14,19 @@ class GamingDevicesRepository extends DefaultRepository
     /**
      * @param $request
      * @param Authenticatable $user
+     * @param bool $viewOnlyForUser
+     * @return Collection|array
+     */
+    public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
+    {
+        return GamingDevice::query()
+                           ->orderBy('button_color')
+                           ->get();
+    }
+
+    /**
+     * @param $request
+     * @param Authenticatable $user
      * @return GamingDevice|array
      */
     public function createEntity($request, Authenticatable $user): Model|array

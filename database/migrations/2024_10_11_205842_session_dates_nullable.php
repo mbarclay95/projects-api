@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('gaming_devices', function (Blueprint $table) {
-            $table->string('button_color')->nullable();
+        Schema::table('gaming_sessions', function (Blueprint $table) {
+            $table->dateTime('started_at')->nullable()->change();
+            $table->dateTime('ended_at')->nullable()->change();
         });
     }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('gaming_devices', function (Blueprint $table) {
-            $table->dropColumn('button_color');
-        });
+        //
     }
 };

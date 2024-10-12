@@ -14,9 +14,15 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  *
  * @property string name
- * @property string code
- * @property string session_type
- * @property boolean is_active
+ * @property Carbon started_at
+ * @property Carbon ended_at
+ * @property string turn_order_type
+ * @property integer current_turn
+ * @property boolean allow_turn_passing
+ * @property boolean skip_after_passing
+ * @property boolean pause_at_beginning_of_round
+ * @property boolean is_paused
+ * @property integer turn_limit_seconds
  *
  * @property Collection|GamingSessionDevice[] gamingSessionDevices
  */
@@ -24,7 +30,9 @@ class GamingSession extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'code', 'session_type', 'is_active'];
+    protected static array $apiModelAttributes = ['id', 'name', 'started_at', 'ended_at', 'turn_order_type',
+        'current_turn', 'allow_turn_passing', 'skip_after_passing', 'pause_at_beginning_of_round', 'is_paused',
+        'turn_limit_seconds'];
 
     protected static array $apiModelEntities = [];
 

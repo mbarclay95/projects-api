@@ -17,7 +17,11 @@ return new class extends Migration
             $table->integer('gaming_device_id')->index();
             $table->integer('gaming_session_id')->index();
             $table->string('name');
-            $table->jsonb('metadata');
+            $table->integer('current_turn_order');
+            $table->integer('next_turn_order')->nullable();
+            $table->string('turn_time_display_mode');
+            $table->boolean('skip');
+            $table->boolean('has_passed');
         });
     }
 

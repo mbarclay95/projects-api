@@ -13,7 +13,11 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  *
  * @property string name
- * @property array metadata
+ * @property integer current_turn_order
+ * @property integer next_turn_order
+ * @property boolean turn_time_display_mode
+ * @property boolean skip
+ * @property boolean has_passed
  *
  * @property integer gaming_device_id
  * @property GamingDevice gamingDevice
@@ -25,7 +29,8 @@ class GamingSessionDevice extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'metadata'];
+    protected static array $apiModelAttributes = ['id', 'name', 'current_turn_order', 'next_turn_order',
+        'turn_time_display_mode', 'skip', 'has_passed'];
 
     protected static array $apiModelEntities = [
         'gamingDevice' => GamingDevice::class,

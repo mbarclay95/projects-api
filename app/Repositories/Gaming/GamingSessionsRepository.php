@@ -34,9 +34,15 @@ class GamingSessionsRepository extends DefaultRepository
     {
         $model = new GamingSession([
             'name' => $request['name'],
-            'code' => str()->random(4),
-            'session_type' => $request['sessionType'],
-            'is_active' => true,
+            'started_at' => null,
+            'ended_at' => null,
+            'turn_order_type' => $request['turnOrderType'],
+            'current_turn' => 1,
+            'allow_turn_passing' => $request['allowTurnPassing'],
+            'skip_after_passing' => $request['skipAfterPassing'],
+            'pause_at_beginning_of_round' => $request['pauseAtBeginningOfRound'],
+            'is_paused' => false,
+            'turn_limit_seconds' => $request['turnLimitSeconds'],
         ]);
         $model->save();
 
@@ -52,8 +58,15 @@ class GamingSessionsRepository extends DefaultRepository
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->name = $request['name'];
-        $model->session_type = $request['sessionType'];
-        $model->is_active = $request['isActive'];
+        $model->started_at = $request['startedAt'];
+        $model->ended_at = $request['endedAt'];
+        $model->turn_order_type = $request['turnOrderType'];
+        $model->current_turn = $request['currentTurn'];
+        $model->allow_turn_passing = $request['allowTurnPassing'];
+        $model->skip_after_passing = $request['skipAfterPassing'];
+        $model->pause_at_beginning_of_round = $request['pauseAtBeginningOfRound'];
+        $model->is_paused = $request['isPaused'];
+        $model->turn_limit_seconds = $request['turnLimitSeconds'];
         $model->save();
 
         return $model;

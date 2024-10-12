@@ -19,9 +19,11 @@ class GamingSessionDeviceController extends CrudController
         'gamingDevice' => 'required|array',
         'gamingDevice.id' => 'required|int',
         'gamingSessionId' => 'required|int',
+        'turnTimeDisplayMode' => 'required|string',
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
+        'turnTimeDisplayMode' => 'required|string',
     ];
     protected static array $destroyRules = [];
 }

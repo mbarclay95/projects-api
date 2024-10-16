@@ -4,7 +4,9 @@ namespace App\Repositories\Gaming;
 
 use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
+use App\Services\Gaming\ActiveSessionService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -54,9 +56,14 @@ class GamingSessionsRepository extends DefaultRepository
      * @param $request
      * @param Authenticatable $user
      * @return GamingSession|array
+     * @throws Exception
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
+        $sessionStarted = false;
+        if ($model->started_at == null && $request['startedAt'] != null) {
+            $sessionStarted = true;
+        }
         $model->name = $request['name'];
         $model->started_at = $request['startedAt'];
         $model->ended_at = $request['endedAt'];
@@ -68,6 +75,12 @@ class GamingSessionsRepository extends DefaultRepository
         $model->is_paused = $request['isPaused'];
         $model->turn_limit_seconds = $request['turnLimitSeconds'];
         $model->save();
+
+        if ($sessionStarted) {
+            $model->load('gamingSessionDevices.gamingDevice');
+            $sessionService = new ActiveSessionService($model);
+            $sessionService->beginSession();
+        }
 
         return $model;
     }

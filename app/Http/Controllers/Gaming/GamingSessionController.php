@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Gaming;
 
-use App\Http\Controllers\Controller;
 use App\Models\Gaming\GamingSession;
+use App\Models\Gaming\GamingSessionDevice;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Mbarclay36\LaravelCrud\CrudController;
 
@@ -23,15 +24,34 @@ class GamingSessionController extends CrudController
     ];
     protected static array $updateRules = [
         'name' => 'required|string',
-        'started_at' => 'nullable|date',
-        'ended_at' => 'nullable|date',
-        'turn_order_type' => 'required|string',
-        'current_turn' => 'required|int',
-        'allow_turn_passing' => 'required|bool',
-        'skip_after_passing' => 'required|bool',
-        'pause_at_beginning_of_round' => 'required|bool',
-        'is_paused' => 'required|bool',
-        'turn_limit_seconds' => 'required|int'
+        'startedAt' => 'nullable|date',
+        'endedAt' => 'nullable|date',
+        'turnOrderType' => 'required|string',
+        'currentTurn' => 'required|int',
+        'allowTurnPassing' => 'required|bool',
+        'skipAfterPassing' => 'required|bool',
+        'pauseAtBeginningOfRound' => 'required|bool',
+        'isPaused' => 'required|bool',
+        'turnLimitSeconds' => 'required|int'
     ];
     protected static array $destroyRules = [];
+
+    public function updateGamingDeviceTurnOrders(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'sessionId' => 'required|int',
+            'data' => 'required|array',
+            'data.*.id' => 'required|int',
+            'data.*.turnOrder' => 'required|int',
+        ]);
+
+        foreach ($validated['data'] as $updatedTurnOrder) {
+            GamingSessionDevice::query()
+                               ->where('gaming_session_id', '=', $validated['sessionId'])
+                               ->where('id', '=', $updatedTurnOrder['id'])
+                               ->update(['current_turn_order' => $updatedTurnOrder['turnOrder']]);
+        }
+
+        return new JsonResponse(['success' => true]);
+    }
 }

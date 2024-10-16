@@ -2,16 +2,12 @@
 
 namespace App\Models\Gaming;
 
+use App\Services\Gaming\ActiveSessionService;
 use App\Services\Gaming\MqttService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Mbarclay36\LaravelCrud\ApiModel;
-use PhpMqtt\Client\Exceptions\ConfigurationInvalidException;
-use PhpMqtt\Client\Exceptions\ConnectingToBrokerFailedException;
-use PhpMqtt\Client\Exceptions\DataTransferException;
-use PhpMqtt\Client\Exceptions\ProtocolNotSupportedException;
-use PhpMqtt\Client\Exceptions\RepositoryException;
-use PhpMqtt\Client\MqttClient;
 
 /**
  * @property integer id
@@ -33,26 +29,19 @@ class GamingDevice extends ApiModel
     protected static array $apiModelArrayEntities = [];
 
     /**
-     * @throws ConfigurationInvalidException
-     * @throws ConnectingToBrokerFailedException
-     * @throws RepositoryException
-     * @throws ProtocolNotSupportedException
-     * @throws DataTransferException
-     */
-    public function testingMqtt(): void
-    {
-        $mqtt = new MqttClient('10.5.10.11', 1883, 'testing');
-        $mqtt->connect();
-        $mqtt->publish("gamingDevice/private/{$this->device_communication_id}", 'Huey');
-        $mqtt->disconnect();
-    }
-
-    /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendNameChange(string $name): void
     {
-        MqttService::deviceSetName($this->device_communication_id, $name);
+        MqttService::deviceSetConfig($this, ['playerName' => $name]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function sendDeviceConfig(array $config): void
+    {
+        MqttService::deviceSetConfig($this, $config);
     }
 
     public function updateLastSeen(bool $save = true): void
@@ -60,6 +49,33 @@ class GamingDevice extends ApiModel
         $this->last_seen = Carbon::now('America/Los_Angeles');
         if ($save) {
             $this->save();
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function initialize(): void
+    {
+        $this->checkForReinitialization();
+        $this->updateLastSeen();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function checkForReinitialization(): void
+    {
+        $sessionDevice = GamingSessionDevice::query()
+                                            ->with('gamingSession')
+                                            ->where('gaming_device_id', '=', $this->id)
+                                            ->whereHas('gamingSession', function ($query) {
+                                                $query->whereNotNull('started_at')
+                                                      ->whereNull('ended_at');
+                                            })
+                                            ->first();
+        if ($sessionDevice) {
+            $this->sendDeviceConfig(ActiveSessionService::getConfig($sessionDevice->gamingSession, $sessionDevice));
         }
     }
 

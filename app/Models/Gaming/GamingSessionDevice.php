@@ -15,7 +15,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property string name
  * @property integer current_turn_order
  * @property integer next_turn_order
- * @property boolean turn_time_display_mode
+ * @property string turn_time_display_mode
  * @property boolean skip
  * @property boolean has_passed
  *

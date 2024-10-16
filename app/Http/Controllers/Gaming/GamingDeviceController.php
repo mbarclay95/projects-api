@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gaming;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gaming\GamingDevice;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Mbarclay36\LaravelCrud\CrudController;
@@ -23,6 +24,9 @@ class GamingDeviceController extends CrudController
     ];
     protected static array $destroyRules = [];
 
+    /**
+     * @throws Exception
+     */
     public function deviceAction(Request $request, string $deviceCommunicationId): JsonResponse
     {
         /** @var GamingDevice $device */
@@ -38,6 +42,7 @@ class GamingDeviceController extends CrudController
         ]);
 
         match ($validated['action']) {
+            'initialize' => $device->initialize(),
             'ping' => $device->updateLastSeen(),
             default => abort(400, 'Invalid action')
         };

@@ -127,6 +127,7 @@ Route::middleware('auth')->prefix('gaming')->group(function () {
 // GAMING SESSIONS
 Route::prefix('gaming')->group(function () {
     Route::apiResource('sessions', GamingSessionController::class)->only('index', 'store', 'update');
+    Route::patch('session-device-turn-orders', [GamingSessionController::class, 'updateGamingDeviceTurnOrders']);
     Route::apiResource('session-devices', GamingSessionDeviceController::class)->only('store', 'update', 'destroy');
     Route::apiResource('devices', GamingDeviceController::class)->only('index');
     Route::patch('device-action/{deviceCommunicationId}', [GamingDeviceController::class, 'deviceAction']);

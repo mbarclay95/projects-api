@@ -2,6 +2,7 @@
 
 namespace App\Services\Gaming;
 
+use App\Models\Gaming\GamingDevice;
 use Exception;
 use PhpMqtt\Client\MqttClient;
 
@@ -25,8 +26,8 @@ class MqttService
     /**
      * @throws Exception
      */
-    public static function deviceSetName(string $communicationId, string $name): void
+    public static function deviceSetConfig(GamingDevice $device, array $config): void
     {
-        self::sendMessage("gamingDevice/{$communicationId}/setName", $name);
+        self::sendMessage("gamingDevice/{$device->device_communication_id}/setConfig", json_encode($config));
     }
 }

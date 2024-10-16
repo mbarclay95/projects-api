@@ -79,7 +79,7 @@ class GamingSessionsRepository extends DefaultRepository
         if ($sessionStarted) {
             $model->load('gamingSessionDevices.gamingDevice');
             $sessionService = new ActiveSessionService($model);
-            $sessionService->beginSession();
+            $sessionService->sendConfigToAllDevices();
         }
 
         return $model;

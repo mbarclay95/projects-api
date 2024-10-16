@@ -44,6 +44,7 @@ class GamingDeviceController extends CrudController
         match ($validated['action']) {
             'initialize' => $device->initialize(),
             'ping' => $device->updateLastSeen(),
+            'buttonPress' => $device->handleButtonPress(),
             default => abort(400, 'Invalid action')
         };
 

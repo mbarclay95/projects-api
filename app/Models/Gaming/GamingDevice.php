@@ -7,6 +7,7 @@ use App\Services\Gaming\MqttService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
@@ -66,17 +67,49 @@ class GamingDevice extends ApiModel
      */
     private function checkForReinitialization(): void
     {
-        $sessionDevice = GamingSessionDevice::query()
-                                            ->with('gamingSession')
-                                            ->where('gaming_device_id', '=', $this->id)
-                                            ->whereHas('gamingSession', function ($query) {
-                                                $query->whereNotNull('started_at')
-                                                      ->whereNull('ended_at');
-                                            })
-                                            ->first();
+        $sessionDevice = $this->getActiveSessionDevice();
         if ($sessionDevice) {
             $this->sendDeviceConfig(ActiveSessionService::getConfig($sessionDevice->gamingSession, $sessionDevice));
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handleButtonPress(): void
+    {
+        $session = $this->getActiveSession();
+        if ($session) {
+            $sessionService = new ActiveSessionService($session);
+            $sessionService->handleButtonPress();
+        }
+    }
+
+    private function getActiveSessionDevice(): GamingSessionDevice|null
+    {
+        return GamingSessionDevice::query()
+                                  ->with('gamingSession')
+                                  ->where('gaming_device_id', '=', $this->id)
+                                  ->whereHas('gamingSession', function ($query) {
+                                      $query->whereNotNull('started_at')
+                                            ->whereNull('ended_at');
+                                  })
+                                  ->first();
+    }
+
+    private function getActiveSession(): GamingSession|null
+    {
+        return GamingSession::query()
+                            ->with('gamingSessionDevices.gamingDevice')
+                            ->whereNotNull('started_at')
+                            ->whereNull('ended_at')
+                            ->whereExists(function ($query) {
+                                $query->select(DB::raw(1))
+                                      ->from('gaming_session_devices')
+                                      ->where('gaming_session_devices.gaming_session_id', '=', 'gaming_sessions.id')
+                                      ->where('gaming_session_devices.gaming_device_id', '=', $this->id);
+                            })
+                            ->first();
     }
 
 }

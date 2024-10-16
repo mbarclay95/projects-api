@@ -106,7 +106,7 @@ class GamingDevice extends ApiModel
                             ->whereExists(function ($query) {
                                 $query->select(DB::raw(1))
                                       ->from('gaming_session_devices')
-                                      ->where('gaming_session_devices.gaming_session_id', '=', 'gaming_sessions.id')
+                                      ->whereRaw('gaming_session_devices.gaming_session_id = gaming_sessions.id')
                                       ->where('gaming_session_devices.gaming_device_id', '=', $this->id);
                             })
                             ->first();

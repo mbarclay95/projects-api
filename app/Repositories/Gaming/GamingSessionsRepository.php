@@ -5,6 +5,7 @@ namespace App\Repositories\Gaming;
 use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
 use App\Services\Gaming\ActiveSessionService;
+use App\Services\Gaming\GamingBroadcastService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -84,6 +85,7 @@ class GamingSessionsRepository extends DefaultRepository
             $model->load('gamingSessionDevices.gamingDevice');
             ActiveSessionService::sendConfigToAllDevices($model);
         }
+        GamingBroadcastService::broadcastSessions();
 
         return $model;
     }

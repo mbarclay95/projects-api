@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Gaming;
 
 use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
+use App\Services\Gaming\ActiveSessionService;
 use App\Services\Gaming\GamingBroadcastService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -56,7 +57,11 @@ class GamingSessionController extends CrudController
                                ->where('id', '=', $updatedTurnOrder['id'])
                                ->update(['current_turn_order' => $updatedTurnOrder['turnOrder']]);
         }
+        $session = GamingSession::query()
+                                ->with('gamingSessionDevices.gamingDevice')
+                                ->find($validated['sessionId']);
 
+        ActiveSessionService::sendConfigToAllDevices($session);
         GamingBroadcastService::broadcastSessions();
 
         return new JsonResponse(['success' => true]);

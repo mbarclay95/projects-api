@@ -2,7 +2,11 @@
 
 namespace App\Repositories\Gaming;
 
+use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
+use App\Services\Gaming\GamingBroadcastService;
+use App\Services\Gaming\MqttService;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -13,6 +17,7 @@ class GamingSessionDevicesRepository extends DefaultRepository
      * @param $request
      * @param Authenticatable $user
      * @return GamingSessionDevice|array
+     * @throws Exception
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
@@ -32,6 +37,7 @@ class GamingSessionDevicesRepository extends DefaultRepository
         $model->save();
 
         $model->gamingDevice->sendNameChange($request['name']);
+        GamingBroadcastService::broadcastSessions();
 
         return $model;
     }
@@ -41,7 +47,7 @@ class GamingSessionDevicesRepository extends DefaultRepository
      * @param $request
      * @param Authenticatable $user
      * @return GamingSessionDevice|array
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -51,6 +57,8 @@ class GamingSessionDevicesRepository extends DefaultRepository
         $model->name = $request['name'];
         $model->turn_time_display_mode = $request['turnTimeDisplayMode'];
         $model->save();
+
+        GamingBroadcastService::broadcastSessions();
 
         return $model;
     }

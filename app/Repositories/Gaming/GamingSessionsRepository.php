@@ -64,6 +64,10 @@ class GamingSessionsRepository extends DefaultRepository
         if ($model->started_at == null && $request['startedAt'] != null) {
             $sessionStarted = true;
         }
+        $pauseChanged = false;
+        if ($model->is_paused != $request['isPaused']) {
+            $pauseChanged = true;
+        }
         $model->name = $request['name'];
         $model->started_at = $request['startedAt'];
         $model->ended_at = $request['endedAt'];
@@ -76,7 +80,7 @@ class GamingSessionsRepository extends DefaultRepository
         $model->turn_limit_seconds = $request['turnLimitSeconds'];
         $model->save();
 
-        if ($sessionStarted) {
+        if ($sessionStarted || $pauseChanged) {
             $model->load('gamingSessionDevices.gamingDevice');
             $sessionService = new ActiveSessionService($model);
             $sessionService->sendConfigToAllDevices();

@@ -50,7 +50,7 @@ class ActiveSessionService
             'playerName' => $sessionDevice->name,
             'isTurn' => $sessionDevice->current_turn_order == $session->current_turn,
             'currentTurnOrder' => $sessionDevice->current_turn_order,
-            'waiting' => $sessionDevice->current_turn_order == $session->current_turn && $session->is_paused,
+            'paused' => $sessionDevice->current_turn_order == $session->current_turn && $session->is_paused,
             'turnDisplayMode' => $sessionDevice->turn_time_display_mode,
             'passed' => $sessionDevice->has_passed,
         ];

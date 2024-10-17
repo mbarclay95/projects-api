@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Gaming;
 
 use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
+use App\Services\Gaming\GamingBroadcastService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Mbarclay36\LaravelCrud\CrudController;
@@ -36,6 +38,9 @@ class GamingSessionController extends CrudController
     ];
     protected static array $destroyRules = [];
 
+    /**
+     * @throws Exception
+     */
     public function updateGamingDeviceTurnOrders(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -51,6 +56,8 @@ class GamingSessionController extends CrudController
                                ->where('id', '=', $updatedTurnOrder['id'])
                                ->update(['current_turn_order' => $updatedTurnOrder['turnOrder']]);
         }
+
+        GamingBroadcastService::broadcastSessions();
 
         return new JsonResponse(['success' => true]);
     }

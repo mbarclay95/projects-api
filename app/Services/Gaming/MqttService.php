@@ -30,4 +30,12 @@ class MqttService
     {
         self::sendMessage("gamingDevice/{$device->device_communication_id}/setConfig", json_encode($config));
     }
+
+    /**
+     * @throws Exception
+     */
+    public static function broadcastToWs(array $data): void
+    {
+        self::sendMessage("gaming/broadcast", json_encode($data));
+    }
 }

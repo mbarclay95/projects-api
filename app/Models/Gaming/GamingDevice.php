@@ -3,6 +3,7 @@
 namespace App\Models\Gaming;
 
 use App\Services\Gaming\ActiveSessionService;
+use App\Services\Gaming\GamingBroadcastService;
 use App\Services\Gaming\MqttService;
 use Carbon\Carbon;
 use Exception;
@@ -45,12 +46,17 @@ class GamingDevice extends ApiModel
         MqttService::deviceSetConfig($this, $config);
     }
 
+    /**
+     * @throws Exception
+     */
     public function updateLastSeen(bool $save = true): void
     {
         $this->last_seen = Carbon::now('America/Los_Angeles');
         if ($save) {
             $this->save();
         }
+
+        GamingBroadcastService::broadcastDevices();
     }
 
     /**

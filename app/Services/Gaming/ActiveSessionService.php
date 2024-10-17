@@ -8,20 +8,13 @@ use Exception;
 
 class ActiveSessionService
 {
-    private GamingSession $gamingSession;
-
-    public function __construct(GamingSession $gamingSession)
-    {
-        $this->gamingSession = $gamingSession;
-    }
-
     /**
      * @throws Exception
      */
-    public function sendConfigToAllDevices(): void
+    public static function sendConfigToAllDevices(GamingSession $session): void
     {
-        foreach ($this->gamingSession->gamingSessionDevices as $sessionDevice) {
-            $config = self::getConfig($this->gamingSession, $sessionDevice);
+        foreach ($session->gamingSessionDevices as $sessionDevice) {
+            $config = self::getConfig($session, $sessionDevice);
             $sessionDevice->gamingDevice->sendDeviceConfig($config);
         }
     }
@@ -29,18 +22,18 @@ class ActiveSessionService
     /**
      * @throws Exception
      */
-    public function handleButtonPress(): void
+    public static function handleButtonPress(GamingSession $session): void
     {
-        if ($this->gamingSession->is_paused) {
-            $this->gamingSession->is_paused = false;
-            $this->gamingSession->save();
+        if ($session->is_paused) {
+            $session->is_paused = false;
+            $session->save();
             return;
         }
 
-        $this->gamingSession->current_turn += 1;
-        $this->gamingSession->current_turn = (($this->gamingSession->current_turn - 1) % count($this->gamingSession->gamingSessionDevices)) + 1;
-        $this->gamingSession->save();
-        $this->sendConfigToAllDevices();
+        $session->current_turn += 1;
+        $session->current_turn = (($session->current_turn - 1) % count($session->gamingSessionDevices)) + 1;
+        $session->save();
+        self::sendConfigToAllDevices($session);
     }
 
     public static function getConfig(GamingSession $session, GamingSessionDevice $sessionDevice): array

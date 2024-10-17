@@ -86,8 +86,8 @@ class GamingDevice extends ApiModel
     {
         $session = $this->getActiveSession();
         if ($session) {
-            $sessionService = new ActiveSessionService($session);
-            $sessionService->handleButtonPress();
+            ActiveSessionService::handleButtonPress($session);
+            GamingBroadcastService::broadcastSessions();
         }
     }
 

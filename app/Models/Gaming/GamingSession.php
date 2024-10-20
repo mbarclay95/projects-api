@@ -30,7 +30,7 @@ class GamingSession extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'started_at', 'ended_at', 'turn_order_type',
+    protected static array $apiModelAttributes = ['id', 'created_at', 'name', 'started_at', 'ended_at', 'turn_order_type',
         'current_turn', 'allow_turn_passing', 'skip_after_passing', 'pause_at_beginning_of_round', 'is_paused',
         'turn_limit_seconds'];
 

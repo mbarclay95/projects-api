@@ -2,11 +2,9 @@
 
 namespace App\Repositories\Gaming;
 
-use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
 use App\Services\Gaming\ActiveSessionService;
 use App\Services\Gaming\GamingBroadcastService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -23,8 +21,13 @@ class GamingSessionsRepository extends DefaultRepository
      */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
+        $showWithArchived = array_key_exists('withArchived', $request) && $request['withArchived'];
         return GamingSession::query()
                             ->with('gamingSessionDevices.gamingDevice')
+                            ->when(!$showWithArchived, function ($query) {
+                                return $query->whereNull('ended_at');
+                            })
+                            ->orderBy('created_at', 'desc')
                             ->get();
     }
 

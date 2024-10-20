@@ -61,13 +61,15 @@ class GamingSessionsRepository extends DefaultRepository
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
-        $sessionStarted = false;
-        if ($model->started_at == null && $request['startedAt'] != null) {
-            $sessionStarted = true;
-        }
-        $pauseChanged = false;
-        if ($model->is_paused != $request['isPaused']) {
-            $pauseChanged = true;
+        $deviceChangeMade = false;
+        if (
+            $model->started_at == null && $request['startedAt'] != null || //session started
+            $model->is_paused != $request['isPaused'] || //pause change
+            $model->current_turn != $request['currentTurn'] || //turn order change
+            $model->turn_limit_seconds != $request['turnLimitSeconds'] || //turn length change
+            $model->allow_turn_passing != $request['allowTurnPassing'] // turn passing change
+        ) {
+            $deviceChangeMade = true;
         }
         $model->name = $request['name'];
         $model->started_at = $request['startedAt'];
@@ -81,7 +83,7 @@ class GamingSessionsRepository extends DefaultRepository
         $model->turn_limit_seconds = $request['turnLimitSeconds'];
         $model->save();
 
-        if ($sessionStarted || $pauseChanged) {
+        if ($deviceChangeMade) {
             $model->load('gamingSessionDevices.gamingDevice');
             ActiveSessionService::sendConfigToAllDevices($model);
         }

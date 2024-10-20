@@ -52,7 +52,6 @@ class FamilyMemberStatsRepository extends DefaultRepository
         $counts = Task::query()
                       ->selectRaw("completed_by_id, count(*), sum(task_point)")
                       ->whereNotNull('completed_at')
-                      ->whereNotNull('recurring_task_id')
                       ->where('completed_at', '>', $startDate)
                       ->where('completed_at', '<', $endDate)
                       ->where('owner_id', '=', $familyId)

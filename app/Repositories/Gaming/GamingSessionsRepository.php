@@ -35,6 +35,7 @@ class GamingSessionsRepository extends DefaultRepository
      * @param $request
      * @param Authenticatable $user
      * @return GamingSession|array
+     * @throws Exception
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
@@ -51,6 +52,8 @@ class GamingSessionsRepository extends DefaultRepository
             'turn_limit_seconds' => $request['turnLimitSeconds'],
         ]);
         $model->save();
+
+        GamingBroadcastService::broadcastSessions();
 
         return $model;
     }

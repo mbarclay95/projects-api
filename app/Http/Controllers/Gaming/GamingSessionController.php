@@ -16,6 +16,7 @@ class GamingSessionController extends CrudController
     protected static string $modelClass = GamingSession::class;
     protected static bool $indexAuth = false;
     protected static bool $storeAuth = false;
+    protected static bool $updateAuth = false;
     protected static array $indexRules = [
         'withArchived' => 'nullable|bool'
     ];

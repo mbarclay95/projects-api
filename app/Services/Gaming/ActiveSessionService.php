@@ -44,7 +44,8 @@ class ActiveSessionService
             'isTurn' => $sessionDevice->current_turn_order == $session->current_turn,
             'currentTurnOrder' => $sessionDevice->current_turn_order,
             'paused' => $sessionDevice->current_turn_order == $session->current_turn && $session->is_paused,
-            'turnDisplayMode' => $sessionDevice->turn_time_display_mode,
+            'showNumericTime' => $sessionDevice->turn_time_display_mode === 'numeric',
+            'showTimeGraph' => $sessionDevice->turn_time_display_mode === 'graph',
             'passed' => $sessionDevice->has_passed,
         ];
     }

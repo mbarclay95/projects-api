@@ -4,6 +4,7 @@ namespace App\Repositories\Gaming;
 
 use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
+use App\Services\Gaming\ActiveSessionService;
 use App\Services\Gaming\GamingBroadcastService;
 use App\Services\Gaming\MqttService;
 use Exception;
@@ -51,15 +52,28 @@ class GamingSessionDevicesRepository extends DefaultRepository
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
-        if ($model->name != $request['name']) {
-            $model->gamingDevice->sendNameChange($request['name']);
-        }
         $model->name = $request['name'];
         $model->turn_time_display_mode = $request['turnTimeDisplayMode'];
         $model->save();
 
+
+        ActiveSessionService::sendConfigToAllDevices($model->gamingSession);
         GamingBroadcastService::broadcastSessions();
 
         return $model;
+    }
+
+    /**
+     * @param Model $model
+     * @param Authenticatable $user
+     * @return bool
+     * @throws Exception
+     */
+    public function destroyEntity(Model $model, Authenticatable $user): bool
+    {
+        $model->delete();
+        GamingBroadcastService::broadcastSessions();
+
+        return true;
     }
 }

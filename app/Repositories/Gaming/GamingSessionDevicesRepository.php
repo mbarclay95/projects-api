@@ -6,7 +6,6 @@ use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
 use App\Services\Gaming\ActiveSessionService;
 use App\Services\Gaming\GamingBroadcastService;
-use App\Services\Gaming\MqttService;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +36,7 @@ class GamingSessionDevicesRepository extends DefaultRepository
         $model->gamingSession()->associate($request['gamingSessionId']);
         $model->save();
 
-        $model->gamingDevice->sendNameChange($request['name']);
+        ActiveSessionService::sendConfigToDevice($model);
         GamingBroadcastService::broadcastSessions();
 
         return $model;
@@ -56,22 +55,41 @@ class GamingSessionDevicesRepository extends DefaultRepository
         $model->turn_time_display_mode = $request['turnTimeDisplayMode'];
         $model->save();
 
-
-        ActiveSessionService::sendConfigToAllDevices($model->gamingSession);
+        ActiveSessionService::sendConfigToDevice($model);
         GamingBroadcastService::broadcastSessions();
 
         return $model;
     }
 
     /**
-     * @param Model $model
+     * @param GamingSessionDevice $model
      * @param Authenticatable $user
      * @return bool
      * @throws Exception
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {
+        $modelTurnOrder = $model->current_turn_order;
+        $sessionId = $model->gaming_session_id;
+        ActiveSessionService::clearDeviceConfig($model->gamingDevice);
         $model->delete();
+        $sessionDevices = GamingSessionDevice::query()
+                                             ->where('gaming_session_id', '=', $sessionId)
+                                             ->where('current_turn_order', '>', $modelTurnOrder)
+                                             ->get();
+
+        /** @var GamingSessionDevice $sessionDevice */
+        foreach ($sessionDevices as $sessionDevice) {
+            $sessionDevice->current_turn_order -= 1;
+            $sessionDevice->save();
+        }
+        $session = GamingSession::query()->find($sessionId);
+        if ($session->current_turn >= $modelTurnOrder) {
+            $session->current_turn -= 1;
+            $session->save();
+        }
+
+        ActiveSessionService::sendConfigToAllDevices($session);
         GamingBroadcastService::broadcastSessions();
 
         return true;

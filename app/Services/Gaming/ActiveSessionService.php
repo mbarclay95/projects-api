@@ -2,6 +2,7 @@
 
 namespace App\Services\Gaming;
 
+use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
 use App\Models\Gaming\GamingSessionDevice;
 use Exception;
@@ -9,6 +10,7 @@ use Exception;
 class ActiveSessionService
 {
     /**
+     * @param GamingSession $session
      * @throws Exception
      */
     public static function sendConfigToAllDevices(GamingSession $session): void
@@ -17,6 +19,17 @@ class ActiveSessionService
             $config = self::getConfig($session, $sessionDevice);
             $sessionDevice->gamingDevice->sendDeviceConfig($config);
         }
+    }
+
+    /**
+     * @param GamingSessionDevice $sessionDevice
+     * @return void
+     * @throws Exception
+     */
+    public static function sendConfigToDevice(GamingSessionDevice $sessionDevice): void
+    {
+        $config = self::getConfig($sessionDevice->gamingSession, $sessionDevice);
+        $sessionDevice->gamingDevice->sendDeviceConfig($config);
     }
 
     /**
@@ -48,5 +61,22 @@ class ActiveSessionService
             'showTimeGraph' => $sessionDevice->turn_time_display_mode === 'graph',
             'passed' => $sessionDevice->has_passed,
         ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function clearDeviceConfig(GamingDevice $device): void
+    {
+        $device->sendDeviceConfig([
+            'turnLength' => 0,
+            'playerName' => $device->button_color . ' player',
+            'isTurn' => false,
+            'currentTurnOrder' => 1,
+            'paused' => false,
+            'showNumericTime' => true,
+            'showTimeGraph' => false,
+            'passed' => false,
+        ]);
     }
 }

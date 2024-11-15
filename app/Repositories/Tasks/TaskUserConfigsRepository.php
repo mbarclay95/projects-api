@@ -18,7 +18,7 @@ class TaskUserConfigsRepository extends DefaultRepository
 
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
-        $weekOffset = min($request['weekOffset'], 1);
+        $weekOffset = min(intval($request['weekOffset']), 1);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         /** @var Family $family */
         $family = Family::query()

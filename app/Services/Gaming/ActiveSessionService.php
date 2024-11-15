@@ -54,7 +54,7 @@ class ActiveSessionService
         return [
             'turnLength' => $session->turn_limit_seconds,
             'playerName' => $sessionDevice->name,
-            'isTurn' => $sessionDevice->current_turn_order == $session->current_turn,
+            'isTurn' => $sessionDevice->current_turn_order == $session->current_turn && isset($session->started_at),
             'currentTurnOrder' => $sessionDevice->current_turn_order,
             'paused' => $sessionDevice->current_turn_order == $session->current_turn && $session->is_paused,
             'showNumericTime' => $sessionDevice->turn_time_display_mode === 'numeric',

@@ -5,6 +5,7 @@ namespace App\Repositories\Backups;
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
 use App\Models\Backups\Target;
+use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -14,7 +15,7 @@ class TargetsRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param Authenticatable $user
+     * @param User $user
      * @param bool $viewOnlyForUser
      * @return Collection|Target[]
      */
@@ -27,7 +28,7 @@ class TargetsRepository extends DefaultRepository
 
     /**
      * @param $request
-     * @param Authenticatable $user
+     * @param User $user
      * @return Target|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -46,7 +47,7 @@ class TargetsRepository extends DefaultRepository
     /**
      * @param Target $model
      * @param $request
-     * @param Authenticatable $user
+     * @param User $user
      * @return Target|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
@@ -57,21 +58,5 @@ class TargetsRepository extends DefaultRepository
         $model->save();
 
         return $model;
-    }
-
-    /**
-     * @param Backup $model
-     * @param Authenticatable $user
-     * @return bool
-     */
-    public function destroyEntity(Model $model, Authenticatable $user): bool
-    {
-        $model->delete();
-
-        BackupStep::query()
-                  ->where('backup_id', '=', $model->id)
-                  ->delete();
-
-        return true;
     }
 }

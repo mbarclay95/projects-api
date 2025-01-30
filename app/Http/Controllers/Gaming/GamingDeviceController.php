@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Gaming;
 
-use App\Http\Controllers\Controller;
 use App\Models\Gaming\GamingDevice;
 use Exception;
 use Illuminate\Http\JsonResponse;

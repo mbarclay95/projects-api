@@ -38,15 +38,15 @@ class BackupStepCompleted extends Command
      */
     public function handle()
     {
-        $backupStepId = $this->input->getArgument('backupStepId');
-        /** @var BackupStep $backupStep */
-        $backupStep = BackupStep::query()->find($backupStepId);
-        if (!$backupStep) {
-            $this->output->error('BackupStep not found');
-            return;
-        }
+//        $backupStepId = $this->input->getArgument('backupStepId');
+//        /** @var BackupStep $backupStep */
+//        $backupStep = BackupStep::query()->find($backupStepId);
+//        if (!$backupStep) {
+//            $this->output->error('BackupStep not found');
+//            return;
+//        }
 
-        $backupStep->completed();
-        $backupStep->backup->startNextOrComplete();
+//        $backupStep->completed();
+//        $backupStep->backup->startNextOrComplete();
     }
 }

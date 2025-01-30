@@ -19,38 +19,27 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  *
  * @property string name
- * @property Carbon started_at
- * @property Carbon completed_at
- * @property Carbon errored_at
  * @property integer sort
  * @property array config
  * @property string backup_step_type
- * @property string error_message
  *
  * @property integer user_id
  * @property User user
  *
  * @property integer backup_id
  * @property Backup backup
- *
- * @property integer scheduled_backup_id
- * @property ScheduledBackup scheduledBackup
  */
 class BackupStep extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'started_at', 'completed_at', 'errored_at',
-        'sort', 'backup_step_type', 'config'];
+    protected static array $apiModelAttributes = ['id', 'name', 'sort', 'backup_step_type', 'config'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
 
     protected $casts = [
-        'started_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'errored_at' => 'datetime',
         'config' => 'array'
     ];
 
@@ -64,29 +53,24 @@ class BackupStep extends ApiModel
         return $this->belongsTo(Backup::class);
     }
 
-    public function scheduledBackup(): BelongsTo
-    {
-        return $this->belongsTo(ScheduledBackup::class);
-    }
-
-    public function run(): void
-    {
-        $this->started_at = Carbon::now();
-        $this->save();
-
-        try {
-            $typeService = DefaultBackupStepType::getBackupStepTypeClass($this);
-            $typeService->runStep();
-            $this->completed_at = Carbon::now();
-            $this->save();
-            $this->backup->startNextOrComplete();
-        } catch (Exception $exception) {
-            $this->errored_at = Carbon::now();
-            $this->error_message = $exception->getMessage();
-            $this->save();
-            $this->backup->errored_at = $this->errored_at;
-            $this->backup->save();
-        }
+//    public function run(): void
+//    {
+//        $this->started_at = Carbon::now();
+//        $this->save();
+//
+//        try {
+//            $typeService = DefaultBackupStepType::getBackupStepTypeClass($this);
+//            $typeService->runStep();
+//            $this->completed_at = Carbon::now();
+//            $this->save();
+//            $this->backup->startNextOrComplete();
+//        } catch (Exception $exception) {
+//            $this->errored_at = Carbon::now();
+//            $this->error_message = $exception->getMessage();
+//            $this->save();
+//            $this->backup->errored_at = $this->errored_at;
+//            $this->backup->save();
+//        }
 
 
 //        $folderBackup = $this->scheduled_backup_id ? "scheduled_backup_{$this->scheduled_backup_id}" : "backup_{$this->backup_id}";
@@ -100,13 +84,13 @@ class BackupStep extends ApiModel
 //        `$command > /dev/null 2>&1 &`;
 //
 //        return $this;
-    }
+//    }
 
-    public function completed(): BackupStep
-    {
-        $this->completed_at = Carbon::now();
-        $this->save();
-
-        return $this;
-    }
+//    public function completed(): BackupStep
+//    {
+//        $this->completed_at = Carbon::now();
+//        $this->save();
+//
+//        return $this;
+//    }
 }

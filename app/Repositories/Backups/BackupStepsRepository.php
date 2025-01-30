@@ -3,6 +3,7 @@
 namespace App\Repositories\Backups;
 
 use App\Models\Backups\BackupStep;
+use App\Models\Backups\BackupStepJob;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -24,7 +25,6 @@ class BackupStepsRepository extends DefaultRepository
         ]);
         $backupStep->user()->associate($user);
         $backupStep->backup()->associate($request['backupId']);
-        $backupStep->scheduledBackup()->associate($request['scheduledBackupId']);
         $backupStep->save();
 
         return $backupStep;

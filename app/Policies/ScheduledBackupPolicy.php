@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\Permissions;
-use App\Models\Backups\ScheduledBackup;
+use App\Models\Backups\Schedule;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
@@ -27,10 +27,10 @@ class ScheduledBackupPolicy
      * Determine whether the user can view the model.
      *
      * @param User $user
-     * @param ScheduledBackup $scheduledBackup
+     * @param Schedule $scheduledBackup
      * @return Response|bool
      */
-    public function view(User $user, ScheduledBackup $scheduledBackup)
+    public function view(User $user, Schedule $scheduledBackup)
     {
         //
     }
@@ -50,10 +50,10 @@ class ScheduledBackupPolicy
      * Determine whether the user can update the model.
      *
      * @param User $user
-     * @param ScheduledBackup $scheduledBackup
+     * @param Schedule $scheduledBackup
      * @return Response|bool
      */
-    public function update(User $user, ScheduledBackup $scheduledBackup): Response|bool
+    public function update(User $user, Schedule $scheduledBackup): Response|bool
     {
         return $user->hasPermissionTo(Permissions::SCHEDULED_BACKUPS_UPDATE_FOR_USER) &&
             $user->id == $scheduledBackup->user_id;
@@ -63,10 +63,10 @@ class ScheduledBackupPolicy
      * Determine whether the user can delete the model.
      *
      * @param User $user
-     * @param ScheduledBackup $scheduledBackup
+     * @param Schedule $scheduledBackup
      * @return Response|bool
      */
-    public function delete(User $user, ScheduledBackup $scheduledBackup): Response|bool
+    public function delete(User $user, Schedule $scheduledBackup): Response|bool
     {
         return $user->hasPermissionTo(Permissions::SCHEDULED_BACKUPS_DELETE_FOR_USER) &&
             $user->id == $scheduledBackup->user_id;
@@ -77,10 +77,10 @@ class ScheduledBackupPolicy
      * Determine whether the user can restore the model.
      *
      * @param User $user
-     * @param ScheduledBackup $scheduledBackup
+     * @param Schedule $scheduledBackup
      * @return Response|bool
      */
-    public function restore(User $user, ScheduledBackup $scheduledBackup)
+    public function restore(User $user, Schedule $scheduledBackup)
     {
         //
     }
@@ -89,10 +89,10 @@ class ScheduledBackupPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param User $user
-     * @param ScheduledBackup $scheduledBackup
+     * @param Schedule $scheduledBackup
      * @return Response|bool
      */
-    public function forceDelete(User $user, ScheduledBackup $scheduledBackup)
+    public function forceDelete(User $user, Schedule $scheduledBackup)
     {
         //
     }

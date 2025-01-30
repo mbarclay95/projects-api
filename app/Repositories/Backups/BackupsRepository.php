@@ -4,6 +4,7 @@ namespace App\Repositories\Backups;
 
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupStep;
+use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -13,13 +14,16 @@ class BackupsRepository extends DefaultRepository
 {
     /**
      * @param $request
-     * @param Authenticatable $user
+     * @param User $user
      * @param bool $viewOnlyForUser
      * @return Collection|Backup[]
      */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
-        return parent::getEntities($request, $user, $viewOnlyForUser);
+        return Backup::query()
+                     ->with('backupSteps', 'backupJobs.backupStepJobs', 'schedules')
+                     ->where('user_id', '=', $user->id)
+                     ->get();
     }
 
     /**
@@ -33,7 +37,6 @@ class BackupsRepository extends DefaultRepository
             'name' => $request['name'],
         ]);
         $backup->user()->associate($user);
-        $backup->scheduledBackup()->associate($request['scheduledBackupId'] ?? null);
         $backup->save();
 
         foreach ($request['backupSteps'] as $backupStep) {
@@ -43,21 +46,5 @@ class BackupsRepository extends DefaultRepository
         }
 
         return $backup;
-    }
-
-    /**
-     * @param Backup $model
-     * @param Authenticatable $user
-     * @return bool
-     */
-    public function destroyEntity(Model $model, Authenticatable $user): bool
-    {
-        $model->delete();
-
-        BackupStep::query()
-                  ->where('backup_id', '=', $model->id)
-                  ->delete();
-
-        return true;
     }
 }

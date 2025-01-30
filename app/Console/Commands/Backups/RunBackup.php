@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Backups;
 
 use App\Models\Backups\Backup;
+use App\Services\Backups\RunBackupService;
 use Illuminate\Console\Command;
 
 class RunBackup extends Command
@@ -19,7 +20,7 @@ class RunBackup extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Run a new job for a given backup';
 
     /**
      * Create a new command instance.
@@ -46,6 +47,6 @@ class RunBackup extends Command
             return;
         }
 
-        $backup->startBackup();
+        (new RunBackupService($backup))->run();
     }
 }

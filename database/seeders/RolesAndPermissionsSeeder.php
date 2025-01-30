@@ -7,7 +7,7 @@ use App\Enums\Roles;
 use App\Models\ApiModels\FamilyMemberStatsApiModel;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Backups\Backup;
-use App\Models\Backups\ScheduledBackup;
+use App\Models\Backups\Schedule;
 use App\Models\Backups\Target;
 use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
@@ -151,12 +151,12 @@ class RolesAndPermissionsSeeder extends Seeder
             Backup::createPermission(),
             Backup::updateForUserPermission(),
 
-            ScheduledBackup::viewAnyForUserPermission(),
-            ScheduledBackup::viewForUserPermission(),
-            ScheduledBackup::createPermission(),
-            ScheduledBackup::updateForUserPermission(),
-            ScheduledBackup::deleteForUserPermission(),
-            ScheduledBackup::restoreForUserPermission(),
+            Schedule::viewAnyForUserPermission(),
+            Schedule::viewForUserPermission(),
+            Schedule::createPermission(),
+            Schedule::updateForUserPermission(),
+            Schedule::deleteForUserPermission(),
+            Schedule::restoreForUserPermission(),
 
             Target::viewAnyForUserPermission(),
             Target::createPermission(),

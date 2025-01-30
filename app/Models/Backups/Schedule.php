@@ -6,12 +6,13 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * Class ScheduledBackup
+ * Class Schedule
  *
  * @property integer id
  * @property Carbon created_at
@@ -25,14 +26,11 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property integer user_id
  * @property User user
  *
- * @property integer backup_id
- * @property Backup backup
- *
  * @property Collection|Backup[] backups
  */
-class ScheduledBackup extends ApiModel
+class Schedule extends ApiModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'schedule', 'enabled'];
 
@@ -49,29 +47,9 @@ class ScheduledBackup extends ApiModel
         return $this->belongsTo(User::class);
     }
 
-    public function backup(): BelongsTo
+    public function backups(): BelongsToMany
     {
-        return $this->belongsTo(Backup::class);
-    }
-
-    public function backups(): HasMany
-    {
-        return $this->hasMany(Backup::class);
-    }
-
-    public static function createFromRequest($request, int $userId): ScheduledBackup
-    {
-        $scheduledBackup = new ScheduledBackup([
-            'name' => $request['name'],
-            'enabled' => $request['enabled'],
-            'start_time' => $request['startTime'],
-            'full_every_n_days' => $request['fullEveryNDays'],
-            'schedule' => $request['schedule'],
-        ]);
-        $scheduledBackup->user()->associate($userId);
-        $scheduledBackup->save();
-
-        return $scheduledBackup;
+        return $this->belongsToMany(Backup::class);
     }
 
 }

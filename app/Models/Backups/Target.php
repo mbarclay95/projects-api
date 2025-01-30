@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
@@ -25,7 +26,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  */
 class Target extends ApiModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'target_url', 'host_name'];
 

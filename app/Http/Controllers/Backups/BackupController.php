@@ -17,7 +17,10 @@ class BackupController extends CrudController
         'name' => 'required|string',
         'backupSteps' => 'required|array',
     ];
-    protected static array $updateRules = [];
+    protected static array $updateRules = [
+        'name' => 'required|string',
+        'backupSteps' => 'required|array',
+    ];
 
     public function manualBackupRun(Request $request, int $backupId): JsonResponse
     {

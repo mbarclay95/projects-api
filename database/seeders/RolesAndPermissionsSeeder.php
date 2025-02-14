@@ -150,6 +150,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Backup::viewForUserPermission(),
             Backup::createPermission(),
             Backup::updateForUserPermission(),
+            Backup::deleteForUserPermission(),
 
             Schedule::viewAnyForUserPermission(),
             Schedule::viewForUserPermission(),

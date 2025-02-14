@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
@@ -17,6 +18,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property integer id
  * @property Carbon created_at
  * @property Carbon updated_at
+ * @property Carbon deleted_at
  *
  * @property string name
  * @property integer sort
@@ -31,7 +33,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  */
 class BackupStep extends ApiModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'sort', 'backup_step_type', 'config'];
 

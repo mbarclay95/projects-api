@@ -29,4 +29,21 @@ class BackupStepsRepository extends DefaultRepository
 
         return $backupStep;
     }
+
+    /**
+     * @param BackupStep $model
+     * @param $request
+     * @param Authenticatable $user
+     * @return BackupStep|array
+     */
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
+    {
+        $model->name = $request['name'];
+        $model->sort = $request['sort'];
+        $model->backup_step_type = $request['backupStepType'];
+        $model->config = $request['config'];
+        $model->save();
+
+        return $model;
+    }
 }

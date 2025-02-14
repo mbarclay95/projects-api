@@ -23,6 +23,7 @@ class BackupsRepository extends DefaultRepository
         return Backup::query()
                      ->with('backupSteps', 'backupJobs.backupStepJobs', 'schedules')
                      ->where('user_id', '=', $user->id)
+                     ->orderBy('created_at')
                      ->get();
     }
 
@@ -41,10 +42,60 @@ class BackupsRepository extends DefaultRepository
 
         foreach ($request['backupSteps'] as $backupStep) {
             $backupStep['backupId'] = $backup->id;
-            $backupStep['scheduledBackupId'] = $request['scheduledBackupId'] ?? null;
             BackupStepsRepository::createEntityStatic($backupStep, $user);
         }
 
         return $backup;
+    }
+
+    /**
+     * @param Backup $model
+     * @param $request
+     * @param Authenticatable $user
+     * @return Backup|array
+     */
+    public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
+    {
+        $model->name = $request['name'];
+        $model->save();
+
+        $model->load('backupSteps');
+        $requestCollection = Collection::make($request['backupSteps']);
+        foreach ($model->backupSteps as $backupStep) {
+            if ($requestCollection->doesntContain(function ($backupStepRequest) use ($backupStep) {
+                return $backupStepRequest['id'] == $backupStep->id;
+            })) {
+                BackupStepsRepository::destroyEntityStatic($backupStep, $user);
+            }
+        }
+        foreach ($request['backupSteps'] as $backupStepRequest) {
+            // using negative ids in the FE because I need ids to edit
+            if ($backupStepRequest['id'] < 0) {
+                $backupStepRequest['backupId'] = $model->id;
+                BackupStepsRepository::createEntityStatic($backupStepRequest, $user);
+            } else {
+                /** @var BackupStep $backupStep */
+                $backupStep = $model->backupSteps->find($backupStepRequest['id']);
+                BackupStepsRepository::updateEntityStatic($backupStep, $backupStepRequest, $user);
+            }
+        }
+        $model->load('backupSteps', 'backupJobs.backupStepJobs', 'schedules');
+
+        return $model;
+    }
+
+    /**
+     * @param Backup $model
+     * @param Authenticatable $user
+     * @return bool
+     */
+    public function destroyEntity(Model $model, Authenticatable $user): bool
+    {
+        $model->delete();
+        $model->backupSteps->each(function (BackupStep $backupStep) use ($user) {
+            BackupStepsRepository::destroyEntityStatic($backupStep, $user);
+        });
+
+        return true;
     }
 }

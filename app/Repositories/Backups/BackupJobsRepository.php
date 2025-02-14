@@ -29,7 +29,8 @@ class BackupJobsRepository extends DefaultRepository
         foreach ($backup->backupSteps as $backupStep) {
             BackupStepJobsRepository::createEntityStatic([
                 'backupStepId' => $backupStep->id,
-                'backupJobId' => $backupJob->id
+                'backupJobId' => $backupJob->id,
+                'sort' => $backupStep->sort
             ], $user);
         }
 

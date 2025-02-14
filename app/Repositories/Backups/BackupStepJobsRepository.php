@@ -19,7 +19,9 @@ class BackupStepJobsRepository extends DefaultRepository
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
-        $backupJobStep = new BackupStepJob();
+        $backupJobStep = new BackupStepJob([
+            'sort' => $request['sort']
+        ]);
         $backupJobStep->user()->associate($user);
         $backupJobStep->backupStep()->associate($request['backupStepId']);
         $backupJobStep->backupJob()->associate($request['backupJobId']);

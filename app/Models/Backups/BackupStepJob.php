@@ -19,6 +19,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon completed_at
  * @property Carbon errored_at
  * @property string error_message
+ * @property integer sort
  *
  * @property integer user_id
  * @property User user
@@ -34,9 +35,11 @@ class BackupStepJob extends ApiModel
     use HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'started_at', 'completed_at', 'errored_at', 'error_message',
-        'backup_step_id'];
+        'sort', 'error_message'];
 
-    protected static array $apiModelEntities = [];
+    protected static array $apiModelEntities = [
+        'backupStep' => BackupStep::class
+    ];
 
     protected static array $apiModelArrayEntities = [];
 
@@ -53,7 +56,7 @@ class BackupStepJob extends ApiModel
 
     public function backupStep(): BelongsTo
     {
-        return $this->belongsTo(BackupStep::class);
+        return $this->belongsTo(BackupStep::class)->withTrashed();
     }
 
     public function backupJob(): BelongsTo

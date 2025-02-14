@@ -21,7 +21,7 @@ class BackupsRepository extends DefaultRepository
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Backup::query()
-                     ->with('backupSteps', 'backupJobs.backupStepJobs', 'schedules')
+                     ->with('backupSteps', 'backupJobs.backupStepJobs.backupStep', 'schedules')
                      ->where('user_id', '=', $user->id)
                      ->orderBy('created_at')
                      ->get();

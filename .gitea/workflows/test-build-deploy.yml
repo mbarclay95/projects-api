@@ -1,5 +1,9 @@
 name: Test, build, and deploy actions
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 jobs:
 #  run-tests:
 #    runs-on: ubuntu-latest
@@ -31,23 +35,27 @@ jobs:
 #        run: composer install -n --prefer-dist
 #      - name: Run tests
 #        run: php artisan test
-  build-image:
+#  build-image:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Docker meta
+#        id: meta
+#        uses: docker/metadata-action@v5
+#        with:
+#          tags: type=sha
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#      - name: Build and push
+#        uses: docker/build-push-action@v6
+#        with:
+#          push: true
+#          file: ./docker/Dockerfile
+#          tags: |
+#            docker-registry.bigmike.dev/projects-api:latest
+#            docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
+  run-portainer-webhook:
     runs-on: ubuntu-latest
     steps:
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          tags: type=sha
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          file: ./docker/Dockerfile
-#          tags: ${{ steps.meta.outputs.tags }}
-          tags: docker-registry.bigmike.dev/projects-api:latest, docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
+      - name: Run curl command
+        run: curl --location --request POST 'http://10.5.10.11:9000/api/stacks/webhooks/e22679a0-188c-466a-bbd9-7796f0d685fc'
 

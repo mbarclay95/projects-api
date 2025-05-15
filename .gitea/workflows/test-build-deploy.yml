@@ -20,13 +20,11 @@ jobs:
         LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
         REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
     steps:
-      - name: Run php tests
+      - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Run php tests
         run: |
           ls ${{ github.workspace }}
-#        run: |
-#          cd /workspace/mbarclay36/projects-api
-#          ls -la
-#          /usr/local/bin/composer install
-#          /usr/local/bin/php artisan test
+          /usr/local/bin/composer install
+          /usr/local/bin/php artisan test
 

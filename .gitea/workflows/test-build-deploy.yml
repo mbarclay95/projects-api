@@ -22,4 +22,8 @@ jobs:
     steps:
       - name: Run php tests
         run: |
+          cd ${{ gitea.workspace }}
           ls -la
+          /usr/local/bin/composer install
+          /usr/local/bin/php artisan test
+

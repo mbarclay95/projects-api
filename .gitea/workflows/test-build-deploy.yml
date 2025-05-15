@@ -49,7 +49,5 @@ jobs:
           push: true
           file: ./docker/Dockerfile
 #          tags: ${{ steps.meta.outputs.tags }}
-          tags:
-            docker-registry.bigmike.dev/projects-api:latest
-            docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
+          tags: docker-registry.bigmike.dev/projects-api:latest, docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
 

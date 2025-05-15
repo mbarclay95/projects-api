@@ -5,54 +5,54 @@ on:
       - master
   workflow_dispatch:
 jobs:
-#  run-tests:
-#    runs-on: ubuntu-latest
-#    env:
-#      DB_CONNECTION: pgsql
-#      DB_HOST: 10.5.10.11
-#      DB_PORT: 5432
-#      DB_DATABASE: projects-testing
-#      DB_USERNAME: mbarclay36
-#      DB_PASSWORD: ${{ secrets.PGSQL_PASSWORD }}
-#      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#      MINIO_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
-#      MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
-#      MINIO_DEFAULT_REGION: home
-#      MINIO_BUCKET: home-dashboard
-#      LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
-#      REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
-#    steps:
-#      - name: Check out repository code
-#        uses: actions/checkout@v4
-#      - name: Setup PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: '8.2'
-#          extensions: mbstring, dom, fileinfo, pgsql
-#      - name: Prepare env
-#        run: touch .env
-#      - name: Composer install
-#        run: composer install -n --prefer-dist
-#      - name: Run tests
-#        run: php artisan test
-#  build-image:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Docker meta
-#        id: meta
-#        uses: docker/metadata-action@v5
-#        with:
-#          tags: type=sha
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
-#      - name: Build and push
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: true
-#          file: ./docker/Dockerfile
-#          tags: |
-#            docker-registry.bigmike.dev/projects-api:latest
-#            docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
+  run-tests:
+    runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 10.5.10.11
+      DB_PORT: 5432
+      DB_DATABASE: projects-testing
+      DB_USERNAME: mbarclay36
+      DB_PASSWORD: ${{ secrets.PGSQL_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MINIO_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+      MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+      MINIO_DEFAULT_REGION: home
+      MINIO_BUCKET: home-dashboard
+      LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
+      REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, pgsql
+      - name: Prepare env
+        run: touch .env
+      - name: Composer install
+        run: composer install -n --prefer-dist
+      - name: Run tests
+        run: php artisan test
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: type=sha
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          file: ./docker/Dockerfile
+          tags: |
+            docker-registry.bigmike.dev/projects-api:latest
+            docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
   run-portainer-webhook:
     runs-on: ubuntu-latest
     steps:

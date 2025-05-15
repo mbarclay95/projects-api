@@ -3,22 +3,20 @@ on: [push, workflow_dispatch]
 jobs:
   run-tests:
     runs-on: ubuntu-latest
-#    container:
-#      image: webdevops/php-nginx:8.2
-#      env:
-#        DB_CONNECTION: pgsql
-#        DB_HOST: 10.5.10.11
-#        DB_PORT: 5432
-#        DB_DATABASE: projects-testing
-#        DB_USERNAME: mbarclay36
-#        DB_PASSWORD: ${{ secrets.PGSQL_PASSWORD }}
-#        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-#        MINIO_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
-#        MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
-#        MINIO_DEFAULT_REGION: home
-#        MINIO_BUCKET: home-dashboard
-#        LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
-#        REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 10.5.10.11
+      DB_PORT: 5432
+      DB_DATABASE: projects-testing
+      DB_USERNAME: mbarclay36
+      DB_PASSWORD: ${{ secrets.PGSQL_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MINIO_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+      MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+      MINIO_DEFAULT_REGION: home
+      MINIO_BUCKET: home-dashboard
+      LOCAL_MINIO_ENDPOINT: http://10.5.10.11:9002
+      REMOTE_MINIO_ENDPOINT: https://minio.bigmike.dev
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -26,22 +24,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: pgsql
-      - name: Set env
-        run: |
-          export DB_CONNECTION="pgsql"
-          export DB_HOST="10.5.10.11"
-          export DB_PORT="5432"
-          export DB_DATABASE="projects-testing"
-          export DB_USERNAME="mbarclay36"
-          export DB_PASSWORD="${{ secrets.PGSQL_PASSWORD }}"
-          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          export MINIO_ACCESS_KEY_ID="${{ secrets.MINIO_ACCESS_KEY }}"
-          export MINIO_SECRET_ACCESS_KEY="${{ secrets.MINIO_SECRET_KEY }}"
-          export MINIO_DEFAULT_REGION="home"
-          export MINIO_BUCKET="home-dashboard"
-          export LOCAL_MINIO_ENDPOINT="http://10.5.10.11:9002"
-          export REMOTE_MINIO_ENDPOINT="https://minio.bigmike.dev"
+          extensions: mbstring, dom, fileinfo, pgsql
       - name: Composer install
         run: composer install -n --prefer-dist
       - name: Run tests

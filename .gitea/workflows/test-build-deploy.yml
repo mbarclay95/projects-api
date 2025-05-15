@@ -22,7 +22,9 @@ jobs:
     steps:
       - name: Run php tests
         run: |
-          cd /
+          ls -la /media
+          ls -la /mnt
+          cd /workspace
           ls -la
 #          /usr/local/bin/composer install
 #          /usr/local/bin/php artisan test

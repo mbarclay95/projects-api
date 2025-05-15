@@ -22,8 +22,10 @@ jobs:
     steps:
       - name: Run php tests
         run: |
-          cd /workspace/mbarclay36/projects-api
-          ls -la
+          ls ${{ github.workspace }}
+#        run: |
+#          cd /workspace/mbarclay36/projects-api
+#          ls -la
 #          /usr/local/bin/composer install
 #          /usr/local/bin/php artisan test
 

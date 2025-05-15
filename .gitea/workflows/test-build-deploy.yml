@@ -43,8 +43,6 @@ jobs:
           export REMOTE_MINIO_ENDPOINT="https://minio.bigmike.dev"
       - name: Composer install
         run: composer install -n --prefer-dist
-      - name: Run php tests
-        run: |
-          ls ${{ github.workspace }}
-          /usr/local/bin/php artisan test
+      - name: Run tests
+        run: php artisan test
 

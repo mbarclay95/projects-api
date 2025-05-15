@@ -30,17 +30,17 @@ jobs:
         run: |
           export DB_CONNECTION="pgsql"
           export DB_HOST="10.5.10.11"
-          export DB_PORT"5432"
-          export DB_DATABASE"projects-testing"
-          export DB_USERNAME"mbarclay36"
-          export DB_PASSWORD"${{ secrets.PGSQL_PASSWORD }}"
-          export JWT_SECRET"${{ secrets.JWT_SECRET }}"
-          export MINIO_ACCESS_KEY_ID"${{ secrets.MINIO_ACCESS_KEY }}"
-          export MINIO_SECRET_ACCESS_KEY"${{ secrets.MINIO_SECRET_KEY }}"
-          export MINIO_DEFAULT_REGION"home"
-          export MINIO_BUCKET"home-dashboard"
-          export LOCAL_MINIO_ENDPOINT"http://10.5.10.11:9002"
-          export REMOTE_MINIO_ENDPOINT"https://minio.bigmike.dev"
+          export DB_PORT="5432"
+          export DB_DATABASE="projects-testing"
+          export DB_USERNAME="mbarclay36"
+          export DB_PASSWORD="${{ secrets.PGSQL_PASSWORD }}"
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export MINIO_ACCESS_KEY_ID="${{ secrets.MINIO_ACCESS_KEY }}"
+          export MINIO_SECRET_ACCESS_KEY="${{ secrets.MINIO_SECRET_KEY }}"
+          export MINIO_DEFAULT_REGION="home"
+          export MINIO_BUCKET="home-dashboard"
+          export LOCAL_MINIO_ENDPOINT="http://10.5.10.11:9002"
+          export REMOTE_MINIO_ENDPOINT="https://minio.bigmike.dev"
       - name: Composer install
         run: composer install -n --prefer-dist
       - name: Run php tests

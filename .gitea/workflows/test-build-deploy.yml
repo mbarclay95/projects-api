@@ -25,7 +25,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@v3
         with:
           php-version: '8.2'
           extensions: mbstring, dom, fileinfo, pgsql
@@ -37,6 +37,7 @@ jobs:
         run: php artisan test
   build-image:
     runs-on: ubuntu-latest
+    needs: [run-tests]
     steps:
       - name: Docker meta
         id: meta
@@ -55,7 +56,23 @@ jobs:
             docker-registry.bigmike.dev/projects-api:${{ steps.meta.outputs.tags }}
   run-portainer-webhook:
     runs-on: ubuntu-latest
+    needs: [build-image]
     steps:
       - name: Run curl command
         run: curl --location --request POST 'http://10.5.10.11:9000/api/stacks/webhooks/e22679a0-188c-466a-bbd9-7796f0d685fc'
+  job-status-notification:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [ run-portainer-webhook ]
+    steps:
+      - name: Send success notification
+        if: ${{ needs.run-portainer-webhook.result == 'success' }}
+        run: |
+          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AfI_HNqzh6EXFk0' --header 'Content-Type: application/json' \
+          --data-raw '{"message": "projects-api pipeline success","priority": 10,"title": "Gitea Success"}'
+      - name: Send failure notification
+        if: ${{ needs.run-portainer-webhook.result == 'failure' || needs.run-portainer-webhook.result == 'skipped' }}
+        run: |
+          curl --location --request POST 'https://gotify.bigmike.dev/message?token=AfI_HNqzh6EXFk0' --header 'Content-Type: application/json' \
+          --data-raw '{"message": "projects-api pipeline failed","priority": 10,"title": "Gitea Failure"}'
 

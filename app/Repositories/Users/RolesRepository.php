@@ -20,10 +20,11 @@ class RolesRepository extends DefaultRepository
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Role::query()
-                   ->when(!$user->hasPermissionTo(RoleApiModel::viewAnyPermission()), function ($where) {
-                       $where->where('name', '!=', Roles::ADMIN_ROLE);
-                   })
-                   ->get();
+            ->when(!$user->hasPermissionTo(RoleApiModel::viewAnyPermission()), function ($where) {
+                $where->where('name', '!=', Roles::ADMIN_ROLE);
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     protected static function getModelClass(): string

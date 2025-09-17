@@ -29,7 +29,8 @@ class GoalsRepository extends DefaultRepository
                      ->filter($request)
                      ->get();
 
-        $date = Carbon::now('America/Los_Angeles')->addWeeks($request['weekOffset']);
+        $weekOffset = intval($request['weekOffset']);
+        $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         foreach ($goals as $goal) {
             $goal->getCurrentAmount($date);
         }

@@ -25,8 +25,8 @@ class FolderController extends CrudController
 
     public function updateFolderSorts(Request $request): JsonResponse
     {
-//        /** @var User $user */
-//        $user = Auth::user();
+        /** @var User $user */
+        $user = Auth::user();
 //        if ($this->cannotUpdate($user)) {
 //            throw new AuthenticationException();
 //        }
@@ -35,6 +35,7 @@ class FolderController extends CrudController
 
         foreach ($data as $movedSort) {
             Folder::query()
+                  ->where('user_id', '=', $user->id)
                   ->where('id', '=', $movedSort['id'])
                   ->update(['sort' => $movedSort['sort']]);
         }

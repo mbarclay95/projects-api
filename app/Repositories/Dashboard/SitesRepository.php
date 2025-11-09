@@ -94,6 +94,7 @@ class SitesRepository extends DefaultRepository
                 $movedSort['sort'] = $maxSort;
             }
             Site::query()
+                ->where('user_id', '=', $user->id)
                 ->where('folder_id', '=', $request['folderId'])
                 ->where('id', '=', $movedSort['id'])
                 ->update(['sort' => $movedSort['sort']]);

@@ -89,8 +89,8 @@ class FamilyMemberStatsRepository extends DefaultRepository
             $memberExpectedCounts = $expectedPointsCount->where('user_id', '=', $member->id)->first();
             if ($membersCounts) {
                 $member->setAttribute('totalTasks', $membersCounts->count);
-                $member->setAttribute('totalEarnedPoints', $membersCounts->sum);
-                $member->setAttribute('totalExpectedPoints', $memberExpectedCounts->sum);
+                $member->setAttribute('totalEarnedPoints', $membersCounts?->sum ?? 0);
+                $member->setAttribute('totalExpectedPoints', $memberExpectedCounts?->sum ?? 0);
             }
         }
 

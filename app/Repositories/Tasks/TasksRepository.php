@@ -112,17 +112,22 @@ class TasksRepository extends DefaultRepository
             $model->completed_by_id = $user->id;
             $taskCompleted = true;
         }
-        if ($model->completed_at && !isset($request['completedAt'])) {
-            $model->completed_at = null;
-            $model->completed_by_id = null;
-            if ($model->recurring_task_id) {
-                Task::query()
-                    ->whereNull('completed_at')
-                    ->whereNull('completed_by_id')
-                    ->where('due_date', '>', $model->due_date)
-                    ->where('recurring_task_id', '=', $model->recurring_task_id)
-                    ->delete();
+        if ($model->completed_at ) {
+            if (isset($request['completedAt'])) {
+                $model->completed_at = Carbon::parse($request['completedAt']);
+            } else {
+                $model->completed_at = null;
+                $model->completed_by_id = null;
+                if ($model->recurring_task_id) {
+                    Task::query()
+                        ->whereNull('completed_at')
+                        ->whereNull('completed_by_id')
+                        ->where('due_date', '>', $model->due_date)
+                        ->where('recurring_task_id', '=', $model->recurring_task_id)
+                        ->delete();
+                }
             }
+
         }
         $model->updateTags($request['tags']);
         $model->save();

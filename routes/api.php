@@ -15,6 +15,7 @@ use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Drafts\PublicDraftController;
 use App\Http\Controllers\Drafts\PublicDraftMemberController;
+use App\Http\Controllers\Drafts\PublicDraftPickController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
@@ -133,6 +134,7 @@ Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 
 Route::prefix('public')->group(function () {
     Route::get('drafts/{draftId}', [PublicDraftController::class, 'show']);
     Route::post('draft-members', [PublicDraftMemberController::class, 'store']);
+    Route::post('draft-picks', [PublicDraftPickController::class, 'store']);
 });
 
 // FILE EXPLORER

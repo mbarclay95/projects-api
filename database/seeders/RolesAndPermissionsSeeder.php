@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\Permissions;
 use App\Enums\Roles;
+use App\Models\ApiModels\DraftAdminCandidateApiModel;
 use App\Models\ApiModels\FamilyMemberStatsApiModel;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Backups\Backup;
@@ -250,12 +251,16 @@ class RolesAndPermissionsSeeder extends Seeder
             Draft::updateForUserPermission(),
             Draft::deleteForUserPermission(),
 
+            DraftAdmin::createPermission(),
             DraftAdmin::updatePermission(),
             DraftAdmin::deletePermission(),
+            DraftAdminCandidateApiModel::viewAnyForUserPermission(),
 
+            DraftTeam::createPermission(),
             DraftTeam::updatePermission(),
             DraftTeam::deletePermission(),
 
+            DraftMember::createPermission(),
             DraftMember::updatePermission(),
             DraftMember::deletePermission(),
 

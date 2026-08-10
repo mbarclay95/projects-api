@@ -48,6 +48,25 @@ class DraftService
         return self::pickCount($draft) >= self::memberCount($draft) * $draft->total_rounds;
     }
 
+    /**
+     * The admin-panel guard for entering in_progress: memberCount() below
+     * only counts ordered members, so an unordered roster would otherwise
+     * read as a 0-member, already-complete draft. See admin-crud.md's
+     * "Draft invariants" section for the full reasoning.
+     */
+    public static function rosterIsFullyOrdered(Draft $draft): bool
+    {
+        $memberCount = $draft->draftMembers()->count();
+        if ($memberCount === 0) {
+            return false;
+        }
+
+        $orderedCount = $draft->draftMembers()->whereNotNull('pick_position')->count();
+        $maxPosition = $draft->draftMembers()->max('pick_position');
+
+        return $orderedCount === $memberCount && $maxPosition === $memberCount;
+    }
+
     private static function pickCount(Draft $draft): int
     {
         return $draft->draftPicks()->count();

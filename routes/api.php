@@ -7,6 +7,12 @@ use App\Http\Controllers\Backups\TargetController;
 use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
+use App\Http\Controllers\Drafts\DraftAdminCandidateController;
+use App\Http\Controllers\Drafts\DraftAdminController;
+use App\Http\Controllers\Drafts\DraftController;
+use App\Http\Controllers\Drafts\DraftMemberController;
+use App\Http\Controllers\Drafts\DraftTeamController;
+use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
@@ -100,6 +106,25 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('events', EventController::class)->except('show');
     Route::apiResource('event-participants', EventParticipantController::class)->only('update');
 });
+
+// DRAFTS
+Route::middleware('auth')->group(function () {
+    Route::apiResource('drafts', DraftController::class)->except('show');
+    Route::post('drafts/{draftId}/clone-teams', [DraftController::class, 'cloneTeams']);
+
+    Route::apiResource('draft-teams', DraftTeamController::class)->except('index', 'show');
+    Route::post('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 'store']);
+
+    Route::apiResource('draft-members', DraftMemberController::class)->except('index', 'show');
+    Route::patch('draft-member-positions', [DraftMemberController::class, 'updatePickPositions']);
+
+    Route::apiResource('draft-admins', DraftAdminController::class)->only('store', 'destroy');
+    Route::apiResource('draft-admin-candidates', DraftAdminCandidateController::class)->only('index');
+});
+
+// Outside auth on purpose — see admin-crud.md. An <img src> never carries a
+// bearer token, and this API is IP-restricted at the nginx proxy regardless.
+Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 'show']);
 
 // FILE EXPLORER
 Route::middleware('auth')->prefix('file-explorer')->group(function () {

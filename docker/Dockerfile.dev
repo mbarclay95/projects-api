@@ -1,0 +1,28 @@
+# backend/Dockerfile.dev
+FROM php:8.2-cli
+
+# Postgres driver isn't built in — required for Laravel's pgsql connection
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    unzip \
+    git \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Dependency install happens here at build time; the volume mount in
+# docker-compose overlays live code on top afterward, so this mainly
+# just warms the vendor/ cache for the initial build.
+COPY composer.json composer.lock ./
+RUN composer install --no-scripts --no-interaction
+
+EXPOSE 8000
+
+# composer install runs again here (not just at build time) because the
+# bind mount in docker-compose overlays the host's ./backend on top of
+# what was installed into the image — vendor/ isn't committed to git,
+# so without this the mount hides it and artisan can't find autoload.php.
+CMD composer install --no-interaction && php artisan serve --host=0.0.0.0 --port=8000

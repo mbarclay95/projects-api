@@ -3,8 +3,10 @@
 namespace App\Models\Drafts;
 
 use App\Models\BaseApiModel;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -33,6 +35,36 @@ class DraftTeam extends BaseApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
+
+    /**
+     * There is no reorder endpoint for teams, only the append behaviour clone
+     * shares below — so sort_order is always the next value, never client-set.
+     */
+    public static function createEntity($request, User $auth): DraftTeam
+    {
+        $draftTeam = new DraftTeam([
+            'draft_id' => $request['draftId'],
+            'name' => $request['name'],
+            'sort_order' => static::query()->where('draft_id', '=', $request['draftId'])->max('sort_order') + 1,
+        ]);
+        $draftTeam->save();
+
+        return $draftTeam;
+    }
+
+    /**
+     * @param DraftTeam $entity
+     * @param $request
+     * @param User $auth
+     * @return DraftTeam|Model
+     */
+    public static function updateEntity(Model $entity, $request, User $auth): Model
+    {
+        $entity->name = $request['name'];
+        $entity->save();
+
+        return $entity;
+    }
 
     public function draft(): BelongsTo
     {

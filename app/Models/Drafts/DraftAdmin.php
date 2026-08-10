@@ -34,6 +34,21 @@ class DraftAdmin extends BaseApiModel
 
     protected static array $apiModelArrayEntities = [];
 
+    /**
+     * No updateEntity: the table is (draft_id, user_id) with no other column,
+     * so there is nothing an update could change.
+     */
+    public static function createEntity($request, User $auth): DraftAdmin
+    {
+        $draftAdmin = new DraftAdmin([
+            'draft_id' => $request['draftId'],
+            'user_id' => $request['userId'],
+        ]);
+        $draftAdmin->save();
+
+        return $draftAdmin;
+    }
+
     public function draft(): BelongsTo
     {
         return $this->belongsTo(Draft::class);

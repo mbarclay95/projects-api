@@ -88,4 +88,12 @@ Custom commands in `app/Console/Commands/`:
 
 ### Testing Environment
 
-`.env.testing` sets `QUEUE_CONNECTION=sync` and `CACHE_DRIVER=array`. Tests live in `tests/Unit/` and `tests/Feature/`.
+Tests live in `tests/Unit/` and `tests/Feature/`. Feature tests use a real database.
+
+`phpunit.xml` sets `APP_ENV=testing`, so config comes from `.env.testing` — gitignored; copy `.env.testing.example` and fill it in. The database named there must already exist, as `RefreshDatabase` migrates and truncates it but will not create it. Check `phpunit.xml` for environment overrides (array cache, sync queue, array session driver).
+
+CI does not use `.env.testing`. The workflow in `.gitea/workflows/` supplies the same values as environment variables, which take precedence over any env file.
+
+That precedence cuts both ways: a real `DB_*` environment variable beats `.env.testing`, because Dotenv is immutable and will not overwrite what is already set. Do not put `DB_*` in the compose file's `environment:` block — doing so silently points the test suite at the dev database, and `RefreshDatabase` drops every table in it.
+
+`tests/CreatesApplication.php` guards against this with an allowlist: the suite refuses to run against any database not named in `ALLOWED_TEST_DATABASES`. Add a new test database there deliberately rather than loosening the check — CI runs on the same server as production.

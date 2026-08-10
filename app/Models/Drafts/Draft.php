@@ -6,6 +6,7 @@ use App\Enums\DraftStatus;
 use App\Models\BaseApiModel;
 use App\Models\Users\User;
 use Carbon\Carbon;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,7 +42,7 @@ use Illuminate\Support\Str;
  */
 class Draft extends BaseApiModel
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Filterable;
 
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'draft_date', 'token', 'status',
         'total_rounds', 'max_participants', 'created_by_id', 'deleted_at'];
@@ -72,6 +73,7 @@ class Draft extends BaseApiModel
                     ->with(['draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
                     ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
                     ->orderBy('draft_date')
+                    ->filter($request)
                     ->get();
     }
 

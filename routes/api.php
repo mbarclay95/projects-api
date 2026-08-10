@@ -7,6 +7,7 @@ use App\Http\Controllers\Backups\TargetController;
 use App\Http\Controllers\Dashboard\FolderController;
 use App\Http\Controllers\Dashboard\SiteController;
 use App\Http\Controllers\Dashboard\SiteImageController;
+use App\Http\Controllers\Drafts\DraftController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
@@ -99,6 +100,11 @@ Route::apiResource('site-images', SiteImageController::class)->only('show');
 Route::middleware('auth')->group(function () {
     Route::apiResource('events', EventController::class)->except('show');
     Route::apiResource('event-participants', EventParticipantController::class)->only('update');
+});
+
+// DRAFTS
+Route::middleware('auth')->group(function () {
+    Route::apiResource('drafts', DraftController::class)->except('show');
 });
 
 // FILE EXPLORER

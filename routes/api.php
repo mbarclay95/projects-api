@@ -13,6 +13,7 @@ use App\Http\Controllers\Drafts\DraftController;
 use App\Http\Controllers\Drafts\DraftMemberController;
 use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
+use App\Http\Controllers\Drafts\PublicDraftController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\EventParticipantController;
 use App\Http\Controllers\FileExplorer\DirectoryItemController;
@@ -125,6 +126,12 @@ Route::middleware('auth')->group(function () {
 // Outside auth on purpose — see admin-crud.md. An <img src> never carries a
 // bearer token, and this API is IP-restricted at the nginx proxy regardless.
 Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 'show']);
+
+// PUBLIC DRAFTS — no auth, token-gated per row, reachable only from
+// projects-api-public. See public-draft.md.
+Route::prefix('public')->group(function () {
+    Route::get('drafts/{draftId}', [PublicDraftController::class, 'show']);
+});
 
 // FILE EXPLORER
 Route::middleware('auth')->prefix('file-explorer')->group(function () {

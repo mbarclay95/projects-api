@@ -15,4 +15,5 @@ class Roles
     const MONEY_APP_ROLE  = 'money_app_role';
     const LOGGING_ROLE  = 'logging_role';
     const GAMING_SESSION_ADMIN_ROLE  = 'gaming_session_admin_role';
+    const DRAFTS_ROLE  = 'drafts_role';
 }

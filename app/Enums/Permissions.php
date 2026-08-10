@@ -50,6 +50,7 @@ class Permissions
     const VIEW_MONEY_APP_PAGE = self::CLIENT . 'view_money_app_page';
     const VIEW_LOGGING_PAGE = self::CLIENT . 'view_logging_page';
     const VIEW_GAMING_SESSION_ADMIN_PAGE = self::CLIENT . 'view_gaming_session_admin_page';
+    const VIEW_DRAFTS_PAGE = self::CLIENT . 'view_drafts_page';
     const LISTEN_TO_UPTIME_KUMA_WEBSOCKET = self::CLIENT . 'listen_to_uptime_kuma_websocket';
 
 }

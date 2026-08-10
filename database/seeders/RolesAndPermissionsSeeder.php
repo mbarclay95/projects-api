@@ -12,6 +12,11 @@ use App\Models\Backups\Target;
 use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
+use App\Models\Drafts\Draft;
+use App\Models\Drafts\DraftAdmin;
+use App\Models\Drafts\DraftMember;
+use App\Models\Drafts\DraftPick;
+use App\Models\Drafts\DraftTeam;
 use App\Models\Events\Event;
 use App\Models\Events\EventParticipant;
 use App\Models\Gaming\GamingDevice;
@@ -49,6 +54,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createEventsRole();
         $this->createFileExplorerRole();
         $this->createMoneyAppRole();
+        $this->createDraftsRole();
     }
 
 //    private function createDefaultRole(): void
@@ -223,6 +229,39 @@ class RolesAndPermissionsSeeder extends Seeder
             EventParticipant::deletePermission(),
 
             Permissions::VIEW_EVENTS_PAGE
+        ]);
+    }
+
+    /**
+     * Draft::updatePermission() and Draft::deletePermission() — the unscoped
+     * variants — must never be granted here. Either one short-circuits the
+     * ownership test in cannotUpdate()/cannotDestroy(), letting any holder of
+     * this role edit any draft in the system. The scoped grants below do not
+     * work on their own until DraftController overrides both methods, because
+     * the package compares $model->user_id and drafts has no such column.
+     */
+    private function createDraftsRole(): void
+    {
+        $this->createAndAssign(Roles::DRAFTS_ROLE, [
+
+            Draft::viewAnyForUserPermission(),
+            Draft::createPermission(),
+            Draft::updateForUserPermission(),
+            Draft::deleteForUserPermission(),
+
+            DraftAdmin::updatePermission(),
+            DraftAdmin::deletePermission(),
+
+            DraftTeam::updatePermission(),
+            DraftTeam::deletePermission(),
+
+            DraftMember::updatePermission(),
+            DraftMember::deletePermission(),
+
+            DraftPick::updatePermission(),
+            DraftPick::deletePermission(),
+
+            Permissions::VIEW_DRAFTS_PAGE
         ]);
     }
 }

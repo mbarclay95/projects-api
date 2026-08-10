@@ -53,6 +53,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createTasksRole();
         $this->createEventsRole();
         $this->createFileExplorerRole();
+        $this->createGamingSessionAdminRole();
         $this->createMoneyAppRole();
         $this->createDraftsRole();
     }
@@ -66,6 +67,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
     private function createFileExplorerRole(): void
     {
+        $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
+            Permissions::VIEW_FILE_EXPLORER_PAGE
+        ]);
+    }
+
+    private function createGamingSessionAdminRole(): void
+    {
         $this->createAndAssign(Roles::GAMING_SESSION_ADMIN_ROLE, [
             GamingSession::updatePermission(),
             GamingSession::deletePermission(),
@@ -74,13 +82,6 @@ class RolesAndPermissionsSeeder extends Seeder
             GamingDevice::updatePermission(),
 
             Permissions::VIEW_GAMING_SESSION_ADMIN_PAGE
-        ]);
-    }
-
-    private function createGamingSessionAdminRole(): void
-    {
-        $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
-            Permissions::VIEW_FILE_EXPLORER_PAGE
         ]);
     }
 

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class DraftTeam
@@ -36,16 +37,12 @@ class DraftTeam extends BaseApiModel
 
     protected static array $apiModelArrayEntities = [];
 
-    /**
-     * There is no reorder endpoint for teams, only the append behaviour clone
-     * shares below — so sort_order is always the next value, never client-set.
-     */
     public static function createEntity($request, User $auth): DraftTeam
     {
         $draftTeam = new DraftTeam([
             'draft_id' => $request['draftId'],
             'name' => $request['name'],
-            'sort_order' => static::query()->where('draft_id', '=', $request['draftId'])->max('sort_order') + 1,
+            'sort_order' => $request['sortOrder'] ?? 0,
         ]);
         $draftTeam->save();
 
@@ -61,9 +58,24 @@ class DraftTeam extends BaseApiModel
     public static function updateEntity(Model $entity, $request, User $auth): Model
     {
         $entity->name = $request['name'];
+        $entity->sort_order = $request['sortOrder'] ?? $entity->sort_order;
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public static function destroyEntity(Model $entity, User $auth): void
+    {
+        if ($entity->draftPick()->exists()) {
+            throw ValidationException::withMessages([
+                'team' => 'A team that has been picked cannot be deleted.',
+            ]);
+        }
+
+        $entity->delete();
     }
 
     public function draft(): BelongsTo

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class DraftMember
@@ -74,6 +75,20 @@ class DraftMember extends BaseApiModel
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public static function destroyEntity(Model $entity, User $auth): void
+    {
+        if ($entity->draftPicks()->exists()) {
+            throw ValidationException::withMessages([
+                'member' => 'A member that has picks cannot be deleted.',
+            ]);
+        }
+
+        $entity->delete();
     }
 
     public function draft(): BelongsTo

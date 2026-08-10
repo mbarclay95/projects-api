@@ -5,6 +5,7 @@ namespace App\Models\Drafts;
 use App\Enums\DraftStatus;
 use App\Models\BaseApiModel;
 use App\Models\Users\User;
+use App\Services\Drafts\DraftService;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class Draft
@@ -84,12 +86,15 @@ class Draft extends BaseApiModel
      */
     public static function createEntity($request, User $auth): Draft
     {
-        return DB::transaction(function () use ($request, $auth) {
+        $totalRounds = $request['totalRounds'] ?? 1;
+        self::assertValidTotalRounds($totalRounds);
+
+        return DB::transaction(function () use ($request, $auth, $totalRounds) {
             $draft = new Draft([
                 'name' => $request['name'],
                 'notes' => $request['notes'] ?? null,
                 'draft_date' => $request['draftDate'] ?? null,
-                'total_rounds' => $request['totalRounds'] ?? 1,
+                'total_rounds' => $totalRounds,
                 'max_participants' => $request['maxParticipants'] ?? null,
                 'status' => DraftStatus::SIGNUP,
                 'token' => Str::random(),
@@ -107,18 +112,51 @@ class Draft extends BaseApiModel
      * @param $request
      * @param User $auth
      * @return Draft
+     * @throws ValidationException
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model
     {
+        $totalRounds = $request['totalRounds'] ?? 1;
+        self::assertValidTotalRounds($totalRounds);
+        if ($totalRounds < DraftService::currentRound($entity)) {
+            throw ValidationException::withMessages([
+                'totalRounds' => 'Total rounds cannot drop below the round already in progress.',
+            ]);
+        }
+
+        $maxParticipants = $request['maxParticipants'] ?? null;
+        if ($maxParticipants !== null && $maxParticipants < $entity->draftMembers()->count()) {
+            throw ValidationException::withMessages([
+                'maxParticipants' => 'The participant cap cannot be set below the current member count.',
+            ]);
+        }
+
+        $status = $request['status'] ?? $entity->status->value;
+        if ($status === DraftStatus::IN_PROGRESS->value && !DraftService::rosterIsFullyOrdered($entity)) {
+            throw ValidationException::withMessages([
+                'status' => 'Every member needs a pick position, 1 through N with no gaps, before the draft can start.',
+            ]);
+        }
+
         $entity->name = $request['name'];
         $entity->notes = $request['notes'] ?? null;
         $entity->draft_date = $request['draftDate'] ?? null;
-        $entity->total_rounds = $request['totalRounds'] ?? 1;
-        $entity->max_participants = $request['maxParticipants'] ?? null;
-        $entity->status = $request['status'] ?? $entity->status;
+        $entity->total_rounds = $totalRounds;
+        $entity->max_participants = $maxParticipants;
+        $entity->status = $status;
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private static function assertValidTotalRounds(int $totalRounds): void
+    {
+        if ($totalRounds < 1) {
+            throw ValidationException::withMessages(['totalRounds' => 'A draft must have at least one round.']);
+        }
     }
 
     public function createdBy(): BelongsTo

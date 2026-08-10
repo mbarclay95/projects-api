@@ -253,9 +253,11 @@ class RolesAndPermissionsSeeder extends Seeder
             DraftAdmin::updatePermission(),
             DraftAdmin::deletePermission(),
 
+            DraftTeam::createPermission(),
             DraftTeam::updatePermission(),
             DraftTeam::deletePermission(),
 
+            DraftMember::createPermission(),
             DraftMember::updatePermission(),
             DraftMember::deletePermission(),
 

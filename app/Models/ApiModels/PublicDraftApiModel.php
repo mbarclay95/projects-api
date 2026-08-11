@@ -68,6 +68,7 @@ class PublicDraftApiModel
             'id' => $member->id,
             'name' => $member->name,
             'pickPosition' => $member->pick_position,
+            'claimed' => $member->claimed_at !== null,
         ])->all();
     }
 

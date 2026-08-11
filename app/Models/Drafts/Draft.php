@@ -116,7 +116,7 @@ class Draft extends BaseApiModel
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model
     {
-        $totalRounds = $request['totalRounds'] ?? 1;
+        $totalRounds = $request['totalRounds'] ?? $entity->total_rounds;
         self::assertValidTotalRounds($totalRounds);
         if ($totalRounds < DraftService::currentRound($entity)) {
             throw ValidationException::withMessages([

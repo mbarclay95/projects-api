@@ -50,9 +50,13 @@ class DraftMember extends BaseApiModel
     /**
      * `pick_position` is left null here — it is only ever set in bulk, by the
      * position endpoint, never at creation.
+     *
+     * @throws ValidationException
      */
     public static function createEntity($request, User $auth): DraftMember
     {
+        static::assertNameNotTaken((int) $request['draftId'], $request['name']);
+
         $draftMember = new DraftMember([
             'draft_id' => $request['draftId'],
             'name' => $request['name'],
@@ -68,13 +72,40 @@ class DraftMember extends BaseApiModel
      * @param $request
      * @param User $auth
      * @return DraftMember|Model
+     * @throws ValidationException
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model
     {
+        static::assertNameNotTaken($entity->draft_id, $request['name'], $entity->id);
+
         $entity->name = $request['name'];
         $entity->save();
 
         return $entity;
+    }
+
+    /**
+     * Same rule and the same comparison as `PublicDraftMemberController::store()`
+     * — trimmed and case-insensitive, per public-draft.md — so a name taken
+     * from one side is taken from the other. No `lockForUpdate()` here: unlike
+     * the public claim flow, which serialises many participants racing over a
+     * 3s poll, this runs under one admin's authenticated request at a time.
+     *
+     * @throws ValidationException
+     */
+    private static function assertNameNotTaken(int $draftId, string $name, ?int $excludingId = null): void
+    {
+        $nameTaken = static::query()
+            ->where('draft_id', '=', $draftId)
+            ->when($excludingId, fn ($query) => $query->where('id', '!=', $excludingId))
+            ->whereRaw('trim(lower(name)) = ?', [trim(strtolower($name))])
+            ->exists();
+
+        if ($nameTaken) {
+            throw ValidationException::withMessages([
+                'name' => 'That name is already taken in this draft.',
+            ]);
+        }
     }
 
     /**

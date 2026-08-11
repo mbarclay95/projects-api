@@ -11,6 +11,7 @@ use App\Http\Controllers\Drafts\DraftAdminCandidateController;
 use App\Http\Controllers\Drafts\DraftAdminController;
 use App\Http\Controllers\Drafts\DraftController;
 use App\Http\Controllers\Drafts\DraftMemberController;
+use App\Http\Controllers\Drafts\DraftPickController;
 use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Drafts\PublicDraftController;
@@ -126,6 +127,8 @@ Route::middleware('auth')->group(function () {
 
     Route::apiResource('draft-admins', DraftAdminController::class)->only('store', 'destroy');
     Route::apiResource('draft-admin-candidates', DraftAdminCandidateController::class)->only('index');
+
+    Route::apiResource('draft-picks', DraftPickController::class)->only('store', 'update', 'destroy');
 });
 
 // Outside auth on purpose — see admin-crud.md. An <img src> never carries a

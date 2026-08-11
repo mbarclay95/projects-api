@@ -14,6 +14,7 @@ use App\Http\Controllers\Drafts\DraftMemberController;
 use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Drafts\PublicDraftController;
+use App\Http\Controllers\Drafts\PublicDraftMemberClaimController;
 use App\Http\Controllers\Drafts\PublicDraftMemberController;
 use App\Http\Controllers\Drafts\PublicDraftPickController;
 use App\Http\Controllers\Drafts\PublicDraftTeamImageController;
@@ -135,6 +136,7 @@ Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 
 Route::prefix('public')->group(function () {
     Route::get('drafts/{draftId}', [PublicDraftController::class, 'show']);
     Route::post('draft-members', [PublicDraftMemberController::class, 'store']);
+    Route::post('draft-member-claims', [PublicDraftMemberClaimController::class, 'store']);
     Route::post('draft-picks', [PublicDraftPickController::class, 'store']);
     Route::get('draft-teams/{draftTeamId}/image', [PublicDraftTeamImageController::class, 'show']);
 });

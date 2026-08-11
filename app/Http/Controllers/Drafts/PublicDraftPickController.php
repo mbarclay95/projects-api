@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Drafts;
 use App\Enums\DraftStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Drafts\Draft;
-use App\Models\Drafts\DraftPick;
 use App\Services\Drafts\DraftService;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,35 +63,7 @@ class PublicDraftPickController extends Controller
                 ]);
             }
 
-            if ($team->draftPick()->exists()) {
-                throw ValidationException::withMessages([
-                    'draftTeamId' => 'That team was just taken.',
-                ]);
-            }
-
-            $pick = new DraftPick([
-                'draft_id' => $draft->id,
-                'draft_member_id' => $member->id,
-                'draft_team_id' => $team->id,
-                'pick_number' => DraftService::nextPickNumber($draft),
-                'made_by_admin' => false,
-            ]);
-
-            try {
-                $pick->save();
-            } catch (QueryException $e) {
-                if ($e->getCode() === '23505') {
-                    throw ValidationException::withMessages([
-                        'draftTeamId' => 'That team was just taken.',
-                    ]);
-                }
-                throw $e;
-            }
-
-            if (DraftService::isComplete($draft)) {
-                $draft->status = DraftStatus::COMPLETE;
-                $draft->save();
-            }
+            $pick = DraftService::recordPick($draft, $member, $team, false);
 
             return [
                 'pick' => $pick,

@@ -2,8 +2,13 @@
 
 namespace App\Services\Drafts;
 
+use App\Enums\DraftStatus;
 use App\Models\Drafts\Draft;
 use App\Models\Drafts\DraftMember;
+use App\Models\Drafts\DraftPick;
+use App\Models\Drafts\DraftTeam;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Whose turn it is, derived rather than stored.
@@ -14,6 +19,52 @@ use App\Models\Drafts\DraftMember;
  */
 class DraftService
 {
+    /**
+     * The tail shared by every pick path, admin or public: assert the team is
+     * free, insert at the next pick number, translate a unique-violation race
+     * into the same message the free-team check gives, and auto-complete the
+     * draft if that was the last pick.
+     *
+     * Must be called inside the caller's transaction, which already holds the
+     * draft row's lock — same contract every other method on this class has.
+     *
+     * @throws ValidationException
+     */
+    public static function recordPick(Draft $draft, DraftMember $member, DraftTeam $team, bool $madeByAdmin): DraftPick
+    {
+        if ($team->draftPick()->exists()) {
+            throw ValidationException::withMessages([
+                'draftTeamId' => 'That team was just taken.',
+            ]);
+        }
+
+        $pick = new DraftPick([
+            'draft_id' => $draft->id,
+            'draft_member_id' => $member->id,
+            'draft_team_id' => $team->id,
+            'pick_number' => self::nextPickNumber($draft),
+            'made_by_admin' => $madeByAdmin,
+        ]);
+
+        try {
+            $pick->save();
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23505') {
+                throw ValidationException::withMessages([
+                    'draftTeamId' => 'That team was just taken.',
+                ]);
+            }
+            throw $e;
+        }
+
+        if (self::isComplete($draft)) {
+            $draft->status = DraftStatus::COMPLETE;
+            $draft->save();
+        }
+
+        return $pick;
+    }
+
     public static function onTheClock(Draft $draft): ?DraftMember
     {
         if (self::isComplete($draft)) {

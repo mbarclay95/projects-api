@@ -26,6 +26,7 @@ use Illuminate\Validation\ValidationException;
  * @property string name
  * @property string secret
  * @property integer pick_position
+ * @property Carbon|null claimed_at
  *
  * @property integer draft_id
  * @property Draft draft
@@ -41,11 +42,15 @@ class DraftMember extends BaseApiModel
      * returns every member, so exposing it hands everyone else's credential to
      * anyone holding the link.
      */
-    protected static array $apiModelAttributes = ['id', 'draft_id', 'name', 'pick_position'];
+    protected static array $apiModelAttributes = ['id', 'draft_id', 'name', 'pick_position', 'claimed_at'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [];
+
+    protected $casts = [
+        'claimed_at' => 'datetime',
+    ];
 
     /**
      * `pick_position` is left null here — it is only ever set in bulk, by the

@@ -122,6 +122,7 @@ Route::middleware('auth')->group(function () {
 
     Route::apiResource('draft-members', DraftMemberController::class)->except('index', 'show');
     Route::patch('draft-member-positions', [DraftMemberController::class, 'updatePickPositions']);
+    Route::delete('draft-member-claims/{draftMemberId}', [DraftMemberController::class, 'clearClaim']);
 
     Route::apiResource('draft-admins', DraftAdminController::class)->only('store', 'destroy');
     Route::apiResource('draft-admin-candidates', DraftAdminCandidateController::class)->only('index');

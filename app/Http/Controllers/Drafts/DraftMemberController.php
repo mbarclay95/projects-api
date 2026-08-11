@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class DraftMemberController extends DraftChildController
@@ -72,6 +73,35 @@ class DraftMemberController extends DraftChildController
         });
 
         return new JsonResponse(['success' => true]);
+    }
+
+    /**
+     * `DELETE draft-member-claims/{id}` — the admin half of claiming. Bespoke
+     * rather than a stock CRUD verb, same precedent as
+     * `updatePickPositions()`: the request never passes through
+     * `CrudController::update()`, so the permission check has to happen here.
+     *
+     * No status gate — a correction has to work even on a `complete` draft.
+     * Idempotent: clearing an already-unclaimed member still rotates the
+     * secret and returns 200, since the UI only offers this on claimed rows
+     * and the endpoint does not need to care.
+     *
+     * @throws AuthenticationException
+     */
+    public function clearClaim(int $draftMemberId): JsonResponse
+    {
+        $member = DraftMember::query()->findOrFail($draftMemberId);
+
+        if (!Auth::user()->hasPermissionTo(DraftMember::updatePermission())
+            || !$this->administers(Auth::user(), $member->draft_id)) {
+            throw new AuthenticationException();
+        }
+
+        $member->claimed_at = null;
+        $member->secret = Str::random(32);
+        $member->save();
+
+        return new JsonResponse(DraftMember::toApiModel($member));
     }
 
     /**

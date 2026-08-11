@@ -11,9 +11,11 @@ use App\Http\Controllers\Drafts\DraftAdminCandidateController;
 use App\Http\Controllers\Drafts\DraftAdminController;
 use App\Http\Controllers\Drafts\DraftController;
 use App\Http\Controllers\Drafts\DraftMemberController;
+use App\Http\Controllers\Drafts\DraftPickController;
 use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Drafts\PublicDraftController;
+use App\Http\Controllers\Drafts\PublicDraftMemberClaimController;
 use App\Http\Controllers\Drafts\PublicDraftMemberController;
 use App\Http\Controllers\Drafts\PublicDraftPickController;
 use App\Http\Controllers\Drafts\PublicDraftTeamImageController;
@@ -113,7 +115,7 @@ Route::middleware('auth')->group(function () {
 
 // DRAFTS
 Route::middleware('auth')->group(function () {
-    Route::apiResource('drafts', DraftController::class)->except('show');
+    Route::apiResource('drafts', DraftController::class);
     Route::post('drafts/{draftId}/clone-teams', [DraftController::class, 'cloneTeams']);
 
     Route::apiResource('draft-teams', DraftTeamController::class)->except('index', 'show');
@@ -121,9 +123,12 @@ Route::middleware('auth')->group(function () {
 
     Route::apiResource('draft-members', DraftMemberController::class)->except('index', 'show');
     Route::patch('draft-member-positions', [DraftMemberController::class, 'updatePickPositions']);
+    Route::delete('draft-member-claims/{draftMemberId}', [DraftMemberController::class, 'clearClaim']);
 
     Route::apiResource('draft-admins', DraftAdminController::class)->only('store', 'destroy');
     Route::apiResource('draft-admin-candidates', DraftAdminCandidateController::class)->only('index');
+
+    Route::apiResource('draft-picks', DraftPickController::class)->only('store', 'update', 'destroy');
 });
 
 // Outside auth on purpose — see admin-crud.md. An <img src> never carries a
@@ -135,6 +140,7 @@ Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 
 Route::prefix('public')->group(function () {
     Route::get('drafts/{draftId}', [PublicDraftController::class, 'show']);
     Route::post('draft-members', [PublicDraftMemberController::class, 'store']);
+    Route::post('draft-member-claims', [PublicDraftMemberClaimController::class, 'store']);
     Route::post('draft-picks', [PublicDraftPickController::class, 'store']);
     Route::get('draft-teams/{draftTeamId}/image', [PublicDraftTeamImageController::class, 'show']);
 });

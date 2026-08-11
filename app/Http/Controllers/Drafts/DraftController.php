@@ -48,6 +48,17 @@ class DraftController extends CrudController
      * does not have — see schema.md#for-user-hazard. Membership in
      * draft_admins is the actual authorization, for both overrides below.
      */
+    /**
+     * No new permission — the index endpoint already returns every draft
+     * this user administers, so a show route gated on the same permission
+     * exposes nothing the list does not. The actual scoping lives in
+     * Draft::getEntity(), which receives no model to check here.
+     */
+    public function cannotShow(Authenticatable $user): bool
+    {
+        return !$user->hasPermissionTo(Draft::viewAnyForUserPermission());
+    }
+
     public function cannotUpdate(Authenticatable $user, Model $model): bool
     {
         return !$user->hasPermissionTo(Draft::updateForUserPermission())

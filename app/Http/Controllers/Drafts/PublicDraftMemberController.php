@@ -68,6 +68,7 @@ class PublicDraftMemberController extends Controller
                 'draft_id' => $draft->id,
                 'name' => $name,
                 'secret' => Str::random(32),
+                'claimed_at' => now(),
             ]);
             $member->save();
 

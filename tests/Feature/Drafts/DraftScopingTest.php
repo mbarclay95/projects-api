@@ -87,6 +87,18 @@ class DraftScopingTest extends TestCase
         self::assertNotContains('Owned Draft', $names);
     }
 
+    public function testShowIs404ForAUserWhoDoesNotAdministerTheDraft(): void
+    {
+        $this->jsonAs($this->stranger, 'GET', "api/drafts/{$this->draft->id}")->assertStatus(404);
+    }
+
+    public function testShowSucceedsForAnAdminOfTheDraft(): void
+    {
+        $this->jsonAs($this->creator, 'GET', "api/drafts/{$this->draft->id}")
+             ->assertSuccessful()
+             ->assertJsonFragment(['name' => 'Owned Draft']);
+    }
+
     /**
      * Decision D in one assertion, on draft-teams; DraftChildController means
      * the other three child controllers follow the same path.

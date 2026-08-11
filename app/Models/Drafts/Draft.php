@@ -80,6 +80,26 @@ class Draft extends BaseApiModel
     }
 
     /**
+     * Scoped identically to getEntities() above, so polling this route
+     * exposes nothing the list already didn't. 404 rather than null — the
+     * generic show() would otherwise return a 200 with an empty body for a
+     * draft this user does not administer.
+     */
+    public static function getEntity(int $entityId, User $auth, bool $viewForUser): Draft
+    {
+        $draft = Draft::query()
+                      ->with(['draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
+                      ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
+                      ->find($entityId);
+
+        if (!$draft) {
+            abort(404);
+        }
+
+        return $draft;
+    }
+
+    /**
      * The creator's draft_admins row is written with the draft, in one
      * transaction, so a draft with no admin is never observable — the creator
      * would otherwise lose access to the thing they just made.

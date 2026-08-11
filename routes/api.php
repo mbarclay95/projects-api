@@ -115,7 +115,7 @@ Route::middleware('auth')->group(function () {
 
 // DRAFTS
 Route::middleware('auth')->group(function () {
-    Route::apiResource('drafts', DraftController::class)->except('show');
+    Route::apiResource('drafts', DraftController::class);
     Route::post('drafts/{draftId}/clone-teams', [DraftController::class, 'cloneTeams']);
 
     Route::apiResource('draft-teams', DraftTeamController::class)->except('index', 'show');

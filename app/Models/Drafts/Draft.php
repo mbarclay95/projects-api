@@ -144,7 +144,11 @@ class Draft extends BaseApiModel
     {
         $totalRounds = $request['totalRounds'] ?? $entity->total_rounds;
         self::assertValidTotalRounds($totalRounds);
-        if ($totalRounds < DraftService::currentRound($entity)) {
+        // Only when the value is actually dropping. currentRound() reads
+        // total_rounds + 1 once every pick is in, so an unchanged value would
+        // otherwise fail every update to a completed draft — including a
+        // rename — with a message about rounds the organizer never touched.
+        if ($totalRounds < $entity->total_rounds && $totalRounds < DraftService::currentRound($entity)) {
             throw ValidationException::withMessages([
                 'totalRounds' => 'Total rounds cannot drop below the round already in progress.',
             ]);

@@ -33,6 +33,7 @@ class PublicDraftApiModel
             'status' => $draft->status->value,
             'totalRounds' => $draft->total_rounds,
             'maxParticipants' => $draft->max_participants,
+            'hasImage' => $draft->draft_image_id !== null,
             'spotsRemaining' => self::spotsRemaining($draft),
             'currentRound' => DraftService::currentRound($draft),
             'currentPickNumber' => DraftService::nextPickNumber($draft),

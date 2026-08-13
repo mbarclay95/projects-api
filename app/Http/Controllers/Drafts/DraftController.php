@@ -32,6 +32,7 @@ class DraftController extends CrudController
         'draftDate' => 'nullable|date',
         'totalRounds' => 'nullable|integer',
         'maxParticipants' => 'nullable|integer',
+        'draftImageId' => 'nullable|integer|exists:draft_images,id',
     ];
 
     protected static array $updateRules = [
@@ -40,6 +41,7 @@ class DraftController extends CrudController
         'draftDate' => 'nullable|date',
         'totalRounds' => 'nullable|integer',
         'maxParticipants' => 'nullable|integer',
+        'draftImageId' => 'nullable|integer|exists:draft_images,id',
         'status' => 'nullable|string|in:signup,locked,in_progress,complete',
     ];
 

@@ -4,6 +4,7 @@ namespace Tests\Feature\Drafts;
 
 use App\Models\Drafts\Draft;
 use App\Models\Drafts\DraftAdmin;
+use App\Models\Drafts\DraftImage;
 use App\Models\Drafts\DraftMember;
 use App\Models\Drafts\DraftTeam;
 use App\Models\Users\User;
@@ -54,7 +55,26 @@ class PublicDraftReadTest extends TestCase
         self::assertStringNotContainsString('draftAdmins', $this->show()->getContent());
     }
 
-    public function testAWrongTokenIsA404OnAllFourRoutes(): void
+    public function testPayloadReportsNoImageWhenTheDraftHasNone(): void
+    {
+        $this->show()->assertJsonFragment(['hasImage' => false]);
+    }
+
+    /**
+     * A boolean rather than the id, matching the draftTeams entries: the
+     * public page addresses the image through the draft it already knows.
+     */
+    public function testPayloadReportsAnImageWithoutRevealingIt(): void
+    {
+        $draftImage = DraftImage::factory()->create(['created_by_id' => $this->draft->created_by_id]);
+        $this->draft->draft_image_id = $draftImage->id;
+        $this->draft->save();
+
+        $content = $this->show()->assertJsonFragment(['hasImage' => true])->getContent();
+        self::assertStringNotContainsString('draftImageId', $content);
+    }
+
+    public function testAWrongTokenIsA404OnAllFivePublicRoutes(): void
     {
         $member = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
         $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
@@ -76,6 +96,9 @@ class PublicDraftReadTest extends TestCase
         ])->assertStatus(404);
 
         $this->getJson("api/public/draft-teams/{$team->id}/image?token=wrong")
+             ->assertStatus(404);
+
+        $this->getJson("api/public/drafts/{$this->draft->id}/image?token=wrong")
              ->assertStatus(404);
     }
 

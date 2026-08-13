@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Drafts;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Drafts\Concerns\StreamsDraftTeamImage;
+use App\Http\Controllers\Drafts\Concerns\StreamsStoredImage;
 use App\Models\Drafts\DraftTeam;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class PublicDraftTeamImageController extends Controller
 {
-    use StreamsDraftTeamImage;
+    use StreamsStoredImage;
 
     public function show(Request $request, int $draftTeamId): StreamedResponse
     {
@@ -29,6 +29,6 @@ class PublicDraftTeamImageController extends Controller
             abort(404);
         }
 
-        return $this->streamDraftTeamImage($draftTeam);
+        return $this->streamStoredImage($draftTeam->s3_path);
     }
 }

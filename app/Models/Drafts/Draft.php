@@ -37,6 +37,9 @@ use Illuminate\Validation\ValidationException;
  * @property integer created_by_id
  * @property User createdBy
  *
+ * @property integer draft_image_id
+ * @property DraftImage draftImage
+ *
  * @property Collection|DraftAdmin[] draftAdmins
  * @property Collection|DraftTeam[] draftTeams
  * @property Collection|DraftMember[] draftMembers
@@ -49,7 +52,9 @@ class Draft extends BaseApiModel
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'draft_date', 'token', 'status',
         'total_rounds', 'max_participants', 'created_by_id', 'deleted_at'];
 
-    protected static array $apiModelEntities = [];
+    protected static array $apiModelEntities = [
+        'draftImage' => DraftImage::class,
+    ];
 
     protected static array $apiModelArrayEntities = [
         'draftAdmins' => DraftAdmin::class,
@@ -72,7 +77,7 @@ class Draft extends BaseApiModel
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Draft::query()
-                    ->with(['draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
+                    ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
                     ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
                     ->orderBy('draft_date')
                     ->filter($request)
@@ -88,7 +93,7 @@ class Draft extends BaseApiModel
     public static function getEntity(int $entityId, User $auth, bool $viewForUser): Draft
     {
         $draft = Draft::query()
-                      ->with(['draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
+                      ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
                       ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
                       ->find($entityId);
 
@@ -116,6 +121,7 @@ class Draft extends BaseApiModel
                 'draft_date' => $request['draftDate'] ?? null,
                 'total_rounds' => $totalRounds,
                 'max_participants' => $request['maxParticipants'] ?? null,
+                'draft_image_id' => $request['draftImageId'] ?? null,
                 'status' => DraftStatus::SIGNUP,
                 'token' => Str::random(),
             ]);
@@ -138,7 +144,11 @@ class Draft extends BaseApiModel
     {
         $totalRounds = $request['totalRounds'] ?? $entity->total_rounds;
         self::assertValidTotalRounds($totalRounds);
-        if ($totalRounds < DraftService::currentRound($entity)) {
+        // Only when the value is actually dropping. currentRound() reads
+        // total_rounds + 1 once every pick is in, so an unchanged value would
+        // otherwise fail every update to a completed draft — including a
+        // rename — with a message about rounds the organizer never touched.
+        if ($totalRounds < $entity->total_rounds && $totalRounds < DraftService::currentRound($entity)) {
             throw ValidationException::withMessages([
                 'totalRounds' => 'Total rounds cannot drop below the round already in progress.',
             ]);
@@ -163,6 +173,7 @@ class Draft extends BaseApiModel
         $entity->draft_date = $request['draftDate'] ?? null;
         $entity->total_rounds = $totalRounds;
         $entity->max_participants = $maxParticipants;
+        $entity->draft_image_id = $request['draftImageId'] ?? null;
         $entity->status = $status;
         $entity->save();
 
@@ -182,6 +193,11 @@ class Draft extends BaseApiModel
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function draftImage(): BelongsTo
+    {
+        return $this->belongsTo(DraftImage::class);
     }
 
     public function draftAdmins(): HasMany

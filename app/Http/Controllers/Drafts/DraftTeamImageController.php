@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Drafts;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Drafts\Concerns\ScopesToDraftAdmins;
-use App\Http\Controllers\Drafts\Concerns\StreamsDraftTeamImage;
+use App\Http\Controllers\Drafts\Concerns\StreamsStoredImage;
 use App\Models\Drafts\DraftTeam;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DraftTeamImageController extends Controller
 {
-    use ScopesToDraftAdmins, StreamsDraftTeamImage;
+    use ScopesToDraftAdmins, StreamsStoredImage;
 
     /**
      * Authorized with cannotUpdate() rather than cannotStore(): this modifies
@@ -53,7 +53,7 @@ class DraftTeamImageController extends Controller
         /** @var DraftTeam $draftTeam */
         $draftTeam = DraftTeam::query()->find($draftTeamId);
 
-        return $this->streamDraftTeamImage($draftTeam);
+        return $this->streamStoredImage($draftTeam?->s3_path);
     }
 
     private function cannotUpdate(Authenticatable $user, DraftTeam $draftTeam): bool

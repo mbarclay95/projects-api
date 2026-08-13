@@ -10,11 +10,13 @@ use App\Http\Controllers\Dashboard\SiteImageController;
 use App\Http\Controllers\Drafts\DraftAdminCandidateController;
 use App\Http\Controllers\Drafts\DraftAdminController;
 use App\Http\Controllers\Drafts\DraftController;
+use App\Http\Controllers\Drafts\DraftImageController;
 use App\Http\Controllers\Drafts\DraftMemberController;
 use App\Http\Controllers\Drafts\DraftPickController;
 use App\Http\Controllers\Drafts\DraftTeamController;
 use App\Http\Controllers\Drafts\DraftTeamImageController;
 use App\Http\Controllers\Drafts\PublicDraftController;
+use App\Http\Controllers\Drafts\PublicDraftImageController;
 use App\Http\Controllers\Drafts\PublicDraftMemberClaimController;
 use App\Http\Controllers\Drafts\PublicDraftMemberController;
 use App\Http\Controllers\Drafts\PublicDraftPickController;
@@ -118,6 +120,8 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('drafts', DraftController::class);
     Route::post('drafts/{draftId}/clone-teams', [DraftController::class, 'cloneTeams']);
 
+    Route::post('draft-images', [DraftImageController::class, 'store']);
+
     Route::apiResource('draft-teams', DraftTeamController::class)->except('index', 'show');
     Route::post('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 'store']);
 
@@ -134,6 +138,7 @@ Route::middleware('auth')->group(function () {
 // Outside auth on purpose — see admin-crud.md. An <img src> never carries a
 // bearer token, and this API is IP-restricted at the nginx proxy regardless.
 Route::get('draft-team-images/{draftTeamId}', [DraftTeamImageController::class, 'show']);
+Route::get('draft-images/{draftImageId}', [DraftImageController::class, 'show']);
 
 // PUBLIC DRAFTS — no auth, token-gated per row, reachable only from
 // projects-api-public. See public-draft.md.
@@ -143,6 +148,7 @@ Route::prefix('public')->group(function () {
     Route::post('draft-member-claims', [PublicDraftMemberClaimController::class, 'store']);
     Route::post('draft-picks', [PublicDraftPickController::class, 'store']);
     Route::get('draft-teams/{draftTeamId}/image', [PublicDraftTeamImageController::class, 'show']);
+    Route::get('drafts/{draftId}/image', [PublicDraftImageController::class, 'show']);
 });
 
 // FILE EXPLORER

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Drafts;
 
+use App\Enums\DraftStatus;
 use App\Enums\Roles;
 use App\Models\Drafts\Draft;
 use App\Models\Drafts\DraftMember;
@@ -50,6 +51,23 @@ class DraftInvariantsTest extends TestCase
 
         $this->patchDraft(['totalRounds' => 1])->assertStatus(422);
         self::assertEquals(2, $this->draft->fresh()->total_rounds);
+    }
+
+    /**
+     * The other side of the guard above. Once every pick is in,
+     * currentRound() reads total_rounds + 1, so comparing an unchanged
+     * total_rounds against it rejected every edit to a completed draft — a
+     * rename included — citing rounds the organizer never touched.
+     */
+    public function testACompletedDraftCanStillBeEdited(): void
+    {
+        $this->completeTheDraft();
+
+        $this->patchDraft(['name' => 'Renamed After Completion'])->assertSuccessful();
+
+        $fresh = $this->draft->fresh();
+        self::assertEquals('Renamed After Completion', $fresh->name);
+        self::assertEquals(2, $fresh->total_rounds);
     }
 
     public function testMaxParticipantsCannotDropBelowTheCurrentMemberCount(): void
@@ -107,6 +125,28 @@ class DraftInvariantsTest extends TestCase
 
         $this->deleteAs("api/draft-members/{$member->id}")->assertStatus(422);
         self::assertNotNull($member->fresh());
+    }
+
+    /**
+     * One member over the draft's two rounds, so pickCount reaches
+     * memberCount * total_rounds and the draft is genuinely complete rather
+     * than just labelled that way.
+     */
+    private function completeTheDraft(): void
+    {
+        $member = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 1]);
+        foreach ([1, 2] as $pickNumber) {
+            $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
+            DraftPick::factory()->create([
+                'draft_id' => $this->draft->id,
+                'draft_member_id' => $member->id,
+                'draft_team_id' => $team->id,
+                'pick_number' => $pickNumber,
+            ]);
+        }
+
+        $this->draft->status = DraftStatus::COMPLETE;
+        $this->draft->save();
     }
 
     /**

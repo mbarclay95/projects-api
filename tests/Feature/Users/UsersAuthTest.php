@@ -10,9 +10,10 @@ class UsersAuthTest extends AuthTestCase
 {
     /**
      * INDEX
+     *
      * @return void
      */
-    public function testGetUsers()
+    public function test_get_users()
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
         $this->runTestsGET('api/users');
@@ -20,19 +21,17 @@ class UsersAuthTest extends AuthTestCase
 
     /**
      * STORE
-     * @return void
      */
-    public function testPostUsers(): void
+    public function test_post_users(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        $this->runTestsPOST("api/users");
+        $this->runTestsPOST('api/users');
     }
 
     /**
      * UPDATE
-     * @return void
      */
-    public function testPutUsers(): void
+    public function test_put_users(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
         /** @var User $task */
@@ -42,9 +41,8 @@ class UsersAuthTest extends AuthTestCase
 
     /**
      * DESTROY
-     * @return void
      */
-    public function testDeleteUsers(): void
+    public function test_delete_users(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
         /** @var User $task */

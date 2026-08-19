@@ -13,16 +13,14 @@ use Illuminate\Support\Collection;
 class BackfillTaskUserConfigService
 {
     /**
-     * @param Family $family
-     * @param User $user
-     * @return Collection
+     * @param  User  $user
      */
     public static function run(Family $family, Authenticatable $user): Collection
     {
-        $newConfigs = new Collection();
+        $newConfigs = new Collection;
 
         $lastConfigsAndDate = static::getLastConfigsAndDate($family);
-        if (!$lastConfigsAndDate) {
+        if (! $lastConfigsAndDate) {
             return $newConfigs;
         }
 
@@ -53,14 +51,14 @@ class BackfillTaskUserConfigService
         return $newConfigs;
     }
 
-    private static function getLastConfigsAndDate(Family $family): array|null
+    private static function getLastConfigsAndDate(Family $family): ?array
     {
         /** @var TaskUserConfig $mostRecentConfig */
         $mostRecentConfig = TaskUserConfig::query()
-                                          ->where('family_id', '=', $family->id)
-                                          ->orderBy('end_date', 'desc')
-                                          ->first();
-        if (!$mostRecentConfig) {
+            ->where('family_id', '=', $family->id)
+            ->orderBy('end_date', 'desc')
+            ->first();
+        if (! $mostRecentConfig) {
             return null;
         }
 
@@ -68,11 +66,11 @@ class BackfillTaskUserConfigService
         $date = Carbon::parse($mostRecentConfig->end_date)->timezone('America/Los_Angeles')->subDay();
 
         $configs = TaskUserConfig::query()
-                                 ->with('user')
-                                 ->where('family_id', '=', $family->id)
-                                 ->where('start_date', '<=', $date->toDateString())
-                                 ->where('end_date', '>=', $date->toDateString())
-                                 ->get();
+            ->with('user')
+            ->where('family_id', '=', $family->id)
+            ->where('start_date', '<=', $date->toDateString())
+            ->where('end_date', '>=', $date->toDateString())
+            ->get();
 
         return [$configs, $date];
     }

@@ -12,19 +12,16 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class TaskUserConfig
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
- * @property integer tasks_per_week
- * @property integer default_tasks_per_week
+ * @property int tasks_per_week
+ * @property int default_tasks_per_week
  * @property Carbon start_date
  * @property Carbon end_date
- *
- * @property integer family_id
+ * @property int family_id
  * @property Family family
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
  */
 class TaskUserConfig extends ApiModel
@@ -36,7 +33,7 @@ class TaskUserConfig extends ApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'completedFamilyTasks' => Task::class
+        'completedFamilyTasks' => Task::class,
     ];
 
     public function family(): BelongsTo
@@ -56,12 +53,12 @@ class TaskUserConfig extends ApiModel
 
         /** @var Task[] $tasks */
         $tasks = Task::query()
-                     ->whereNotNull('completed_at')
-                     ->with('tags', 'recurringTask')
-                     ->where('completed_by_id', '=', $this->user_id)
-                     ->where('completed_at', '>', $startDate)
-                     ->where('completed_at', '<', $endDate)
-                     ->get();
+            ->whereNotNull('completed_at')
+            ->with('tags', 'recurringTask')
+            ->where('completed_by_id', '=', $this->user_id)
+            ->where('completed_at', '>', $startDate)
+            ->where('completed_at', '<', $endDate)
+            ->get();
 
         foreach ($tasks as $task) {
             $task->completedBy = $completedBy;
@@ -73,16 +70,15 @@ class TaskUserConfig extends ApiModel
     public function getTotalUserTasksAttribute(): int
     {
         return Task::query()
-                   ->where('owner_type', '=', User::class)
-                   ->where('owner_id', '=', $this->id)
-                   ->whereNull('completed_at')
-                   ->whereNull('cleared_at')
-                   ->count();
+            ->where('owner_type', '=', User::class)
+            ->where('owner_id', '=', $this->id)
+            ->whereNull('completed_at')
+            ->whereNull('cleared_at')
+            ->count();
     }
 
     public function getUserNameAttribute(): string
     {
         return $this->user->name;
     }
-
 }

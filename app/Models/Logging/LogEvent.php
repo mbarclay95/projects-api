@@ -14,12 +14,10 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
 /**
  * Class LogEvent
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property LogSourceEnum source
- *
  * @property Collection|LogItem[] logItems
  */
 class LogEvent extends ApiModel
@@ -27,8 +25,11 @@ class LogEvent extends ApiModel
     use HasFactory, HasRepository;
 
     protected static string $repository = LogEventsRepository::class;
+
     protected static array $apiModelAttributes = ['id', 'source', 'created_at'];
+
     protected static array $apiModelEntities = [];
+
     protected static array $apiModelArrayEntities = [
         'logItems' => LogItem::class,
     ];

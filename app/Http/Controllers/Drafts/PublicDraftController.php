@@ -29,9 +29,9 @@ class PublicDraftController extends Controller
 
         /** @var Draft|null $draft */
         $draft = Draft::query()
-                      ->with(['draftTeams', 'draftMembers', 'draftPicks'])
-                      ->find($draftId);
-        if (!$draft || $draft->token !== $validated['token']) {
+            ->with(['draftTeams', 'draftMembers', 'draftPicks'])
+            ->find($draftId);
+        if (! $draft || $draft->token !== $validated['token']) {
             abort(404);
         }
 

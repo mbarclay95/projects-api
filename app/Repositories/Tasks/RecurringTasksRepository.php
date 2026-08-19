@@ -11,11 +11,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class RecurringTasksRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
-     */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $task = new RecurringTask([

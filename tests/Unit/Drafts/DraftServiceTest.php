@@ -17,53 +17,53 @@ class DraftServiceTest extends TestCase
      * round boundary at P % N == 0 and the transition past the last pick are
      * both crossed rather than sampled.
      */
-    public function testWalkingADraftFromStartToFinish()
+    public function test_walking_a_draft_from_start_to_finish()
     {
         $draft = $this->createDraft(memberCount: 3, totalRounds: 2);
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // no picks yet — first member of the first round
         self::assertEquals(1, $this->positionOnTheClock($draft));
         self::assertEquals(1, DraftService::currentRound($draft));
         self::assertEquals(1, DraftService::nextPickNumber($draft));
         self::assertFalse(DraftService::isComplete($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // mid-round — the case where the formula is obviously right
         $this->addPicks($draft, 1);
         self::assertEquals(2, $this->positionOnTheClock($draft));
         self::assertEquals(1, DraftService::currentRound($draft));
         self::assertEquals(2, DraftService::nextPickNumber($draft));
         self::assertFalse(DraftService::isComplete($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // last slot of round one
         $this->addPicks($draft, 1);
         self::assertEquals(3, $this->positionOnTheClock($draft));
         self::assertEquals(1, DraftService::currentRound($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // P % N == 0 — wraps to position 1 and ticks the round over
         $this->addPicks($draft, 1);
         self::assertEquals(1, $this->positionOnTheClock($draft));
         self::assertEquals(2, DraftService::currentRound($draft));
         self::assertEquals(4, DraftService::nextPickNumber($draft));
         self::assertFalse(DraftService::isComplete($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // the last pick of the draft is still owed
         $this->addPicks($draft, 2);
         self::assertEquals(3, $this->positionOnTheClock($draft));
         self::assertEquals(2, DraftService::currentRound($draft));
         self::assertEquals(6, DraftService::nextPickNumber($draft));
         self::assertFalse(DraftService::isComplete($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
 
-        //-------------------------------------------------
+        // -------------------------------------------------
         // past the end — nobody is on the clock
         $this->addPicks($draft, 1);
         self::assertNull(DraftService::onTheClock($draft));
@@ -72,13 +72,13 @@ class DraftServiceTest extends TestCase
         // currentRound keeps counting past total_rounds rather than clamping,
         // so callers must check isComplete() before displaying it.
         self::assertEquals(3, DraftService::currentRound($draft));
-        //-------------------------------------------------
+        // -------------------------------------------------
     }
 
     /**
      * total_rounds defaults to 1, which is the "everyone picks one team" draft.
      */
-    public function testASingleRoundDraftEndsAfterOnePassOfTheRoster()
+    public function test_a_single_round_draft_ends_after_one_pass_of_the_roster()
     {
         $draft = $this->createDraft(memberCount: 4, totalRounds: 1);
 
@@ -96,7 +96,7 @@ class DraftServiceTest extends TestCase
      * A draft still in signup has a roster but no order. Nothing should be
      * divided by that zero.
      */
-    public function testADraftWithNoOrderedMembersIsNotOnAnybodysClock()
+    public function test_a_draft_with_no_ordered_members_is_not_on_anybodys_clock()
     {
         $draft = $this->createDraft(memberCount: 0, totalRounds: 3);
         DraftMember::factory()->count(2)->create(['draft_id' => $draft->id]);
@@ -112,7 +112,7 @@ class DraftServiceTest extends TestCase
      * unordered member counted toward N, the clock would advance to a position
      * nobody holds and the draft would wedge.
      */
-    public function testAnUnorderedMemberDoesNotLengthenTheRotation()
+    public function test_an_unordered_member_does_not_lengthen_the_rotation()
     {
         $draft = $this->createDraft(memberCount: 2, totalRounds: 1);
         DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => null]);
@@ -128,7 +128,7 @@ class DraftServiceTest extends TestCase
     /**
      * Picks in another draft must not move this draft's clock.
      */
-    public function testTheClockIsScopedToItsOwnDraft()
+    public function test_the_clock_is_scoped_to_its_own_draft()
     {
         $draft = $this->createDraft(memberCount: 2, totalRounds: 1);
         $otherDraft = $this->createDraft(memberCount: 2, totalRounds: 1);

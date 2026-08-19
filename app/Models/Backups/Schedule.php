@@ -14,18 +14,15 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Schedule
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
  * @property array schedule
- * @property boolean enabled
- *
- * @property integer user_id
+ * @property bool enabled
+ * @property int user_id
  * @property User user
- *
  * @property Collection|Backup[] backups
  */
 class Schedule extends ApiModel
@@ -39,7 +36,7 @@ class Schedule extends ApiModel
     protected static array $apiModelArrayEntities = [];
 
     protected $casts = [
-        'schedule' => 'jsonb'
+        'schedule' => 'jsonb',
     ];
 
     public function user(): BelongsTo
@@ -51,5 +48,4 @@ class Schedule extends ApiModel
     {
         return $this->belongsToMany(Backup::class);
     }
-
 }

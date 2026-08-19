@@ -6,7 +6,6 @@ use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Schema;
 
 class MigrateDbModels extends Command
 {
@@ -41,14 +40,14 @@ class MigrateDbModels extends Command
      */
     public function handle()
     {
-//        $this->saveFolders();
-//        $this->saveSites();
+        //        $this->saveFolders();
+        //        $this->saveSites();
         $this->saveSiteImages();
     }
 
     private function saveFolders()
     {
-        $oldModel = new Folder();
+        $oldModel = new Folder;
         $oldModel->setConnection('pgsql2');
         /** @var Folder[] $oldModels */
         $oldModels = $oldModel->get();
@@ -66,7 +65,7 @@ class MigrateDbModels extends Command
 
     private function saveSites()
     {
-        $oldModel = new Site();
+        $oldModel = new Site;
         $oldModel->setConnection('pgsql2');
         /** @var Site[] $oldModels */
         $oldModels = $oldModel->get();
@@ -88,7 +87,7 @@ class MigrateDbModels extends Command
 
     private function saveSiteImages()
     {
-        $oldModel = new SiteImage();
+        $oldModel = new SiteImage;
         $oldModel->setConnection('pgsql2');
         /** @var SiteImage[] $oldModels */
         $oldModels = $oldModel->get();

@@ -12,10 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string device_communication_id
  * @property Carbon last_seen
  * @property string button_color
@@ -91,31 +90,30 @@ class GamingDevice extends ApiModel
         }
     }
 
-    private function getActiveSessionDevice(): GamingSessionDevice|null
+    private function getActiveSessionDevice(): ?GamingSessionDevice
     {
         return GamingSessionDevice::query()
-                                  ->with('gamingSession')
-                                  ->where('gaming_device_id', '=', $this->id)
-                                  ->whereHas('gamingSession', function ($query) {
-                                      $query->whereNotNull('started_at')
-                                            ->whereNull('ended_at');
-                                  })
-                                  ->first();
+            ->with('gamingSession')
+            ->where('gaming_device_id', '=', $this->id)
+            ->whereHas('gamingSession', function ($query) {
+                $query->whereNotNull('started_at')
+                    ->whereNull('ended_at');
+            })
+            ->first();
     }
 
-    private function getActiveSession(): GamingSession|null
+    private function getActiveSession(): ?GamingSession
     {
         return GamingSession::query()
-                            ->with('gamingSessionDevices.gamingDevice')
-                            ->whereNotNull('started_at')
-                            ->whereNull('ended_at')
-                            ->whereExists(function ($query) {
-                                $query->select(DB::raw(1))
-                                      ->from('gaming_session_devices')
-                                      ->whereRaw('gaming_session_devices.gaming_session_id = gaming_sessions.id')
-                                      ->where('gaming_session_devices.gaming_device_id', '=', $this->id);
-                            })
-                            ->first();
+            ->with('gamingSessionDevices.gamingDevice')
+            ->whereNotNull('started_at')
+            ->whereNull('ended_at')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('gaming_session_devices')
+                    ->whereRaw('gaming_session_devices.gaming_session_id = gaming_sessions.id')
+                    ->where('gaming_session_devices.gaming_device_id', '=', $this->id);
+            })
+            ->first();
     }
-
 }

@@ -11,7 +11,6 @@ class TaskHistoriesAuthTest extends AuthTestCase
 {
     /**
      * INDEX
-     * @return void
      */
     public function test_get_task_histories_user_permissions(): void
     {
@@ -19,14 +18,13 @@ class TaskHistoriesAuthTest extends AuthTestCase
         /** @var Task $task */
         $task = Task::factory()->create([
             'owner_type' => User::class,
-            'owner_id' => $this->goodUser->id
+            'owner_id' => $this->goodUser->id,
         ]);
         $this->runTestsGET("api/tasks/{$task->id}/history");
     }
 
     /**
      * INDEX
-     * @return void
      */
     public function test_get_task_histories_not_users_task_user_permissions(): void
     {
@@ -34,7 +32,7 @@ class TaskHistoriesAuthTest extends AuthTestCase
         /** @var Task $task */
         $task = Task::factory()->create([
             'owner_type' => User::class,
-            'owner_id' => $this->goodUser->id
+            'owner_id' => $this->goodUser->id,
         ]);
         $this->runTestsGET("api/tasks/{$task->id}/history");
     }

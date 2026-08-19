@@ -15,16 +15,13 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Backup
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
- *
  * @property Collection|BackupStep[] backupSteps
  * @property Collection|Schedule[] schedules
  * @property Collection|BackupJob[] backupJobs
@@ -58,24 +55,24 @@ class Backup extends ApiModel
         return $this->hasMany(BackupJob::class);
     }
 
-//    public function startNextOrComplete(): Backup
-//    {
-//        /** @var BackupStep $nextStep */
-//        $nextStep = $this->backupSteps()
-//                         ->whereNull('completed_at')
-//                         ->whereNull('errored_at')
-//                         ->orderBy('sort')
-//                         ->first();
-//
-//        if ($nextStep) {
-//            $nextStep->run();
-//        } else {
-//            $this->completed_at = Carbon::now();
-//            $this->save();
-//        }
-//
-//        return $this;
-//    }
+    //    public function startNextOrComplete(): Backup
+    //    {
+    //        /** @var BackupStep $nextStep */
+    //        $nextStep = $this->backupSteps()
+    //                         ->whereNull('completed_at')
+    //                         ->whereNull('errored_at')
+    //                         ->orderBy('sort')
+    //                         ->first();
+    //
+    //        if ($nextStep) {
+    //            $nextStep->run();
+    //        } else {
+    //            $this->completed_at = Carbon::now();
+    //            $this->save();
+    //        }
+    //
+    //        return $this;
+    //    }
 
     public function backupSteps(): HasMany
     {

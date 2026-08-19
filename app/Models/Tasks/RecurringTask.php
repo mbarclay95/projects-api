@@ -15,23 +15,20 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class RecurringTask
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
  * @property string description
- * @property integer priority
- * @property integer frequency_amount
+ * @property int priority
+ * @property int frequency_amount
  * @property string frequency_unit
- * @property boolean is_active
- * @property integer task_point
- *
+ * @property bool is_active
+ * @property int task_point
  * @property string owner_type
- * @property integer owner_id
+ * @property int owner_id
  * @property User|Family owner
- *
  * @property Collection|Tag[] tags
  */
 class RecurringTask extends ApiModel
@@ -53,7 +50,7 @@ class RecurringTask extends ApiModel
             return $futureTask;
         }
 
-        if (!$dueDate) {
+        if (! $dueDate) {
             $lastCompletedTask = Task::getLastCompletedTask($this->id);
             $dueDate = $this->incrementDateByFrequency($lastCompletedTask?->completed_at ?? Carbon::today());
         }

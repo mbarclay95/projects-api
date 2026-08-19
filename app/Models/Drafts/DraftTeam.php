@@ -14,17 +14,14 @@ use Illuminate\Validation\ValidationException;
 /**
  * Class DraftTeam
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
  * @property string s3_path
- * @property integer sort_order
- *
- * @property integer draft_id
+ * @property int sort_order
+ * @property int draft_id
  * @property Draft draft
- *
  * @property DraftPick draftPick
  */
 class DraftTeam extends BaseApiModel
@@ -50,9 +47,7 @@ class DraftTeam extends BaseApiModel
     }
 
     /**
-     * @param DraftTeam $entity
-     * @param $request
-     * @param User $auth
+     * @param  DraftTeam  $entity
      * @return DraftTeam|Model
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model

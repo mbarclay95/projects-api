@@ -11,23 +11,19 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class BackupStep
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property Carbon started_at
  * @property Carbon completed_at
  * @property Carbon errored_at
  * @property string error_message
- * @property integer sort
- *
- * @property integer user_id
+ * @property int sort
+ * @property int user_id
  * @property User user
- *
- * @property integer backup_step_id
+ * @property int backup_step_id
  * @property BackupStep backupStep
- *
- * @property integer backup_job_id
+ * @property int backup_job_id
  * @property BackupJob backupJob
  */
 class BackupStepJob extends ApiModel
@@ -38,7 +34,7 @@ class BackupStepJob extends ApiModel
         'sort', 'error_message'];
 
     protected static array $apiModelEntities = [
-        'backupStep' => BackupStep::class
+        'backupStep' => BackupStep::class,
     ];
 
     protected static array $apiModelArrayEntities = [];

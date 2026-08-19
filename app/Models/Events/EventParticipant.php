@@ -13,16 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Class Event
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
- * @property boolean is_going
- * @property boolean notification_email
- *
- * @property integer event_id
+ * @property bool is_going
+ * @property bool notification_email
+ * @property int event_id
  * @property Event event
  */
 class EventParticipant extends BaseApiModel
@@ -37,16 +35,14 @@ class EventParticipant extends BaseApiModel
     }
 
     /**
-     * @param EventParticipant $entity
-     * @param $request
-     * @param User $auth
-     * @return EventParticipant|Model
+     * @param  EventParticipant  $entity
+     *
      * @throws AuthenticationException
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model|EventParticipant
     {
         if ($entity->event->user_id !== $auth->id) {
-            throw new AuthenticationException();
+            throw new AuthenticationException;
         }
 
         $entity->name = $request['name'];
@@ -57,15 +53,14 @@ class EventParticipant extends BaseApiModel
     }
 
     /**
-     * @param EventParticipant $entity
-     * @param User $auth
-     * @return void
+     * @param  EventParticipant  $entity
+     *
      * @throws AuthenticationException
      */
     public static function destroyEntity(Model $entity, User $auth): void
     {
         if ($entity->event->user_id !== $auth->id) {
-            throw new AuthenticationException();
+            throw new AuthenticationException;
         }
 
         $entity->delete();

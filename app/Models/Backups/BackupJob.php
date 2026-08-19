@@ -13,23 +13,18 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Backup
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property Carbon started_at
  * @property Carbon completed_at
  * @property Carbon errored_at
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
- *
- * @property integer backup_id
+ * @property int backup_id
  * @property Backup backup
- *
- * @property integer schedule_id
+ * @property int schedule_id
  * @property Schedule schedule
- *
  * @property Collection|BackupStepJob[] backupStepJobs
  */
 class BackupJob extends ApiModel
@@ -42,7 +37,7 @@ class BackupJob extends ApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'backupStepJobs' => BackupStepJob::class
+        'backupStepJobs' => BackupStepJob::class,
     ];
 
     protected $casts = [

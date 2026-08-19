@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Drafts;
 
+use App\Models\Drafts\DraftAdmin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Drafts\DraftAdmin>
+ * @extends Factory<DraftAdmin>
  */
 class DraftAdminFactory extends Factory
 {

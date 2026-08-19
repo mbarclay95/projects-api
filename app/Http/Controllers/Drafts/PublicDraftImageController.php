@@ -28,7 +28,7 @@ class PublicDraftImageController extends Controller
 
         /** @var Draft|null $draft */
         $draft = Draft::query()->with('draftImage')->find($draftId);
-        if (!$draft || $draft->token !== $validated['token']) {
+        if (! $draft || $draft->token !== $validated['token']) {
             abort(404);
         }
 

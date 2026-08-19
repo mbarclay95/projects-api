@@ -9,7 +9,6 @@ class TagsAuthTest extends AuthTestCase
 {
     /**
      * INDEX
-     * @return void
      */
     public function test_get_tags_user_permissions(): void
     {

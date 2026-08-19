@@ -37,7 +37,7 @@ class PublicDraftMemberController extends Controller
         $member = DB::transaction(function () use ($validated) {
             /** @var Draft|null $draft */
             $draft = Draft::query()->lockForUpdate()->find($validated['draftId']);
-            if (!$draft || $draft->token !== $validated['token']) {
+            if (! $draft || $draft->token !== $validated['token']) {
                 abort(404);
             }
 
@@ -49,8 +49,8 @@ class PublicDraftMemberController extends Controller
 
             $name = $validated['name'];
             $nameTaken = $draft->draftMembers()
-                               ->whereRaw('trim(lower(name)) = ?', [trim(strtolower($name))])
-                               ->exists();
+                ->whereRaw('trim(lower(name)) = ?', [trim(strtolower($name))])
+                ->exists();
             if ($nameTaken) {
                 throw ValidationException::withMessages([
                     'name' => 'That name is already taken in this draft.',

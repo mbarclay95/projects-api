@@ -10,7 +10,6 @@ class TaskUserConfigsAuthTest extends AuthTestCase
 {
     /**
      * INDEX
-     * @return void
      */
     public function test_get_task_user_configs_user_permissions(): void
     {
@@ -20,7 +19,6 @@ class TaskUserConfigsAuthTest extends AuthTestCase
 
     /**
      * UPDATE
-     * @return void
      */
     public function test_put_task_user_config_user_permissions(): void
     {

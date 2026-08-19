@@ -32,14 +32,14 @@ class PublicDraftPickController extends Controller
         $result = DB::transaction(function () use ($validated) {
             /** @var Draft|null $draft */
             $draft = Draft::query()->lockForUpdate()->find($validated['draftId']);
-            if (!$draft || $draft->token !== $validated['token']) {
+            if (! $draft || $draft->token !== $validated['token']) {
                 abort(404);
             }
 
             // Scoped to this draft, so a secret from another draft never
             // matches — one member's credential can't pick anywhere else.
             $member = $draft->draftMembers()->where('secret', '=', $validated['secret'])->first();
-            if (!$member) {
+            if (! $member) {
                 abort(404);
             }
 
@@ -50,14 +50,14 @@ class PublicDraftPickController extends Controller
             }
 
             $onTheClock = DraftService::onTheClock($draft);
-            if (!$onTheClock || $onTheClock->id !== $member->id) {
+            if (! $onTheClock || $onTheClock->id !== $member->id) {
                 throw ValidationException::withMessages([
                     'draftTeamId' => "It's not your turn.",
                 ]);
             }
 
             $team = $draft->draftTeams()->find($validated['draftTeamId']);
-            if (!$team) {
+            if (! $team) {
                 throw ValidationException::withMessages([
                     'draftTeamId' => 'That team is not part of this draft.',
                 ]);

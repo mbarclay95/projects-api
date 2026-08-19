@@ -18,7 +18,7 @@ class DraftModelTest extends TestCase
      * and does not exist until stage 4, so what this guards is
      * $apiModelAttributes — the thing stage 4 mirrors.
      */
-    public function testAMembersSecretIsNeverInTheApiPayload()
+    public function test_a_members_secret_is_never_in_the_api_payload()
     {
         $draft = $this->createDraft();
         $member = DraftMember::factory()->create([
@@ -43,7 +43,7 @@ class DraftModelTest extends TestCase
      * The invariant the whole multi-admin model rests on: a draft that exists
      * with no admin row is not a state the application can produce.
      */
-    public function testCreatingADraftLeavesTheCreatorAsTheOnlyAdmin()
+    public function test_creating_a_draft_leaves_the_creator_as_the_only_admin()
     {
         $creator = User::factory()->create();
 
@@ -62,7 +62,7 @@ class DraftModelTest extends TestCase
      * another's. The negative half is the one that matters — it is what would
      * catch the scoping being silently dropped.
      */
-    public function testDraftsAreScopedToTheirAdmins()
+    public function test_drafts_are_scoped_to_their_admins()
     {
         $creator = User::factory()->create();
         $coAdmin = User::factory()->create();
@@ -81,7 +81,7 @@ class DraftModelTest extends TestCase
      * Removing a co-admin should revoke visibility, since membership is the
      * whole access rule.
      */
-    public function testRemovingAnAdminRemovesTheirAccess()
+    public function test_removing_an_admin_removes_their_access()
     {
         $creator = User::factory()->create();
         $coAdmin = User::factory()->create();

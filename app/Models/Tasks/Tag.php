@@ -8,17 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
-use Spatie\Permission\Models\Permission;
 
 /**
  * Class Tag
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string tag
- *
  * @property Collection|Task[] tasks
  * @property Collection|RecurringTask[] recurringTasks
  */
@@ -27,9 +24,7 @@ class Tag extends ApiModel
     use HasFactory;
 
     /**
-     * @param Tag|null $model
-     * @param array $hideItem
-     * @return array|string|null
+     * @param  Tag|null  $model
      */
     public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {

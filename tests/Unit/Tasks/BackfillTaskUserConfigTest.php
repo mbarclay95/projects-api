@@ -14,17 +14,17 @@ use Tests\TestCase;
 
 class BackfillTaskUserConfigTest extends TestCase
 {
-    public function testAddingMember()
+    public function test_adding_member()
     {
         $this->generateAndAssertTaskUserConfigs(false);
     }
 
-    public function testBackfillFromLastWeek()
+    public function test_backfill_from_last_week()
     {
         $this->generateAndAssertTaskUserConfigs(true, 1);
     }
 
-    public function testBackfillFrom6WeeksAgo()
+    public function test_backfill_from6_weeks_ago()
     {
         $this->generateAndAssertTaskUserConfigs(true, 6);
     }
@@ -46,16 +46,16 @@ class BackfillTaskUserConfigTest extends TestCase
             $config->end_date = (clone $date)->endOfWeek()->toDateString();
             $config->save();
 
-            BackfillTaskUserConfigService::run($family, (new User()));
+            BackfillTaskUserConfigService::run($family, (new User));
         }
 
         $configs = TaskUserConfig::query()
-                                 ->orderBy('end_date')
-                                 ->get();
+            ->orderBy('end_date')
+            ->get();
         // backfilling will include the upcoming week, so it will include 1 additional config
         $expectedConfigsCount = $numOfWeeks + ($shouldBackfill ? 2 : 1);
 
-        $this->assertEquals($expectedConfigsCount , $configs->count());
+        $this->assertEquals($expectedConfigsCount, $configs->count());
         foreach ($configs as $config) {
             $this->assertEquals($config->user_id, $familyMember->id);
             $this->assertEquals($config->family_id, $family->id);
@@ -70,10 +70,9 @@ class BackfillTaskUserConfigTest extends TestCase
         $familyRequest = [
             'name' => 'test family',
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
-            'members' => [['id' => $member->id]]
+            'members' => [['id' => $member->id]],
         ];
 
-        return FamiliesRepository::createEntityStatic($familyRequest, (new User()));
+        return FamiliesRepository::createEntityStatic($familyRequest, (new User));
     }
-
 }

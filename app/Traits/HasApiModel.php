@@ -8,16 +8,13 @@ use Illuminate\Support\Str;
 
 trait HasApiModel
 {
-
     public static function buildFromAttributes(string $attributeKey, Model $model)
     {
         return $model->$attributeKey;
     }
 
     /**
-     * @param Collection|Model[] $models
-     * @param array $hideItem
-     * @return array
+     * @param  Collection|Model[]  $models
      */
     public static function toApiModels(array|Collection $models, array $hideItem = []): array
     {
@@ -30,14 +27,9 @@ trait HasApiModel
         return $apiModels;
     }
 
-    /**
-     * @param Model|null $model
-     * @param array $hideItem
-     * @return array|string|null
-     */
     public static function toApiModel(?Model $model, array $hideItem = []): array|null|string
     {
-        if (!$model) {
+        if (! $model) {
             return null;
         }
 
@@ -47,7 +39,7 @@ trait HasApiModel
         $returnArray = [];
 
         foreach ($attributes as $attribute) {
-            if (!in_array($attribute, $hideItem)) {
+            if (! in_array($attribute, $hideItem)) {
                 $returnArray[Str::camel($attribute)] = static::buildFromAttributes($attribute, $model);
             }
         }
@@ -61,14 +53,14 @@ trait HasApiModel
         }
 
         foreach ($entities as $entity => $class) {
-            if (!in_array($entity, $hideItem)) {
+            if (! in_array($entity, $hideItem)) {
                 $entityHideItems = static::pullOutEntitiesHideItems($hideItemsExploded, $entity);
                 $returnArray[$entity] = $class::toApiModel($model->$entity, $entityHideItems);
             }
         }
 
         foreach ($arrayEntities as $arrayEntity => $class) {
-            if (!in_array($arrayEntity, $hideItem)) {
+            if (! in_array($arrayEntity, $hideItem)) {
                 $entityHideItems = static::pullOutEntitiesHideItems($hideItemsExploded, $arrayEntity);
                 $returnArray[$arrayEntity] = $class::toApiModels($model->$arrayEntity, $entityHideItems);
             }

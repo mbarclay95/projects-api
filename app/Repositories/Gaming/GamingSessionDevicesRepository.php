@@ -14,23 +14,22 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class GamingSessionDevicesRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return GamingSessionDevice|array
+     *
      * @throws Exception
      */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $sessionDeviceCount = GamingSessionDevice::query()
-                                                 ->where('gaming_session_id', '=', $request['gamingSessionId'])
-                                                 ->count();
+            ->where('gaming_session_id', '=', $request['gamingSessionId'])
+            ->count();
         $model = new GamingSessionDevice([
             'name' => $request['name'],
             'current_turn_order' => $sessionDeviceCount + 1,
             'next_turn_order' => null,
             'turn_time_display_mode' => $request['turnTimeDisplayMode'],
             'skip' => false,
-            'has_passed' => false
+            'has_passed' => false,
         ]);
         $model->gamingDevice()->associate($request['gamingDevice']['id']);
         $model->gamingSession()->associate($request['gamingSessionId']);
@@ -43,10 +42,9 @@ class GamingSessionDevicesRepository extends DefaultRepository
     }
 
     /**
-     * @param GamingSessionDevice $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  GamingSessionDevice  $model
      * @return GamingSessionDevice|array
+     *
      * @throws Exception
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
@@ -62,9 +60,8 @@ class GamingSessionDevicesRepository extends DefaultRepository
     }
 
     /**
-     * @param GamingSessionDevice $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  GamingSessionDevice  $model
+     *
      * @throws Exception
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
@@ -74,9 +71,9 @@ class GamingSessionDevicesRepository extends DefaultRepository
         ActiveSessionService::clearDeviceConfig($model->gamingDevice);
         $model->delete();
         $sessionDevices = GamingSessionDevice::query()
-                                             ->where('gaming_session_id', '=', $sessionId)
-                                             ->where('current_turn_order', '>', $modelTurnOrder)
-                                             ->get();
+            ->where('gaming_session_id', '=', $sessionId)
+            ->where('current_turn_order', '>', $modelTurnOrder)
+            ->get();
 
         /** @var GamingSessionDevice $sessionDevice */
         foreach ($sessionDevices as $sessionDevice) {

@@ -34,7 +34,7 @@ class DraftTeamImageController extends Controller
         /** @var DraftTeam $draftTeam */
         $draftTeam = DraftTeam::query()->findOrFail($draftTeamId);
         if ($this->cannotUpdate(Auth::user(), $draftTeam)) {
-            throw new AuthenticationException();
+            throw new AuthenticationException;
         }
 
         $draftTeam->s3_path = Storage::disk('minio-s3')->put('draft-teams', $validated['file']);
@@ -58,7 +58,7 @@ class DraftTeamImageController extends Controller
 
     private function cannotUpdate(Authenticatable $user, DraftTeam $draftTeam): bool
     {
-        return !$user->hasPermissionTo(DraftTeam::updatePermission())
-            || !$this->administers($user, $draftTeam->draft_id);
+        return ! $user->hasPermissionTo(DraftTeam::updatePermission())
+            || ! $this->administers($user, $draftTeam->draft_id);
     }
 }

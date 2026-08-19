@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use Mbarclay36\LaravelCrud\CrudController;
 use App\Models\Dashboard\SiteImage;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Mbarclay36\LaravelCrud\CrudController;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SiteImageController extends CrudController
 {
     protected static string $modelClass = SiteImage::class;
+
     protected static array $indexRules = [];
+
     protected static array $storeRules = [
-        'file' => 'file'
+        'file' => 'file',
     ];
+
     protected static array $updateRules = [];
 
     /**
      * Display the specified resource.
-     *
-     * @param int $id
-     * @return StreamedResponse
      */
     public function show(int $id): StreamedResponse
     {

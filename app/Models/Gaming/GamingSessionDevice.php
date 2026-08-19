@@ -8,21 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
- * @property integer current_turn_order
- * @property integer next_turn_order
+ * @property int current_turn_order
+ * @property int next_turn_order
  * @property string turn_time_display_mode
- * @property boolean skip
- * @property boolean has_passed
- *
- * @property integer gaming_device_id
+ * @property bool skip
+ * @property bool has_passed
+ * @property int gaming_device_id
  * @property GamingDevice gamingDevice
- *
- * @property integer gaming_session_id
+ * @property int gaming_session_id
  * @property GamingSession gamingSession
  */
 class GamingSessionDevice extends ApiModel
@@ -37,7 +34,7 @@ class GamingSessionDevice extends ApiModel
     ];
 
     protected $casts = [
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     protected static array $apiModelArrayEntities = [];

@@ -17,37 +17,36 @@ use Illuminate\Support\Str;
 /**
  * Class Event
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
  * @property string notes
  * @property Carbon event_date
- * @property integer num_of_people
+ * @property int num_of_people
  * @property string token
- * @property boolean limit_participants
- * @property boolean notification_email
- *
- * @property integer user_id
+ * @property bool limit_participants
+ * @property bool notification_email
+ * @property int user_id
  * @property User user
- *
  * @property Collection|EventParticipant[] eventParticipants
  */
 class Event extends BaseApiModel
 {
-    use HasFactory, SoftDeletes, Filterable;
+    use Filterable, HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'event_date', 'num_of_people', 'token',
         'deleted_at', 'limit_participants', 'notification_email'];
+
     protected static array $apiModelEntities = [];
+
     protected static array $apiModelArrayEntities = [
-        'eventParticipants' => EventParticipant::class
+        'eventParticipants' => EventParticipant::class,
     ];
 
     protected $casts = [
-        'event_date' => 'datetime'
+        'event_date' => 'datetime',
     ];
 
     protected $dateFormat = 'Y-m-d H:i:sO';
@@ -55,11 +54,11 @@ class Event extends BaseApiModel
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Event::query()
-                    ->with('eventParticipants')
-                    ->where('user_id', '=', $auth->id)
-                    ->orderBy('event_date')
-                    ->filter($request)
-                    ->get();
+            ->with('eventParticipants')
+            ->where('user_id', '=', $auth->id)
+            ->orderBy('event_date')
+            ->filter($request)
+            ->get();
     }
 
     public static function createEntity($request, User $auth): Event
@@ -85,9 +84,7 @@ class Event extends BaseApiModel
     }
 
     /**
-     * @param Event $entity
-     * @param $request
-     * @param User $auth
+     * @param  Event  $entity
      * @return Event
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model

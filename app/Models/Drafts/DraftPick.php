@@ -10,20 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Class DraftPick
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
- * @property integer pick_number
- * @property boolean made_by_admin
- *
- * @property integer draft_id
+ * @property int pick_number
+ * @property bool made_by_admin
+ * @property int draft_id
  * @property Draft draft
- *
- * @property integer draft_member_id
+ * @property int draft_member_id
  * @property DraftMember draftMember
- *
- * @property integer draft_team_id
+ * @property int draft_team_id
  * @property DraftTeam draftTeam
  */
 class DraftPick extends BaseApiModel

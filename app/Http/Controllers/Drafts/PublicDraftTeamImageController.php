@@ -25,7 +25,7 @@ class PublicDraftTeamImageController extends Controller
 
         /** @var DraftTeam|null $draftTeam */
         $draftTeam = DraftTeam::query()->with('draft')->find($draftTeamId);
-        if (!$draftTeam || $draftTeam->draft->token !== $validated['token']) {
+        if (! $draftTeam || $draftTeam->draft->token !== $validated['token']) {
             abort(404);
         }
 

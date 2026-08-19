@@ -13,28 +13,22 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GamingSessionsRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         $showWithArchived = array_key_exists('withArchived', $request) && $request['withArchived'];
+
         return GamingSession::query()
-                            ->with('gamingSessionDevices.gamingDevice')
-                            ->when(!$showWithArchived, function ($query) {
-                                return $query->whereNull('ended_at');
-                            })
-                            ->orderBy('created_at', 'desc')
-                            ->get();
+            ->with('gamingSessionDevices.gamingDevice')
+            ->when(! $showWithArchived, function ($query) {
+                return $query->whereNull('ended_at');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return GamingSession|array
+     *
      * @throws Exception
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -59,20 +53,19 @@ class GamingSessionsRepository extends DefaultRepository
     }
 
     /**
-     * @param GamingSession $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  GamingSession  $model
      * @return GamingSession|array
+     *
      * @throws Exception
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $deviceChangeMade = false;
         if (
-            $model->started_at == null && $request['startedAt'] != null || //session started
-            $model->is_paused != $request['isPaused'] || //pause change
-            $model->current_turn != $request['currentTurn'] || //turn order change
-            $model->turn_limit_seconds != $request['turnLimitSeconds'] || //turn length change
+            $model->started_at == null && $request['startedAt'] != null || // session started
+            $model->is_paused != $request['isPaused'] || // pause change
+            $model->current_turn != $request['currentTurn'] || // turn order change
+            $model->turn_limit_seconds != $request['turnLimitSeconds'] || // turn length change
             $model->allow_turn_passing != $request['allowTurnPassing'] // turn passing change
         ) {
             $deviceChangeMade = true;

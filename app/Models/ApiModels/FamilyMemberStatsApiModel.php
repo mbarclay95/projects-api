@@ -9,7 +9,7 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
 
 class FamilyMemberStatsApiModel
 {
-    use HasApiModel, HasRepository, HasCrudPermissions;
+    use HasApiModel, HasCrudPermissions, HasRepository;
 
     protected static array $apiModelAttributes = ['id', 'name', 'topTasks', 'totalTasks', 'totalExpectedPoints', 'totalEarnedPoints'];
 

@@ -36,13 +36,13 @@ class TaskFilter extends ModelFilter
     {
         if ($showPaused == 0) {
             $this->selectRaw('tasks.*')
-                 ->leftJoin('recurring_tasks', 'tasks.recurring_task_id', '=', 'recurring_tasks.id')
-                 ->where(function ($where) {
-                     $where->orWhereNull('tasks.recurring_task_id')
-                           ->orWhereHas('recurringTask', function ($has) {
-                               $has->where('is_active', '=', true);
-                           });
-                 });
+                ->leftJoin('recurring_tasks', 'tasks.recurring_task_id', '=', 'recurring_tasks.id')
+                ->where(function ($where) {
+                    $where->orWhereNull('tasks.recurring_task_id')
+                        ->orWhereHas('recurringTask', function ($has) {
+                            $has->where('is_active', '=', true);
+                        });
+                });
         }
     }
 
@@ -76,8 +76,8 @@ class TaskFilter extends ModelFilter
     public function search($search)
     {
         $this->where(function ($where) use ($search) {
-            $where->orWhere('tasks.name', 'ilike', "%" . strtolower($search) . "%")
-                  ->orWhere('tasks.description', 'ilike', "%" . strtolower($search) . "%");
+            $where->orWhere('tasks.name', 'ilike', '%'.strtolower($search).'%')
+                ->orWhere('tasks.description', 'ilike', '%'.strtolower($search).'%');
         });
     }
 }

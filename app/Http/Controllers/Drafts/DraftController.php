@@ -58,19 +58,19 @@ class DraftController extends CrudController
      */
     public function cannotShow(Authenticatable $user): bool
     {
-        return !$user->hasPermissionTo(Draft::viewAnyForUserPermission());
+        return ! $user->hasPermissionTo(Draft::viewAnyForUserPermission());
     }
 
     public function cannotUpdate(Authenticatable $user, Model $model): bool
     {
-        return !$user->hasPermissionTo(Draft::updateForUserPermission())
-            || !$this->administers($user, $model->id);
+        return ! $user->hasPermissionTo(Draft::updateForUserPermission())
+            || ! $this->administers($user, $model->id);
     }
 
     public function cannotDestroy(Authenticatable $user, Model $model): bool
     {
-        return !$user->hasPermissionTo(Draft::deleteForUserPermission())
-            || !$this->administers($user, $model->id);
+        return ! $user->hasPermissionTo(Draft::deleteForUserPermission())
+            || ! $this->administers($user, $model->id);
     }
 
     /**
@@ -88,8 +88,8 @@ class DraftController extends CrudController
 
         /** @var Authenticatable $user */
         $user = Auth::user();
-        if (!$this->administers($user, $draftId) || !$this->administers($user, $sourceDraftId)) {
-            throw new AuthenticationException();
+        if (! $this->administers($user, $draftId) || ! $this->administers($user, $sourceDraftId)) {
+            throw new AuthenticationException;
         }
 
         if ($sourceDraftId === $draftId) {

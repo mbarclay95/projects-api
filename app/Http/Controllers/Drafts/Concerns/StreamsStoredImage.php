@@ -21,8 +21,8 @@ trait StreamsStoredImage
 {
     protected function streamStoredImage(?string $s3Path): StreamedResponse
     {
-        if (!$s3Path) {
-            throw new NotFoundHttpException();
+        if (! $s3Path) {
+            throw new NotFoundHttpException;
         }
 
         $file = Storage::disk('minio-s3')->get($s3Path);

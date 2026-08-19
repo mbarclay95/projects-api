@@ -17,7 +17,7 @@ use Tests\TestCase;
  */
 class DraftMemberClaimTest extends TestCase
 {
-    public function testClaimingAnUnclaimedMemberIssuesANewSecretAndRetiresTheOld(): void
+    public function test_claiming_an_unclaimed_member_issues_a_new_secret_and_retires_the_old(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP]);
         $member = DraftMember::factory()->create([
@@ -45,7 +45,7 @@ class DraftMemberClaimTest extends TestCase
         ])->assertStatus(404);
     }
 
-    public function testClaimingAnAlreadyClaimedMemberIs422(): void
+    public function test_claiming_an_already_claimed_member_is422(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'claimed_at' => now()]);
@@ -53,7 +53,7 @@ class DraftMemberClaimTest extends TestCase
         $this->claim($draft, $member)->assertStatus(422);
     }
 
-    public function testABadTokenIs404(): void
+    public function test_a_bad_token_is404(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'claimed_at' => null]);
@@ -65,7 +65,7 @@ class DraftMemberClaimTest extends TestCase
         ])->assertStatus(404);
     }
 
-    public function testAMemberIdFromAnotherDraftIs404IndistinguishableFromABadToken(): void
+    public function test_a_member_id_from_another_draft_is404_indistinguishable_from_a_bad_token(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP]);
         $otherDraft = $this->createDraft();
@@ -84,7 +84,7 @@ class DraftMemberClaimTest extends TestCase
         ])->assertStatus(404);
     }
 
-    public function testClearingAClaimRotatesTheSecretAndTheOldOneNoLongerPicks(): void
+    public function test_clearing_a_claim_rotates_the_secret_and_the_old_one_no_longer_picks(): void
     {
         $admin = User::factory()->create();
         $admin->assignRole(Roles::DRAFTS_ROLE);
@@ -111,13 +111,13 @@ class DraftMemberClaimTest extends TestCase
         ])->assertStatus(404);
     }
 
-    public function testANonAdminCannotClearAClaimOnADraftTheyDoNotAdminister(): void
+    public function test_a_non_admin_cannot_clear_a_claim_on_a_draft_they_do_not_administer(): void
     {
         $owner = User::factory()->create();
         $owner->assignRole(Roles::DRAFTS_ROLE);
         $stranger = User::factory()->create();
         $stranger->assignRole(Roles::DRAFTS_ROLE);
-        $draft = Draft::createEntity(['name' => "Not Yours"], $owner);
+        $draft = Draft::createEntity(['name' => 'Not Yours'], $owner);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'claimed_at' => now()]);
 
         $this->jsonAs($stranger, 'DELETE', "api/draft-member-claims/{$member->id}")->assertUnauthorized();
@@ -148,7 +148,7 @@ class DraftMemberClaimTest extends TestCase
 
         return $this->actingAs($user)->json($method, $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

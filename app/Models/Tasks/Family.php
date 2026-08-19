@@ -16,14 +16,12 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Family
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
  * @property string task_strategy
  * @property array task_points
- *
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
  */
@@ -42,12 +40,11 @@ class Family extends ApiModel
 
     protected $casts = [
         'task_strategy' => FamilyTaskStrategyEnum::class,
-        'task_points' => 'array'
+        'task_points' => 'array',
     ];
 
     /**
-     * @param User[]|Collection $newMembers
-     * @return void
+     * @param  User[]|Collection  $newMembers
      */
     public function syncMembers($newMembers): void
     {
@@ -90,9 +87,9 @@ end)");
         }
 
         $dayCount = $dayCountQuery->where('owner_type', '=', Family::class)
-                                  ->where('owner_id', '=', $this->id)
-                                  ->where('is_active', '=', true)
-                                  ->first();
+            ->where('owner_id', '=', $this->id)
+            ->where('is_active', '=', true)
+            ->first();
         $weekCount = $dayCount['sum'] * 7;
 
         return $weekCount / (count($this->members) == 0 ? 1 : count($this->members));
@@ -101,27 +98,29 @@ end)");
     public function getTotalFamilyTasksAttribute(): int
     {
         return Task::query()
-                   ->where('owner_type', '=', Family::class)
-                   ->where('owner_id', '=', $this->id)
-                   ->whereNull('completed_at')
-                   ->whereNull('cleared_at')
-                   ->count();
+            ->where('owner_type', '=', Family::class)
+            ->where('owner_id', '=', $this->id)
+            ->whereNull('completed_at')
+            ->whereNull('cleared_at')
+            ->count();
     }
 
     public function userConfigs(): HasMany
     {
         $date = Carbon::now('America/Los_Angeles')->toDateString();
+
         return $this->hasMany(TaskUserConfig::class)
-                    ->where('task_user_configs.start_date', '<=', $date)
-                    ->where('task_user_configs.end_date', '>=', $date);
+            ->where('task_user_configs.start_date', '<=', $date)
+            ->where('task_user_configs.end_date', '>=', $date);
     }
 
     public function members(): HasManyThrough
     {
         $date = Carbon::now('America/Los_Angeles')->toDateString();
+
         return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id')
-                    ->where('task_user_configs.start_date', '<=', $date)
-                    ->where('task_user_configs.end_date', '>=', $date);
+            ->where('task_user_configs.start_date', '<=', $date)
+            ->where('task_user_configs.end_date', '>=', $date);
     }
 
     public function getTaskPointsAttribute($value): array
@@ -131,6 +130,7 @@ end)");
             if (array_key_exists('points', $valueArray)) {
                 $numbers = $valueArray['points'];
                 sort($numbers);
+
                 return $numbers;
             }
         }
@@ -142,13 +142,14 @@ end)");
     {
         /** @var TaskUserConfig $config */
         $config = TaskUserConfig::query()
-                                ->where('family_id', '=', $this->id)
-                                ->whereIn('user_id', $this->members->pluck('id'))
-                                ->orderBy('start_date')
-                                ->first();
+            ->where('family_id', '=', $this->id)
+            ->whereIn('user_id', $this->members->pluck('id'))
+            ->orderBy('start_date')
+            ->first();
 
-        if (!$config) {
+        if (! $config) {
             $this->setAttribute('min_year', Carbon::today()->year);
+
             return 0;
         }
 

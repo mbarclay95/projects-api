@@ -11,22 +11,17 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class FamiliesRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
-     */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $family = new Family([
             'name' => $request['name'],
-            'task_strategy' => $request['taskStrategy']
+            'task_strategy' => $request['taskStrategy'],
         ]);
         $members = User::query()
-                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
-                           return $user['id'];
-                       }))
-                       ->get();
+            ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
+                return $user['id'];
+            }))
+            ->get();
         $family->save();
         $family->syncMembers($members);
         $family->refresh();
@@ -35,10 +30,7 @@ class FamiliesRepository extends DefaultRepository
     }
 
     /**
-     * @param Family $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  Family  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -46,14 +38,14 @@ class FamiliesRepository extends DefaultRepository
         $model->task_strategy = $request['taskStrategy'];
         if (array_key_exists('taskPoints', $request)) {
             $model->task_points = [
-                'points' => $request['taskPoints']
+                'points' => $request['taskPoints'],
             ];
         }
         $members = User::query()
-                       ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
-                           return $user['id'];
-                       }))
-                       ->get();
+            ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
+                return $user['id'];
+            }))
+            ->get();
         $model->syncMembers($members);
         $model->save();
         $model->refresh();

@@ -10,7 +10,6 @@ use Exception;
 class ActiveSessionService
 {
     /**
-     * @param GamingSession $session
      * @throws Exception
      */
     public static function sendConfigToAllDevices(GamingSession $session): void
@@ -22,8 +21,6 @@ class ActiveSessionService
     }
 
     /**
-     * @param GamingSessionDevice $sessionDevice
-     * @return void
      * @throws Exception
      */
     public static function sendConfigToDevice(GamingSessionDevice $sessionDevice): void
@@ -40,6 +37,7 @@ class ActiveSessionService
         if ($session->is_paused) {
             $session->is_paused = false;
             $session->save();
+
             return;
         }
 
@@ -70,7 +68,7 @@ class ActiveSessionService
     {
         $device->sendDeviceConfig([
             'turnLength' => 0,
-            'playerName' => $device->button_color . ' player',
+            'playerName' => $device->button_color.' player',
             'isTurn' => false,
             'currentTurnOrder' => 1,
             'paused' => false,

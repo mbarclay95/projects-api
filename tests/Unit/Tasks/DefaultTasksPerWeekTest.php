@@ -19,7 +19,7 @@ class DefaultTasksPerWeekTest extends TestCase
      *
      * @return void
      */
-    public function testFollowingWeekResetsToDefault()
+    public function test_following_week_resets_to_default()
     {
         /** @var User $familyMember */
         $familyMember = User::factory()->create();
@@ -28,8 +28,8 @@ class DefaultTasksPerWeekTest extends TestCase
 
         /** @var TaskUserConfig $config */
         $config = TaskUserConfig::query()
-                                ->orderBy('end_date', 'desc')
-                                ->first();
+            ->orderBy('end_date', 'desc')
+            ->first();
 
         self::assertEquals($familyMember->id, $config->user_id);
         self::assertEquals(TaskUserConfigsRepository::DEFAULT_TASKS_PER_WEEK, $config->tasks_per_week);
@@ -41,8 +41,8 @@ class DefaultTasksPerWeekTest extends TestCase
         BackfillTaskUserConfigService::run($family, $familyMember);
         /** @var TaskUserConfig $newConfig */
         $newConfig = TaskUserConfig::query()
-                                   ->orderBy('end_date', 'desc')
-                                   ->first();
+            ->orderBy('end_date', 'desc')
+            ->first();
 
         self::assertEquals($config->default_tasks_per_week, $newConfig->tasks_per_week);
     }
@@ -52,10 +52,10 @@ class DefaultTasksPerWeekTest extends TestCase
         $familyRequest = [
             'name' => 'test family',
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
-            'members' => [['id' => $member->id]]
+            'members' => [['id' => $member->id]],
         ];
 
-        return FamiliesRepository::createEntityStatic($familyRequest, (new User()));
+        return FamiliesRepository::createEntityStatic($familyRequest, (new User));
 
     }
 }

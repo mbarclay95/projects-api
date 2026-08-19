@@ -14,20 +14,26 @@ use Mbarclay36\LaravelCrud\CrudController;
 class GamingSessionController extends CrudController
 {
     protected static string $modelClass = GamingSession::class;
+
     protected static bool $indexAuth = false;
+
     protected static bool $storeAuth = false;
+
     protected static bool $updateAuth = false;
+
     protected static array $indexRules = [
-        'withArchived' => 'nullable|bool'
+        'withArchived' => 'nullable|bool',
     ];
+
     protected static array $storeRules = [
         'name' => 'required|string',
         'turnOrderType' => 'required|string',
         'allowTurnPassing' => 'required|bool',
         'skipAfterPassing' => 'required|bool',
         'pauseAtBeginningOfRound' => 'required|bool',
-        'turnLimitSeconds' => 'required|int'
+        'turnLimitSeconds' => 'required|int',
     ];
+
     protected static array $updateRules = [
         'name' => 'required|string',
         'startedAt' => 'nullable|date',
@@ -38,8 +44,9 @@ class GamingSessionController extends CrudController
         'skipAfterPassing' => 'required|bool',
         'pauseAtBeginningOfRound' => 'required|bool',
         'isPaused' => 'required|bool',
-        'turnLimitSeconds' => 'required|int'
+        'turnLimitSeconds' => 'required|int',
     ];
+
     protected static array $destroyRules = [];
 
     /**
@@ -56,13 +63,13 @@ class GamingSessionController extends CrudController
 
         foreach ($validated['data'] as $updatedTurnOrder) {
             GamingSessionDevice::query()
-                               ->where('gaming_session_id', '=', $validated['sessionId'])
-                               ->where('id', '=', $updatedTurnOrder['id'])
-                               ->update(['current_turn_order' => $updatedTurnOrder['turnOrder']]);
+                ->where('gaming_session_id', '=', $validated['sessionId'])
+                ->where('id', '=', $updatedTurnOrder['id'])
+                ->update(['current_turn_order' => $updatedTurnOrder['turnOrder']]);
         }
         $session = GamingSession::query()
-                                ->with('gamingSessionDevices.gamingDevice')
-                                ->find($validated['sessionId']);
+            ->with('gamingSessionDevices.gamingDevice')
+            ->find($validated['sessionId']);
 
         ActiveSessionService::sendConfigToAllDevices($session);
         GamingBroadcastService::broadcastSessions();

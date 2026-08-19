@@ -3,11 +3,12 @@
 namespace Database\Factories\Tasks;
 
 use App\Models\Tasks\Family;
+use App\Models\Tasks\Task;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tasks\Task>
+ * @extends Factory<Task>
  */
 class TaskFactory extends Factory
 {

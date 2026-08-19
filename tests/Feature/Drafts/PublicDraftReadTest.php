@@ -33,29 +33,29 @@ class PublicDraftReadTest extends TestCase
      * One test per leaking key, so a failure names exactly which one leaked
      * rather than a single assertion covering all four going quietly stale.
      */
-    public function testPayloadContainsNoToken(): void
+    public function test_payload_contains_no_token(): void
     {
         self::assertStringNotContainsString('"token"', $this->show()->getContent());
     }
 
-    public function testPayloadContainsNoS3Path(): void
+    public function test_payload_contains_no_s3_path(): void
     {
         $content = $this->show()->getContent();
         self::assertStringNotContainsString('s3_path', $content);
         self::assertStringNotContainsString('s3Path', $content);
     }
 
-    public function testPayloadContainsNoSecret(): void
+    public function test_payload_contains_no_secret(): void
     {
         self::assertStringNotContainsString('"secret"', $this->show()->getContent());
     }
 
-    public function testPayloadContainsNoDraftAdmins(): void
+    public function test_payload_contains_no_draft_admins(): void
     {
         self::assertStringNotContainsString('draftAdmins', $this->show()->getContent());
     }
 
-    public function testPayloadReportsNoImageWhenTheDraftHasNone(): void
+    public function test_payload_reports_no_image_when_the_draft_has_none(): void
     {
         $this->show()->assertJsonFragment(['hasImage' => false]);
     }
@@ -64,7 +64,7 @@ class PublicDraftReadTest extends TestCase
      * A boolean rather than the id, matching the draftTeams entries: the
      * public page addresses the image through the draft it already knows.
      */
-    public function testPayloadReportsAnImageWithoutRevealingIt(): void
+    public function test_payload_reports_an_image_without_revealing_it(): void
     {
         $draftImage = DraftImage::factory()->create(['created_by_id' => $this->draft->created_by_id]);
         $this->draft->draft_image_id = $draftImage->id;
@@ -74,13 +74,13 @@ class PublicDraftReadTest extends TestCase
         self::assertStringNotContainsString('draftImageId', $content);
     }
 
-    public function testAWrongTokenIsA404OnAllFivePublicRoutes(): void
+    public function test_a_wrong_token_is_a404_on_all_five_public_routes(): void
     {
         $member = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
         $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
 
         $this->getJson("api/public/drafts/{$this->draft->id}?token=wrong")
-             ->assertStatus(404);
+            ->assertStatus(404);
 
         $this->postJson('api/public/draft-members', [
             'draftId' => $this->draft->id,
@@ -96,15 +96,15 @@ class PublicDraftReadTest extends TestCase
         ])->assertStatus(404);
 
         $this->getJson("api/public/draft-teams/{$team->id}/image?token=wrong")
-             ->assertStatus(404);
+            ->assertStatus(404);
 
         $this->getJson("api/public/drafts/{$this->draft->id}/image?token=wrong")
-             ->assertStatus(404);
+            ->assertStatus(404);
     }
 
     private function show()
     {
         return $this->getJson("api/public/drafts/{$this->draft->id}?token={$this->draft->token}")
-                    ->assertSuccessful();
+            ->assertSuccessful();
     }
 }

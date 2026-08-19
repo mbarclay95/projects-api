@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Http\Controllers\Controller;
 use App\Models\Dashboard\Folder;
 use App\Models\Users\User;
 use Illuminate\Auth\AuthenticationException;
@@ -14,10 +13,13 @@ use Mbarclay36\LaravelCrud\CrudController;
 class FolderController extends CrudController
 {
     protected static string $modelClass = Folder::class;
+
     protected static array $indexRules = [];
+
     protected static array $storeRules = [
         'name' => 'required|string',
     ];
+
     protected static array $updateRules = [
         'name' => 'required|string',
         'show' => 'required|boolean',
@@ -27,17 +29,17 @@ class FolderController extends CrudController
     {
         /** @var User $user */
         $user = Auth::user();
-//        if ($this->cannotUpdate($user)) {
-//            throw new AuthenticationException();
-//        }
+        //        if ($this->cannotUpdate($user)) {
+        //            throw new AuthenticationException();
+        //        }
 
         $data = $request->post('data');
 
         foreach ($data as $movedSort) {
             Folder::query()
-                  ->where('user_id', '=', $user->id)
-                  ->where('id', '=', $movedSort['id'])
-                  ->update(['sort' => $movedSort['sort']]);
+                ->where('user_id', '=', $user->id)
+                ->where('id', '=', $movedSort['id'])
+                ->update(['sort' => $movedSort['sort']]);
         }
 
         return new JsonResponse(['success' => true]);

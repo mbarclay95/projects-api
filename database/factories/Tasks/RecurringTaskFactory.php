@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Tasks;
 
+use App\Models\Tasks\RecurringTask;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tasks\RecurringTask>
+ * @extends Factory<RecurringTask>
  */
 class RecurringTaskFactory extends Factory
 {
@@ -23,7 +24,7 @@ class RecurringTaskFactory extends Factory
             'frequency_unit' => 'day',
             'is_active' => true,
             'priority' => 0,
-            'task_point' => 1
+            'task_point' => 1,
         ];
     }
 }

@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Backups;
 
+use App\Models\Backups\Backup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Backups\Backup>
+ * @extends Factory<Backup>
  */
 class BackupFactory extends Factory
 {
@@ -17,7 +18,7 @@ class BackupFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'testing backup'
+            'name' => 'testing backup',
         ];
     }
 }

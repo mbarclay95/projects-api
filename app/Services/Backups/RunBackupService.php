@@ -4,7 +4,6 @@ namespace App\Services\Backups;
 
 use App\Models\Backups\Backup;
 use App\Models\Backups\BackupJob;
-use App\Models\Backups\BackupStep;
 use App\Models\Backups\BackupStepJob;
 use App\Repositories\Backups\BackupJobsRepository;
 use App\Services\Backups\BackupStepTypes\DefaultBackupStepType;
@@ -38,15 +37,15 @@ class RunBackupService
         return $this->backupJob;
     }
 
-    private function getNextStep(): BackupStepJob|null
+    private function getNextStep(): ?BackupStepJob
     {
         /** @var BackupStepJob $nextStep */
         $nextStep = $this->backupJob->backupStepJobs()
-                                    ->select('backup_step_jobs.*')
-                                    ->whereNull('backup_step_jobs.started_at')
-                                    ->join('backup_steps', 'backup_step_jobs.backup_step_id', '=', 'backup_steps.id')
-                                    ->orderBy('backup_steps.sort')
-                                    ->first();
+            ->select('backup_step_jobs.*')
+            ->whereNull('backup_step_jobs.started_at')
+            ->join('backup_steps', 'backup_step_jobs.backup_step_id', '=', 'backup_steps.id')
+            ->orderBy('backup_steps.sort')
+            ->first();
 
         return $nextStep ?? null;
     }
@@ -76,7 +75,7 @@ class RunBackupService
         /** @var BackupJob $backupJob */
         $backupJob = BackupJobsRepository::createEntityStatic([
             'backup' => $backup,
-            'scheduleId' => $scheduleId
+            'scheduleId' => $scheduleId,
         ], $backup->user);
         $backupJob->load('backupStepJobs.backupStep');
 

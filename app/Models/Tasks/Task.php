@@ -17,47 +17,45 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Task
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
  * @property string description
- * @property integer priority
+ * @property int priority
  * @property Carbon completed_at
  * @property Carbon cleared_at
  * @property Carbon due_date
- * @property integer task_point
- *
- * @property integer recurring_task_id
+ * @property int task_point
+ * @property int recurring_task_id
  * @property RecurringTask recurringTask
- *
  * @property string owner_type
- * @property integer owner_id
+ * @property int owner_id
  * @property User|Family owner
- *
- * @property integer completed_by_id
+ * @property int completed_by_id
  * @property User completedBy
- *
  * @property Collection|Tag[] tags
  */
 class Task extends ApiModel
 {
-    use HasFactory, Filterable;
+    use Filterable, HasFactory;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority', 'task_point'];
+
     protected static array $apiModelEntities = [
         'completedBy' => FamilyMemberApiModel::class,
     ];
+
     protected static array $apiModelArrayEntities = [
-        'tags' => Tag::class
+        'tags' => Tag::class,
     ];
+
     protected $dateFormat = 'Y-m-d H:i:sO';
 
     protected $casts = [
         'completed_at' => 'datetime',
-        'cleared_at' => 'datetime'
+        'cleared_at' => 'datetime',
     ];
 
     public function updateTags(array $newTags): Task
@@ -101,7 +99,7 @@ class Task extends ApiModel
             'owner_type' => $recurringTask->owner_type,
             'owner_id' => $recurringTask->owner_id,
             'priority' => $recurringTask->priority,
-            'task_point' => $recurringTask->task_point
+            'task_point' => $recurringTask->task_point,
         ]);
         $task->recurringTask()->associate($recurringTask);
         $task->save();
@@ -116,29 +114,27 @@ class Task extends ApiModel
     }
 
     /**
-     * @param int $recurringTaskId
      * @return Model|Task
      */
     public static function getFutureIncompleteTask(int $recurringTaskId)
     {
         return Task::query()
-                   ->where('recurring_task_id', '=', $recurringTaskId)
-                   ->whereNull('completed_by_id')
-                   ->orderBy('due_date')
-                   ->first();
+            ->where('recurring_task_id', '=', $recurringTaskId)
+            ->whereNull('completed_by_id')
+            ->orderBy('due_date')
+            ->first();
     }
 
     /**
-     * @param int $recurringTaskId
      * @return Model|Task
      */
     public static function getLastCompletedTask(int $recurringTaskId)
     {
         return Task::query()
-                   ->where('recurring_task_id', '=', $recurringTaskId)
-                   ->whereNotNull('completed_by_id')
-                   ->orderBy('due_date', 'desc')
-                   ->first();
+            ->where('recurring_task_id', '=', $recurringTaskId)
+            ->whereNotNull('completed_by_id')
+            ->orderBy('due_date', 'desc')
+            ->first();
     }
 
     public function getDueDateAttribute($value): bool|Carbon
@@ -164,7 +160,7 @@ class Task extends ApiModel
 
     public function getRecurringAttribute(): bool
     {
-        return !!$this->recurring_task_id;
+        return (bool) $this->recurring_task_id;
     }
 
     public function getOwnerTypeAttribute($value): string

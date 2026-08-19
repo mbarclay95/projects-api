@@ -16,14 +16,12 @@ use Illuminate\Validation\ValidationException;
  * A user who can administer a draft. Unrelated to DraftMember, which is a
  * participant with no account at all.
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
- * @property integer draft_id
+ * @property int draft_id
  * @property Draft draft
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
  */
 class DraftAdmin extends BaseApiModel
@@ -45,9 +43,9 @@ class DraftAdmin extends BaseApiModel
     public static function createEntity($request, User $auth): DraftAdmin
     {
         $alreadyAdmin = static::query()
-                              ->where('draft_id', '=', $request['draftId'])
-                              ->where('user_id', '=', $request['userId'])
-                              ->exists();
+            ->where('draft_id', '=', $request['draftId'])
+            ->where('user_id', '=', $request['userId'])
+            ->exists();
         if ($alreadyAdmin) {
             throw ValidationException::withMessages([
                 'userId' => 'This user is already an admin on this draft.',

@@ -13,7 +13,7 @@ use Tests\TestCase;
  */
 class PublicDraftMemberClaimTest extends TestCase
 {
-    public function testADuplicateNameIsRejectedCaseInsensitively(): void
+    public function test_a_duplicate_name_is_rejected_case_insensitively(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP]);
         DraftMember::factory()->create(['draft_id' => $draft->id, 'name' => 'Mike']);
@@ -27,7 +27,7 @@ class PublicDraftMemberClaimTest extends TestCase
      * left, the claim that fills it must succeed, and only the next one
      * after that is refused.
      */
-    public function testTheParticipantCapIsRejectedAtTheBoundaryNotOnePastIt(): void
+    public function test_the_participant_cap_is_rejected_at_the_boundary_not_one_past_it(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::SIGNUP, 'max_participants' => 2]);
         DraftMember::factory()->create(['draft_id' => $draft->id]);
@@ -39,7 +39,7 @@ class PublicDraftMemberClaimTest extends TestCase
         self::assertEquals(2, $draft->draftMembers()->count());
     }
 
-    public function testAClaimDuringLockedIsRejected(): void
+    public function test_a_claim_during_locked_is_rejected(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::LOCKED]);
 

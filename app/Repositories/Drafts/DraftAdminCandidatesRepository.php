@@ -15,16 +15,13 @@ class DraftAdminCandidatesRepository extends DefaultRepository
      * one dropdown and should teach a draft admin nothing about roles,
      * usernames, or config.
      *
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
      * @return Collection|User[]
      */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return User::query()
-                   ->role(Roles::DRAFTS_ROLE)
-                   ->orderBy('name')
-                   ->get();
+            ->role(Roles::DRAFTS_ROLE)
+            ->orderBy('name')
+            ->get();
     }
 }

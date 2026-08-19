@@ -10,7 +10,6 @@ class TasksAuthTest extends AuthTestCase
 {
     /**
      * INDEX
-     * @return void
      */
     public function test_get_tasks_user_permissions(): void
     {
@@ -20,7 +19,6 @@ class TasksAuthTest extends AuthTestCase
 
     /**
      * STORE
-     * @return void
      */
     public function test_post_task_user_permissions(): void
     {
@@ -30,7 +28,6 @@ class TasksAuthTest extends AuthTestCase
 
     /**
      * UPDATE
-     * @return void
      */
     public function test_put_task_user_permissions(): void
     {
@@ -42,7 +39,6 @@ class TasksAuthTest extends AuthTestCase
 
     /**
      * DESTROY
-     * @return void
      */
     public function test_delete_task_user_permissions(): void
     {

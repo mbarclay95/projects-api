@@ -16,7 +16,7 @@ use Tests\TestCase;
  */
 class PublicDraftPickTest extends TestCase
 {
-    public function testOutOfTurnIsRejected(): void
+    public function test_out_of_turn_is_rejected(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -27,7 +27,7 @@ class PublicDraftPickTest extends TestCase
         self::assertEquals(0, $draft->draftPicks()->count());
     }
 
-    public function testATakenTeamIsRejected(): void
+    public function test_a_taken_team_is_rejected(): void
     {
         // Two rounds, one member: the second round puts the same member back
         // on the clock, now attempting the team it already holds.
@@ -46,7 +46,7 @@ class PublicDraftPickTest extends TestCase
         self::assertEquals(1, $draft->draftPicks()->count());
     }
 
-    public function testATeamFromAnotherDraftIsRejected(): void
+    public function test_a_team_from_another_draft_is_rejected(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -57,7 +57,7 @@ class PublicDraftPickTest extends TestCase
         self::assertEquals(0, $draft->draftPicks()->count());
     }
 
-    public function testPickNumberIsIgnoredWhenTheClientSendsOne(): void
+    public function test_pick_number_is_ignored_when_the_client_sends_one(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -74,7 +74,7 @@ class PublicDraftPickTest extends TestCase
         self::assertEquals(1, $response->json('pick.pickNumber'));
     }
 
-    public function testAMembersSecretFromDraftACannotPickInDraftB(): void
+    public function test_a_members_secret_from_draft_a_cannot_pick_in_draft_b(): void
     {
         $draftA = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $memberA = DraftMember::factory()->create(['draft_id' => $draftA->id, 'pick_position' => 1]);
@@ -92,7 +92,7 @@ class PublicDraftPickTest extends TestCase
         self::assertEquals(0, $draftB->draftPicks()->count());
     }
 
-    public function testTheLastPickOfTheLastRoundFlipsStatusToCompleteAndReturnsIt(): void
+    public function test_the_last_pick_of_the_last_round_flips_status_to_complete_and_returns_it(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -113,13 +113,13 @@ class PublicDraftPickTest extends TestCase
      * own insert. That connection isn't one RefreshDatabase rolls back, so
      * its row is deleted by hand in the `finally` block.
      */
-    public function testTwoPicksRacingTheSameTeamOneSucceedsOneGetsTheFriendly422(): void
+    public function test_two_picks_racing_the_same_team_one_succeeds_one_gets_the_friendly422(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
         $team = DraftTeam::factory()->create(['draft_id' => $draft->id]);
 
-        config(['database.connections.race' => config('database.connections.' . config('database.default'))]);
+        config(['database.connections.race' => config('database.connections.'.config('database.default'))]);
 
         DraftPick::saving(function () use ($draft, $member, $team) {
             DB::connection('race')->table('draft_picks')->insert([
@@ -135,8 +135,8 @@ class PublicDraftPickTest extends TestCase
 
         try {
             $this->pick($draft, $member, $team)
-                 ->assertStatus(422)
-                 ->assertJsonPath('errors.draftTeamId.0', 'That team was just taken.');
+                ->assertStatus(422)
+                ->assertJsonPath('errors.draftTeamId.0', 'That team was just taken.');
 
             self::assertEquals(1, $draft->draftPicks()->count());
         } finally {

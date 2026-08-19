@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Mbarclay36\LaravelCrud\Traits\IsApiModel;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -24,18 +23,15 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * Class User
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon last_logged_in_at
- *
  * @property string name
  * @property string username
  * @property string password
- *
  * @property UserConfig userConfig
  * @property TaskUserConfig taskUserConfig
- *
  * @property Collection|Role[] roles
  * @property Collection|Permission[] rolePermissions
  * @property Collection|Permission[] clientPermissions
@@ -43,7 +39,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, IsApiModel;
+    use HasApiTokens, HasFactory, HasRoles, IsApiModel, Notifiable;
 
     protected static $unguarded = true;
 
@@ -55,7 +51,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected static array $apiModelArrayEntities = [
         'roles' => RoleApiModel::class,
-        'clientPermissions' => PermissionApiModel::class
+        'clientPermissions' => PermissionApiModel::class,
     ];
 
     /**
@@ -68,7 +64,7 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     protected $casts = [
-        'last_logged_in_at' => 'datetime'
+        'last_logged_in_at' => 'datetime',
     ];
 
     public function userConfig(): HasOne
@@ -86,11 +82,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOneThrough(Family::class, TaskUserConfig::class, 'user_id', 'id', 'id', 'family_id');
     }
 
-    public function createFirstUserConfig(string | null $homePage = null): UserConfig
+    public function createFirstUserConfig(?string $homePage = null): UserConfig
     {
         $userConfig = new UserConfig([
             'side_menu_open' => true,
-            'home_page_role' => $homePage
+            'home_page_role' => $homePage,
         ]);
         $userConfig->user()->associate($this);
         $userConfig->save();
@@ -116,12 +112,12 @@ class User extends Authenticatable implements JWTSubject
     public function getClientPermissionsAttribute(): Collection
     {
         return $this->getAllPermissions()
-                    ->filter(function ($value) {
-                        return str_contains($value, 'client_');
-                    });
+            ->filter(function ($value) {
+                return str_contains($value, 'client_');
+            });
     }
 
-    public function getFamilyIdAttribute(): int | null
+    public function getFamilyIdAttribute(): ?int
     {
         return $this->taskUserConfig?->family_id;
     }

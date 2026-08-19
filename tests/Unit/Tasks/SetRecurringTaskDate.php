@@ -17,26 +17,26 @@ class SetRecurringTaskDate extends TestCase
         $this->user = User::factory()->create();
     }
 
-    public function testInvalidFrequency()
+    public function test_invalid_frequency()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'badUnit',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $this->assertThrows(function () use ($task) {
             $task->createFutureTask([]);
         });
     }
 
-    public function testDaysFrequency()
+    public function test_days_frequency()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'day',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $futureTask = $task->createFutureTask([]);
         $expectedDueDate = Carbon::now()->addDays(3);
@@ -44,13 +44,13 @@ class SetRecurringTaskDate extends TestCase
         self::assertTrue($expectedDueDate->isSameDay($futureTask->due_date));
     }
 
-    public function testWeeksFrequency()
+    public function test_weeks_frequency()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'week',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $futureTask = $task->createFutureTask([]);
         $expectedDueDate = Carbon::now()->addWeeks(3);
@@ -58,13 +58,13 @@ class SetRecurringTaskDate extends TestCase
         self::assertTrue($expectedDueDate->isSameDay($futureTask->due_date));
     }
 
-    public function testMonthsFrequency()
+    public function test_months_frequency()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'month',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $futureTask = $task->createFutureTask([]);
         $expectedDueDate = Carbon::now()->addMonths(3);
@@ -72,13 +72,13 @@ class SetRecurringTaskDate extends TestCase
         self::assertTrue($expectedDueDate->isSameDay($futureTask->due_date));
     }
 
-    public function testYearsFrequency()
+    public function test_years_frequency()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'year',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $futureTask = $task->createFutureTask([]);
         $expectedDueDate = Carbon::now()->addYears(3);
@@ -86,13 +86,13 @@ class SetRecurringTaskDate extends TestCase
         self::assertTrue($expectedDueDate->isSameDay($futureTask->due_date));
     }
 
-    public function testDuplicateFutureTask()
+    public function test_duplicate_future_task()
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
             'owner_type' => User::class,
             'frequency_unit' => 'year',
-            'frequency_amount' => 3
+            'frequency_amount' => 3,
         ]);
         $futureTask1 = $task->createFutureTask([]);
         $futureTask2 = $task->createFutureTask([]);

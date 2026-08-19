@@ -31,13 +31,13 @@ class PublicDraftMemberClaimController extends Controller
         $member = DB::transaction(function () use ($validated) {
             /** @var Draft|null $draft */
             $draft = Draft::query()->lockForUpdate()->find($validated['draftId']);
-            if (!$draft || $draft->token !== $validated['token']) {
+            if (! $draft || $draft->token !== $validated['token']) {
                 abort(404);
             }
 
             /** @var DraftMember|null $member */
             $member = $draft->draftMembers()->find($validated['draftMemberId']);
-            if (!$member) {
+            if (! $member) {
                 abort(404);
             }
 

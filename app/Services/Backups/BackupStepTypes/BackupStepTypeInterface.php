@@ -4,6 +4,7 @@ namespace App\Services\Backups\BackupStepTypes;
 
 interface BackupStepTypeInterface
 {
-    function runStep(): void;
-    function validateAndSetConfig(array $config): bool;
+    public function runStep(): void;
+
+    public function validateAndSetConfig(array $config): bool;
 }

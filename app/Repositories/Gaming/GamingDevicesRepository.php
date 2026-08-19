@@ -11,22 +11,14 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GamingDevicesRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return GamingDevice::query()
-                           ->orderBy('button_color')
-                           ->get();
+            ->orderBy('button_color')
+            ->get();
     }
 
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return GamingDevice|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -42,9 +34,7 @@ class GamingDevicesRepository extends DefaultRepository
     }
 
     /**
-     * @param GamingDevice $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  GamingDevice  $model
      * @return GamingDevice|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array

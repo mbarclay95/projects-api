@@ -14,13 +14,12 @@ use Tests\TestCase;
 
 class BackupStepsTest extends TestCase
 {
-
-    public function testUnknownBackupStepType(): void
+    public function test_unknown_backup_step_type(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
         $backup = Backup::factory()->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         BackupStep::factory()->create([
@@ -37,7 +36,7 @@ class BackupStepsTest extends TestCase
         $this->assertNull($backupStepJob->completed_at);
     }
 
-    public function testTarZipBackupStepType(): void
+    public function test_tar_zip_backup_step_type(): void
     {
         /** @var User $user */
         $user = User::factory()->create();
@@ -46,21 +45,21 @@ class BackupStepsTest extends TestCase
         /** @var Target $badSourceTarget */
         $badSourceTarget = Target::factory()->create([
             'target_url' => "{$base}/tests/Data/doesntExist/",
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
         /** @var Target $sourceTarget */
         $sourceTarget = Target::factory()->create([
             'target_url' => "{$base}/tests/Data/tarTestData/",
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
         /** @var Target $destinationTarget */
         $destinationTarget = Target::factory()->create([
             'target_url' => "{$base}/tests/Data/",
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
         /** @var Backup $backup */
         $backup = Backup::factory()->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         // BAD CONFIG, SHOULD ERROR
@@ -68,7 +67,7 @@ class BackupStepsTest extends TestCase
             'backup_step_type' => TarZipBackupStepType::$BACKUP_STEP_TYPE,
             'user_id' => $user->id,
             'backup_id' => $backup->id,
-            'config' => []
+            'config' => [],
         ]);
 
         $backupJob = (new RunBackupService($backup))->run();
@@ -79,13 +78,12 @@ class BackupStepsTest extends TestCase
         $this->assertNotNull($backupStepJob->error_message);
         $this->assertNull($backupStepJob->completed_at);
 
-
-        //GOOD CONFIG USING BAD SOURCE, SHOULD ERROR
+        // GOOD CONFIG USING BAD SOURCE, SHOULD ERROR
         $fileName = 'tarTest.tar.gz';
         $backupStep->config = [
             'sourceTargetId' => $badSourceTarget->id,
             'destinationTargetId' => $destinationTarget->id,
-            'fileName' => $fileName
+            'fileName' => $fileName,
         ];
         $backupStep->save();
 
@@ -97,11 +95,11 @@ class BackupStepsTest extends TestCase
         $this->assertNotNull($backupStepJob->error_message);
         $this->assertNull($backupStepJob->completed_at);
 
-        //GOOD CONFIG, SHOULD PASS
+        // GOOD CONFIG, SHOULD PASS
         $backupStep->config = [
             'sourceTargetId' => $sourceTarget->id,
             'destinationTargetId' => $destinationTarget->id,
-            'fileName' => $fileName
+            'fileName' => $fileName,
         ];
         $backupStep->save();
 
@@ -117,7 +115,7 @@ class BackupStepsTest extends TestCase
         `rm $base/tests/Data/$fileName`;
     }
 
-    public function testMinioS3BackupStepType()
+    public function test_minio_s3_backup_step_type()
     {
         /** @var User $user */
         $user = User::factory()->create();
@@ -126,21 +124,21 @@ class BackupStepsTest extends TestCase
         /** @var Target $badSourceTarget */
         $badSourceTarget = Target::factory()->create([
             'target_url' => "{$base}/tests/Data/doesntExist/",
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
         /** @var Target $sourceTarget */
         $sourceTarget = Target::factory()->create([
             'target_url' => "{$base}/tests/Data/s3UploadTestData/",
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
         /** @var Target $destinationTarget */
         $destinationTarget = Target::factory()->create([
-            'target_url' => "testing/",
-            'user_id' => $user->id
+            'target_url' => 'testing/',
+            'user_id' => $user->id,
         ]);
         /** @var Backup $backup */
         $backup = Backup::factory()->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         // BAD CONFIG, SHOULD ERROR
@@ -148,7 +146,7 @@ class BackupStepsTest extends TestCase
             'backup_step_type' => S3UploadBackupStepType::$BACKUP_STEP_TYPE,
             'user_id' => $user->id,
             'backup_id' => $backup->id,
-            'config' => []
+            'config' => [],
         ]);
 
         $backupJob = (new RunBackupService($backup))->run();
@@ -159,13 +157,13 @@ class BackupStepsTest extends TestCase
         $this->assertNotNull($backupStepJob->error_message);
         $this->assertNull($backupStepJob->completed_at);
 
-        //GOOD CONFIG USING BAD SOURCE, SHOULD ERROR
+        // GOOD CONFIG USING BAD SOURCE, SHOULD ERROR
         $fileName = 'test.txt';
         $backupStep->config = [
             'sourceTargetId' => $badSourceTarget->id,
             'destinationTargetId' => $destinationTarget->id,
             'fileName' => $fileName,
-            's3Driver' => 'minio-s3'
+            's3Driver' => 'minio-s3',
         ];
         $backupStep->save();
 
@@ -177,13 +175,12 @@ class BackupStepsTest extends TestCase
         $this->assertNotNull($backupStepJob->error_message);
         $this->assertNull($backupStepJob->completed_at);
 
-
-        //GOOD CONFIG, SHOULD PASS
+        // GOOD CONFIG, SHOULD PASS
         $backupStep->config = [
             'sourceTargetId' => $sourceTarget->id,
             'destinationTargetId' => $destinationTarget->id,
             'fileName' => $fileName,
-            's3Driver' => 'minio-s3'
+            's3Driver' => 'minio-s3',
         ];
         $backupStep->save();
 

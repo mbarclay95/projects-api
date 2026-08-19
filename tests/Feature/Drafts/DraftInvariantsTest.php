@@ -27,7 +27,7 @@ class DraftInvariantsTest extends TestCase
         $this->draft = Draft::createEntity(['name' => 'Invariants Draft', 'totalRounds' => 2], $this->admin);
     }
 
-    public function testTotalRoundsMustBeAtLeastOne(): void
+    public function test_total_rounds_must_be_at_least_one(): void
     {
         $this->patchDraft(['totalRounds' => 0])->assertStatus(422);
         self::assertEquals(2, $this->draft->fresh()->total_rounds);
@@ -38,7 +38,7 @@ class DraftInvariantsTest extends TestCase
      * and one pick already made, the draft is into round 2, so dropping back
      * to a single round would end it retroactively mid-round.
      */
-    public function testTotalRoundsCannotDropBelowTheCurrentRound(): void
+    public function test_total_rounds_cannot_drop_below_the_current_round(): void
     {
         $member = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 1]);
         $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
@@ -59,7 +59,7 @@ class DraftInvariantsTest extends TestCase
      * total_rounds against it rejected every edit to a completed draft — a
      * rename included — citing rounds the organizer never touched.
      */
-    public function testACompletedDraftCanStillBeEdited(): void
+    public function test_a_completed_draft_can_still_be_edited(): void
     {
         $this->completeTheDraft();
 
@@ -70,7 +70,7 @@ class DraftInvariantsTest extends TestCase
         self::assertEquals(2, $fresh->total_rounds);
     }
 
-    public function testMaxParticipantsCannotDropBelowTheCurrentMemberCount(): void
+    public function test_max_participants_cannot_drop_below_the_current_member_count(): void
     {
         DraftMember::factory()->count(3)->create(['draft_id' => $this->draft->id]);
 
@@ -83,7 +83,7 @@ class DraftInvariantsTest extends TestCase
      * unordered roster reads as zero members and the draft would report
      * itself complete before a single pick — see admin-crud.md.
      */
-    public function testInProgressRequiresAFullyOrderedRoster(): void
+    public function test_in_progress_requires_a_fully_ordered_roster(): void
     {
         $memberA = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
         $memberB = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
@@ -95,11 +95,11 @@ class DraftInvariantsTest extends TestCase
         $memberB->update(['pick_position' => 2]);
 
         $this->patchDraft(['status' => 'in_progress'])
-             ->assertSuccessful()
-             ->assertJsonFragment(['status' => 'in_progress']);
+            ->assertSuccessful()
+            ->assertJsonFragment(['status' => 'in_progress']);
     }
 
-    public function testAPickedTeamCannotBeDeleted(): void
+    public function test_a_picked_team_cannot_be_deleted(): void
     {
         $member = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 1]);
         $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
@@ -113,7 +113,7 @@ class DraftInvariantsTest extends TestCase
         self::assertNotNull($team->fresh());
     }
 
-    public function testAMemberWithPicksCannotBeDeleted(): void
+    public function test_a_member_with_picks_cannot_be_deleted(): void
     {
         $member = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 1]);
         $team = DraftTeam::factory()->create(['draft_id' => $this->draft->id]);
@@ -166,7 +166,7 @@ class DraftInvariantsTest extends TestCase
 
         return $this->actingAs($this->admin)->json('PUT', "api/drafts/{$this->draft->id}", $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 
@@ -176,7 +176,7 @@ class DraftInvariantsTest extends TestCase
 
         return $this->actingAs($this->admin)->json('DELETE', $uri, [], [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

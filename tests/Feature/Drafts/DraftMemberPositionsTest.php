@@ -28,7 +28,7 @@ class DraftMemberPositionsTest extends TestCase
      * good — an incomplete list must never reach it, or a draft short one
      * member from being ordered would come back reporting as ordered.
      */
-    public function testAPartialListIsRejectedAndLeavesNoMemberReordered(): void
+    public function test_a_partial_list_is_rejected_and_leaves_no_member_reordered(): void
     {
         $memberA = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
         $memberB = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
@@ -46,7 +46,7 @@ class DraftMemberPositionsTest extends TestCase
         self::assertNull($memberC->fresh()->pick_position);
     }
 
-    public function testAGapInPositionsIsRejected(): void
+    public function test_a_gap_in_positions_is_rejected(): void
     {
         $memberA = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
         $memberB = DraftMember::factory()->create(['draft_id' => $this->draft->id]);
@@ -57,7 +57,7 @@ class DraftMemberPositionsTest extends TestCase
         ])->assertStatus(422);
     }
 
-    public function testAFullValidListSucceedsAndSwapsCleanly(): void
+    public function test_a_full_valid_list_succeeds_and_swaps_cleanly(): void
     {
         $memberA = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 1]);
         $memberB = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'pick_position' => 2]);
@@ -83,7 +83,7 @@ class DraftMemberPositionsTest extends TestCase
             'positions' => $positions,
         ], [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

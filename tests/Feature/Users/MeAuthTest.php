@@ -18,7 +18,7 @@ class MeAuthTest extends TestCase
         $this->user->createFirstUserConfig();
     }
 
-    public function testSetDashboardRole()
+    public function test_set_dashboard_role()
     {
         /** @var Role $dashboardRole */
         $dashboardRole = Role::query()->where('name', '=', Roles::DASHBOARD_ROLE)->first();
@@ -33,9 +33,9 @@ class MeAuthTest extends TestCase
             'roles' => [
                 [
                     'id' => $dashboardRole->id,
-                    'name' => $dashboardRole->name
-                ]
-            ]
+                    'name' => $dashboardRole->name,
+                ],
+            ],
         ]);
 
         $userRoles = $this->user->roles()->get();
@@ -43,7 +43,7 @@ class MeAuthTest extends TestCase
         self::assertEquals($dashboardRole->id, $userRoles->first()->id);
     }
 
-    public function testSettingAdminRoleWithoutAdmin(): void
+    public function test_setting_admin_role_without_admin(): void
     {
         /** @var Role $dashboardRole */
         $dashboardRole = Role::query()->where('name', '=', Roles::DASHBOARD_ROLE)->first();
@@ -60,13 +60,13 @@ class MeAuthTest extends TestCase
             'roles' => [
                 [
                     'id' => $dashboardRole->id,
-                    'name' => $dashboardRole->name
+                    'name' => $dashboardRole->name,
                 ],
                 [
                     'id' => $adminRole->id,
-                    'name' => $adminRole->name
+                    'name' => $adminRole->name,
                 ],
-            ]
+            ],
         ]);
 
         $userRoles = $this->user->roles()->get();
@@ -74,7 +74,7 @@ class MeAuthTest extends TestCase
         self::assertEquals($dashboardRole->id, $userRoles->first()->id);
     }
 
-    public function testSettingAdminRoleWithAdmin(): void
+    public function test_setting_admin_role_with_admin(): void
     {
         /** @var Role $dashboardRole */
         $dashboardRole = Role::query()->where('name', '=', Roles::DASHBOARD_ROLE)->first();
@@ -92,13 +92,13 @@ class MeAuthTest extends TestCase
             'roles' => [
                 [
                     'id' => $dashboardRole->id,
-                    'name' => $dashboardRole->name
+                    'name' => $dashboardRole->name,
                 ],
                 [
                     'id' => $adminRole->id,
-                    'name' => $adminRole->name
+                    'name' => $adminRole->name,
                 ],
-            ]
+            ],
         ]);
 
         $userRoles = $this->user->roles()->get();
@@ -115,10 +115,10 @@ class MeAuthTest extends TestCase
     {
         $token = auth()->login($this->user);
         $response = $this->actingAs($this->user)
-                         ->patch('api/update-me', $requestBody, [
-                             'accept' => 'application/json',
-                             'authorization' => 'Bearer ' . $token
-                         ]);
+            ->patch('api/update-me', $requestBody, [
+                'accept' => 'application/json',
+                'authorization' => 'Bearer '.$token,
+            ]);
         $response->assertSuccessful();
     }
 }

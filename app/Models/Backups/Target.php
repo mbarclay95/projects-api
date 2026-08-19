@@ -12,16 +12,14 @@ use Mbarclay36\LaravelCrud\ApiModel;
 /**
  * Class Target
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
  * @property string target_url
  * @property string host_name
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
  */
 class Target extends ApiModel

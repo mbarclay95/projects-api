@@ -22,8 +22,8 @@ abstract class DraftChildController extends CrudController
      */
     public function store(Request $request): JsonResponse
     {
-        if (!$this->administers(Auth::user(), $request->input('draftId'))) {
-            throw new AuthenticationException();
+        if (! $this->administers(Auth::user(), $request->input('draftId'))) {
+            throw new AuthenticationException;
         }
 
         return parent::store($request);
@@ -31,13 +31,13 @@ abstract class DraftChildController extends CrudController
 
     public function cannotUpdate(Authenticatable $user, Model $model): bool
     {
-        return !$user->hasPermissionTo(static::$modelClass::updatePermission())
-            || !$this->administers($user, $model->draft_id);
+        return ! $user->hasPermissionTo(static::$modelClass::updatePermission())
+            || ! $this->administers($user, $model->draft_id);
     }
 
     public function cannotDestroy(Authenticatable $user, Model $model): bool
     {
-        return !$user->hasPermissionTo(static::$modelClass::deletePermission())
-            || !$this->administers($user, $model->draft_id);
+        return ! $user->hasPermissionTo(static::$modelClass::deletePermission())
+            || ! $this->administers($user, $model->draft_id);
     }
 }

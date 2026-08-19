@@ -24,10 +24,7 @@ class GoalDaysRepository extends DefaultRepository
     }
 
     /**
-     * @param GoalDay $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  GoalDay  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {

@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Dashboard;
 
-use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -12,8 +11,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class SiteImagesRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return SiteImage|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -23,7 +20,7 @@ class SiteImagesRepository extends DefaultRepository
 
         $siteImage = new SiteImage([
             's3_path' => $path,
-            'original_file_name' => $file->getClientOriginalName()
+            'original_file_name' => $file->getClientOriginalName(),
         ]);
         $siteImage->user()->associate($user);
         $siteImage->save();

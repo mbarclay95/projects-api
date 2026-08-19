@@ -41,15 +41,15 @@ class DraftPickController extends Controller
             'draftTeamId' => 'required|integer',
         ]);
 
-        if (!Auth::user()->hasPermissionTo(DraftPick::createPermission())
-            || !$this->administers(Auth::user(), $validated['draftId'])) {
-            throw new AuthenticationException();
+        if (! Auth::user()->hasPermissionTo(DraftPick::createPermission())
+            || ! $this->administers(Auth::user(), $validated['draftId'])) {
+            throw new AuthenticationException;
         }
 
         $result = DB::transaction(function () use ($validated) {
             /** @var Draft|null $draft */
             $draft = Draft::query()->lockForUpdate()->find($validated['draftId']);
-            if (!$draft) {
+            if (! $draft) {
                 abort(404);
             }
 
@@ -60,14 +60,14 @@ class DraftPickController extends Controller
             }
 
             $onTheClock = DraftService::onTheClock($draft);
-            if (!$onTheClock) {
+            if (! $onTheClock) {
                 throw ValidationException::withMessages([
                     'draftId' => 'Nobody is on the clock.',
                 ]);
             }
 
             $team = $draft->draftTeams()->find($validated['draftTeamId']);
-            if (!$team) {
+            if (! $team) {
                 throw ValidationException::withMessages([
                     'draftTeamId' => 'That team is not part of this draft.',
                 ]);
@@ -99,9 +99,9 @@ class DraftPickController extends Controller
         /** @var DraftPick $pick */
         $pick = DraftPick::query()->findOrFail($id);
 
-        if (!Auth::user()->hasPermissionTo(DraftPick::updatePermission())
-            || !$this->administers(Auth::user(), $pick->draft_id)) {
-            throw new AuthenticationException();
+        if (! Auth::user()->hasPermissionTo(DraftPick::updatePermission())
+            || ! $this->administers(Auth::user(), $pick->draft_id)) {
+            throw new AuthenticationException;
         }
 
         $result = DB::transaction(function () use ($validated, $pick) {
@@ -109,7 +109,7 @@ class DraftPickController extends Controller
             $draft = Draft::query()->lockForUpdate()->find($pick->draft_id);
 
             $team = $draft->draftTeams()->find($validated['draftTeamId']);
-            if (!$team) {
+            if (! $team) {
                 throw ValidationException::withMessages([
                     'draftTeamId' => 'That team is not part of this draft.',
                 ]);
@@ -144,9 +144,9 @@ class DraftPickController extends Controller
         /** @var DraftPick $pick */
         $pick = DraftPick::query()->findOrFail($id);
 
-        if (!Auth::user()->hasPermissionTo(DraftPick::deletePermission())
-            || !$this->administers(Auth::user(), $pick->draft_id)) {
-            throw new AuthenticationException();
+        if (! Auth::user()->hasPermissionTo(DraftPick::deletePermission())
+            || ! $this->administers(Auth::user(), $pick->draft_id)) {
+            throw new AuthenticationException;
         }
 
         $result = DB::transaction(function () use ($pick) {
@@ -164,7 +164,7 @@ class DraftPickController extends Controller
 
             $pick->delete();
 
-            if ($wasComplete && !DraftService::isComplete($draft)) {
+            if ($wasComplete && ! DraftService::isComplete($draft)) {
                 $draft->status = DraftStatus::IN_PROGRESS;
                 $draft->save();
             }

@@ -12,14 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Class DraftImage
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string s3_path
  * @property string original_file_name
- *
- * @property integer created_by_id
+ * @property int created_by_id
  * @property User createdBy
  */
 class DraftImage extends BaseApiModel

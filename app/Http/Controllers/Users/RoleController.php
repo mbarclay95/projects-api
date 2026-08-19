@@ -11,7 +11,9 @@ class RoleController extends CrudController
     protected static string $modelClass = RoleApiModel::class;
 
     protected static array $indexRules = [];
+
     protected static array $storeRules = [];
+
     protected static array $updateRules = [];
 
     // Anyone can hit this route. Check admin permission in repository

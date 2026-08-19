@@ -3,7 +3,6 @@
 namespace App\Repositories\Backups;
 
 use App\Models\Backups\BackupStep;
-use App\Models\Backups\BackupStepJob;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Mbarclay36\LaravelCrud\DefaultRepository;
@@ -11,8 +10,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class BackupStepsRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return BackupStep|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -31,9 +28,7 @@ class BackupStepsRepository extends DefaultRepository
     }
 
     /**
-     * @param BackupStep $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  BackupStep  $model
      * @return BackupStep|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array

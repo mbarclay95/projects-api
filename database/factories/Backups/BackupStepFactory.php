@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Backups;
 
+use App\Models\Backups\BackupStep;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Backups\BackupStep>
+ * @extends Factory<BackupStep>
  */
 class BackupStepFactory extends Factory
 {
@@ -19,7 +20,7 @@ class BackupStepFactory extends Factory
         return [
             'name' => 'testing step',
             'sort' => 1,
-            'config' => []
+            'config' => [],
         ];
     }
 }

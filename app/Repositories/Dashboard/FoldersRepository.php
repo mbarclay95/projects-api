@@ -11,22 +11,17 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class FoldersRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
      * @return Collection|Folder[]
      */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Folder::query()
-                     ->with('sites.siteImage')
-                     ->where('user_id', '=', $user->id)
-                     ->get();
+            ->with('sites.siteImage')
+            ->where('user_id', '=', $user->id)
+            ->get();
     }
 
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return Folder|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -36,7 +31,7 @@ class FoldersRepository extends DefaultRepository
         $folder = new Folder([
             'name' => $request['name'],
             'sort' => $maxSort + 1,
-            'show' => true
+            'show' => true,
         ]);
         $folder->user()->associate($user);
         $folder->save();
@@ -45,9 +40,7 @@ class FoldersRepository extends DefaultRepository
     }
 
     /**
-     * @param Folder $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  Folder  $model
      * @return Folder|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
@@ -60,17 +53,15 @@ class FoldersRepository extends DefaultRepository
     }
 
     /**
-     * @param Folder $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  Folder  $model
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {
         /** @var Folder[] $updateSortFolders */
         $updateSortFolders = Folder::query()
-                                   ->where('user_id', '=', $user->id)
-                                   ->where('sort', '>', $model->sort)
-                                   ->get();
+            ->where('user_id', '=', $user->id)
+            ->where('sort', '>', $model->sort)
+            ->get();
 
         foreach ($updateSortFolders as $updateSortFolder) {
             $updateSortFolder->sort -= 1;

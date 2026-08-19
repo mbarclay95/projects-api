@@ -18,8 +18,8 @@ class GamingBroadcastService
     }
 
     /**
-     * @param Collection|GamingSession[]|null $sessions
-     * @return void
+     * @param  Collection|GamingSession[]|null  $sessions
+     *
      * @throws Exception
      */
     public static function broadcastSessions(Collection|array|null $sessions = null): void
@@ -29,13 +29,13 @@ class GamingBroadcastService
         }
         MqttService::broadcastToWs([
             'event' => 'gamingSessions',
-            'data' => GamingSession::toApiModels($sessions)
+            'data' => GamingSession::toApiModels($sessions),
         ]);
     }
 
     /**
-     * @param Collection|GamingDevice[]|null $devices
-     * @return void
+     * @param  Collection|GamingDevice[]|null  $devices
+     *
      * @throws Exception
      */
     public static function broadcastDevices(Collection|array|null $devices = null): void
@@ -45,7 +45,7 @@ class GamingBroadcastService
         }
         MqttService::broadcastToWs([
             'event' => 'gamingDevices',
-            'data' => GamingDevice::toApiModels($devices)
+            'data' => GamingDevice::toApiModels($devices),
         ]);
     }
 }

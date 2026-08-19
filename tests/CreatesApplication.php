@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Application;
 use RuntimeException;
 
 trait CreatesApplication
@@ -23,7 +24,7 @@ trait CreatesApplication
     /**
      * Creates the application.
      *
-     * @return \Illuminate\Foundation\Application
+     * @return Application
      */
     public function createApplication()
     {
@@ -53,8 +54,6 @@ trait CreatesApplication
      * because a class re-declaring 'use RefreshDatabase' would take the trait's
      * method in preference to an inherited override, silently disabling it.
      * createApplication() runs for every test before any database work.
-     *
-     * @return void
      */
     private function guardAgainstNonTestDatabase(): void
     {
@@ -67,13 +66,13 @@ trait CreatesApplication
 
         throw new RuntimeException(
             "Refusing to run tests against database '{$database}': it is not one of the "
-            . 'databases this suite is allowed to touch, and RefreshDatabase would drop every '
-            . 'table in it.' . PHP_EOL . PHP_EOL
-            . 'Allowed: ' . implode(', ', self::ALLOWED_TEST_DATABASES) . PHP_EOL . PHP_EOL
-            . 'Copy .env.testing.example to .env.testing and point it at one of those. If that '
-            . 'is already done, check for a DB_DATABASE environment variable overriding it — a '
-            . 'real environment variable beats any env file. Add a genuinely new test database '
-            . 'to ALLOWED_TEST_DATABASES in ' . basename(__FILE__) . '.'
+            .'databases this suite is allowed to touch, and RefreshDatabase would drop every '
+            .'table in it.'.PHP_EOL.PHP_EOL
+            .'Allowed: '.implode(', ', self::ALLOWED_TEST_DATABASES).PHP_EOL.PHP_EOL
+            .'Copy .env.testing.example to .env.testing and point it at one of those. If that '
+            .'is already done, check for a DB_DATABASE environment variable overriding it — a '
+            .'real environment variable beats any env file. Add a genuinely new test database '
+            .'to ALLOWED_TEST_DATABASES in '.basename(__FILE__).'.'
         );
     }
 }

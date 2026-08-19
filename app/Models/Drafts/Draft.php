@@ -21,25 +21,21 @@ use Illuminate\Validation\ValidationException;
 /**
  * Class Draft
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string name
  * @property string notes
  * @property Carbon draft_date
  * @property string token
  * @property DraftStatus status
- * @property integer total_rounds
- * @property integer max_participants
- *
- * @property integer created_by_id
+ * @property int total_rounds
+ * @property int max_participants
+ * @property int created_by_id
  * @property User createdBy
- *
- * @property integer draft_image_id
+ * @property int draft_image_id
  * @property DraftImage draftImage
- *
  * @property Collection|DraftAdmin[] draftAdmins
  * @property Collection|DraftTeam[] draftTeams
  * @property Collection|DraftMember[] draftMembers
@@ -47,7 +43,7 @@ use Illuminate\Validation\ValidationException;
  */
 class Draft extends BaseApiModel
 {
-    use HasFactory, SoftDeletes, Filterable;
+    use Filterable, HasFactory, SoftDeletes;
 
     protected static array $apiModelAttributes = ['id', 'name', 'notes', 'draft_date', 'token', 'status',
         'total_rounds', 'max_participants', 'created_by_id', 'deleted_at'];
@@ -77,11 +73,11 @@ class Draft extends BaseApiModel
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return Draft::query()
-                    ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
-                    ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
-                    ->orderBy('draft_date')
-                    ->filter($request)
-                    ->get();
+            ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
+            ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
+            ->orderBy('draft_date')
+            ->filter($request)
+            ->get();
     }
 
     /**
@@ -93,11 +89,11 @@ class Draft extends BaseApiModel
     public static function getEntity(int $entityId, User $auth, bool $viewForUser): Draft
     {
         $draft = Draft::query()
-                      ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
-                      ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
-                      ->find($entityId);
+            ->with(['draftImage', 'draftAdmins', 'draftTeams', 'draftMembers', 'draftPicks'])
+            ->whereHas('draftAdmins', fn ($query) => $query->where('user_id', '=', $auth->id))
+            ->find($entityId);
 
-        if (!$draft) {
+        if (! $draft) {
             abort(404);
         }
 
@@ -134,10 +130,9 @@ class Draft extends BaseApiModel
     }
 
     /**
-     * @param Draft $entity
-     * @param $request
-     * @param User $auth
+     * @param  Draft  $entity
      * @return Draft
+     *
      * @throws ValidationException
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model
@@ -162,7 +157,7 @@ class Draft extends BaseApiModel
         }
 
         $status = $request['status'] ?? $entity->status->value;
-        if ($status === DraftStatus::IN_PROGRESS->value && !DraftService::rosterIsFullyOrdered($entity)) {
+        if ($status === DraftStatus::IN_PROGRESS->value && ! DraftService::rosterIsFullyOrdered($entity)) {
             throw ValidationException::withMessages([
                 'status' => 'Every member needs a pick position, 1 through N with no gaps, before the draft can start.',
             ]);

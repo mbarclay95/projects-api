@@ -38,8 +38,8 @@ class DraftImageController extends Controller
         ]);
 
         $user = Auth::user();
-        if (!$user->hasPermissionTo(Draft::createPermission())) {
-            throw new AuthenticationException();
+        if (! $user->hasPermissionTo(Draft::createPermission())) {
+            throw new AuthenticationException;
         }
 
         $draftImage = new DraftImage([

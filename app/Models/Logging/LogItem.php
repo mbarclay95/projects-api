@@ -12,13 +12,11 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
 /**
  * Class LogItem
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property array payload
- *
- * @property integer log_event_id
+ * @property int log_event_id
  * @property LogEvent logEvent
  */
 class LogItem extends ApiModel
@@ -26,12 +24,15 @@ class LogItem extends ApiModel
     use HasFactory, HasRepository;
 
     protected static string $repository = LogItemsRepository::class;
+
     protected static array $apiModelAttributes = ['id', 'payload'];
+
     protected static array $apiModelEntities = [];
+
     protected static array $apiModelArrayEntities = [];
 
     protected $casts = [
-        'payload' => 'array'
+        'payload' => 'array',
     ];
 
     public function logEvent(): BelongsTo

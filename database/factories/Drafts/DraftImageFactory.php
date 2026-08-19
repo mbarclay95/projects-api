@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Drafts;
 
+use App\Models\Drafts\DraftImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Drafts\DraftImage>
+ * @extends Factory<DraftImage>
  */
 class DraftImageFactory extends Factory
 {
@@ -17,7 +18,7 @@ class DraftImageFactory extends Factory
     public function definition()
     {
         return [
-            's3_path' => 'draft-images/' . fake()->uuid . '.png',
+            's3_path' => 'draft-images/'.fake()->uuid.'.png',
             'original_file_name' => 'logo.png',
         ];
     }

@@ -3,10 +3,8 @@
 namespace App\Models\Dashboard;
 
 use App\Models\Users\User;
-use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -14,17 +12,14 @@ use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class Folder
- * @package App\Models
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
- * @property integer sort
+ * @property int sort
  * @property string name
- * @property boolean show
- *
- * @property integer user_id
+ * @property bool show
+ * @property int user_id
  * @property User user
 
  * @property Collection|Site[] sites
@@ -62,7 +57,7 @@ class Folder extends ApiModel
                     $site->save();
                 }
                 $sort++;
-            } elseif (!$site->show && $site->sort !== null) {
+            } elseif (! $site->show && $site->sort !== null) {
                 $site->sort = null;
                 $site->save();
             }

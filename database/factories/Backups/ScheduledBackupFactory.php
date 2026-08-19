@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Backups;
 
+use App\Models\Backups\Schedule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Backups\Schedule>
+ * @extends Factory<Schedule>
  */
 class ScheduledBackupFactory extends Factory
 {

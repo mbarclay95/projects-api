@@ -13,23 +13,19 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class BackupsRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param User $user
-     * @param bool $viewOnlyForUser
+     * @param  User  $user
      * @return Collection|Backup[]
      */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Backup::query()
-                     ->with('backupSteps', 'backupJobs.backupStepJobs.backupStep', 'schedules')
-                     ->where('user_id', '=', $user->id)
-                     ->orderBy('created_at')
-                     ->get();
+            ->with('backupSteps', 'backupJobs.backupStepJobs.backupStep', 'schedules')
+            ->where('user_id', '=', $user->id)
+            ->orderBy('created_at')
+            ->get();
     }
 
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return Backup|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -49,9 +45,7 @@ class BackupsRepository extends DefaultRepository
     }
 
     /**
-     * @param Backup $model
-     * @param $request
-     * @param Authenticatable $user
+     * @param  Backup  $model
      * @return Backup|array
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
@@ -85,9 +79,7 @@ class BackupsRepository extends DefaultRepository
     }
 
     /**
-     * @param Backup $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  Backup  $model
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {

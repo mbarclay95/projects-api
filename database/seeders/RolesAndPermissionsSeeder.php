@@ -39,8 +39,6 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -59,17 +57,17 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createDraftsRole();
     }
 
-//    private function createDefaultRole(): void
-//    {
-//        $this->createAndAssign(Roles::DEFAULT_ROLE, [
-//            RoleApiModel::viewAnyForUserPermission()
-//        ]);
-//    }
+    //    private function createDefaultRole(): void
+    //    {
+    //        $this->createAndAssign(Roles::DEFAULT_ROLE, [
+    //            RoleApiModel::viewAnyForUserPermission()
+    //        ]);
+    //    }
 
     private function createFileExplorerRole(): void
     {
         $this->createAndAssign(Roles::FILE_EXPLORER_ROLE, [
-            Permissions::VIEW_FILE_EXPLORER_PAGE
+            Permissions::VIEW_FILE_EXPLORER_PAGE,
         ]);
     }
 
@@ -82,14 +80,14 @@ class RolesAndPermissionsSeeder extends Seeder
             GamingDevice::createPermission(),
             GamingDevice::updatePermission(),
 
-            Permissions::VIEW_GAMING_SESSION_ADMIN_PAGE
+            Permissions::VIEW_GAMING_SESSION_ADMIN_PAGE,
         ]);
     }
 
     private function createMoneyAppRole(): void
     {
         $this->createAndAssign(Roles::MONEY_APP_ROLE, [
-            Permissions::VIEW_MONEY_APP_PAGE
+            Permissions::VIEW_MONEY_APP_PAGE,
         ]);
     }
 
@@ -118,9 +116,7 @@ class RolesAndPermissionsSeeder extends Seeder
     }
 
     /**
-     * @param string $role
-     * @param string[] $permissions
-     * @return void
+     * @param  string[]  $permissions
      */
     private function createAndAssign(string $role, array $permissions): void
     {
@@ -214,7 +210,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             Tag::viewAnyForUserPermission(),
 
-            Permissions::VIEW_TASKS_PAGE
+            Permissions::VIEW_TASKS_PAGE,
         ]);
     }
 
@@ -230,7 +226,7 @@ class RolesAndPermissionsSeeder extends Seeder
             EventParticipant::updatePermission(),
             EventParticipant::deletePermission(),
 
-            Permissions::VIEW_EVENTS_PAGE
+            Permissions::VIEW_EVENTS_PAGE,
         ]);
     }
 
@@ -268,7 +264,7 @@ class RolesAndPermissionsSeeder extends Seeder
             DraftPick::updatePermission(),
             DraftPick::deletePermission(),
 
-            Permissions::VIEW_DRAFTS_PAGE
+            Permissions::VIEW_DRAFTS_PAGE,
         ]);
     }
 }

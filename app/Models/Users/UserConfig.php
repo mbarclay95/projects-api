@@ -11,20 +11,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Class UserConfig
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
- * @property boolean side_menu_open
- * @property boolean home_page_role
- * @property boolean money_app_token
- *
- * @property integer user_id
+ * @property bool side_menu_open
+ * @property bool home_page_role
+ * @property bool money_app_token
+ * @property int user_id
  * @property User user
  */
 class UserConfig extends Model
 {
-    use HasFactory, HasApiModel;
+    use HasApiModel, HasFactory;
 
     protected static $unguarded = true;
 

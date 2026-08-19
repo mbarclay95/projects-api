@@ -28,7 +28,7 @@ class DraftPickAdminTest extends TestCase
         $this->admin->assignRole(Roles::DRAFTS_ROLE);
     }
 
-    public function testAnAdminPickAttributesToTheMemberOnTheClockAndSetsMadeByAdmin(): void
+    public function test_an_admin_pick_attributes_to_the_member_on_the_clock_and_sets_made_by_admin(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $onTheClock = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -44,7 +44,7 @@ class DraftPickAdminTest extends TestCase
         self::assertTrue($response->json('pick.madeByAdmin'));
     }
 
-    public function testAnAdminPickOnTheFinalSlotAutoCompletesTheDraft(): void
+    public function test_an_admin_pick_on_the_final_slot_auto_completes_the_draft(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -59,7 +59,7 @@ class DraftPickAdminTest extends TestCase
         self::assertEquals(DraftStatus::COMPLETE, $draft->fresh()->status);
     }
 
-    public function testCorrectingAPickCannotTakeATeamAnotherPickAlreadyHoldsAndLeavesTheRestAlone(): void
+    public function test_correcting_a_pick_cannot_take_a_team_another_pick_already_holds_and_leaves_the_rest_alone(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 2]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -82,11 +82,11 @@ class DraftPickAdminTest extends TestCase
         ]);
 
         $this->jsonAs($this->admin, 'PUT', "api/draft-picks/{$pick->id}", ['draftTeamId' => $teamB->id])
-             ->assertStatus(422);
+            ->assertStatus(422);
         self::assertEquals($teamA->id, $pick->fresh()->draft_team_id);
 
         $response = $this->jsonAs($this->admin, 'PUT', "api/draft-picks/{$pick->id}", ['draftTeamId' => $teamC->id])
-                          ->assertSuccessful();
+            ->assertSuccessful();
 
         self::assertEquals($teamC->id, $response->json('pick.draftTeamId'));
         self::assertEquals(1, $response->json('pick.pickNumber'));
@@ -94,7 +94,7 @@ class DraftPickAdminTest extends TestCase
         self::assertFalse($response->json('pick.madeByAdmin'));
     }
 
-    public function testUndoingANonFinalPickIs422(): void
+    public function test_undoing_a_non_final_pick_is422(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 2]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -122,7 +122,7 @@ class DraftPickAdminTest extends TestCase
      * pick, undo reopens it, and a participant can then pick into the slot
      * the undone pick vacated.
      */
-    public function testUndoingTheFinalPickOfACompleteDraftReopensItForParticipantPicking(): void
+    public function test_undoing_the_final_pick_of_a_complete_draft_reopens_it_for_participant_picking(): void
     {
         $draft = $this->createDraft(['status' => DraftStatus::IN_PROGRESS, 'total_rounds' => 1]);
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -165,7 +165,7 @@ class DraftPickAdminTest extends TestCase
 
         return $this->actingAs($user)->json($method, $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

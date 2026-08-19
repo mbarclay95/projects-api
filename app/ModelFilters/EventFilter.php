@@ -25,9 +25,9 @@ class EventFilter extends ModelFilter
     {
         if ($search && $search != '') {
             $this->where(function ($where) use ($search) {
-                $wildcardSearch = '%' . $search . '%';
+                $wildcardSearch = '%'.$search.'%';
                 $where->orWhere('name', 'ilike', $wildcardSearch)
-                      ->orWhere('notes', 'ilike', $wildcardSearch);
+                    ->orWhere('notes', 'ilike', $wildcardSearch);
             });
         }
     }

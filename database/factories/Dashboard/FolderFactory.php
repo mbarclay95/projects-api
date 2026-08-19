@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Dashboard;
 
+use App\Models\Dashboard\Folder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dashboard\Folder>
+ * @extends Factory<Folder>
  */
 class FolderFactory extends Factory
 {
@@ -19,7 +20,7 @@ class FolderFactory extends Factory
         return [
             'name' => fake()->name,
             'sort' => 1,
-            'show' => true
+            'show' => true,
         ];
     }
 }

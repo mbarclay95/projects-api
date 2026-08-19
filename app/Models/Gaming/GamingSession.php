@@ -9,21 +9,19 @@ use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
  * @property Carbon started_at
  * @property Carbon ended_at
  * @property string turn_order_type
- * @property integer current_turn
- * @property boolean allow_turn_passing
- * @property boolean skip_after_passing
- * @property boolean pause_at_beginning_of_round
- * @property boolean is_paused
- * @property integer turn_limit_seconds
- *
+ * @property int current_turn
+ * @property bool allow_turn_passing
+ * @property bool skip_after_passing
+ * @property bool pause_at_beginning_of_round
+ * @property bool is_paused
+ * @property int turn_limit_seconds
  * @property Collection|GamingSessionDevice[] gamingSessionDevices
  */
 class GamingSession extends ApiModel
@@ -37,7 +35,7 @@ class GamingSession extends ApiModel
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'gamingSessionDevices' => GamingSessionDevice::class
+        'gamingSessionDevices' => GamingSessionDevice::class,
     ];
 
     public function gamingSessionDevices(): HasMany

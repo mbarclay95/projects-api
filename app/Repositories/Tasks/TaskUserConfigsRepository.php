@@ -22,17 +22,17 @@ class TaskUserConfigsRepository extends DefaultRepository
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         /** @var Family $family */
         $family = Family::query()
-                        ->with('userConfigs')
-                        ->find($request['familyId']);
+            ->with('userConfigs')
+            ->find($request['familyId']);
         /** @var TaskUserConfig|Collection $entities */
         $entities = TaskUserConfig::query()
-                                  ->where('family_id', '=', $request['familyId'])
-                                  ->where('start_date', '<=', $date->toDateString())
-                                  ->where('end_date', '>=', $date->toDateString())
-                                  ->whereIn('user_id', $family->userConfigs->pluck('user_id'))
-                                  ->with('user')
-                                  ->orderBy('user_id')
-                                  ->get();
+            ->where('family_id', '=', $request['familyId'])
+            ->where('start_date', '<=', $date->toDateString())
+            ->where('end_date', '>=', $date->toDateString())
+            ->whereIn('user_id', $family->userConfigs->pluck('user_id'))
+            ->with('user')
+            ->orderBy('user_id')
+            ->get();
 
         $alreadyLoadedTasks = false;
         if (($weekOffset == 0 || $weekOffset == 1) && $entities->count() == 0) {
@@ -40,7 +40,7 @@ class TaskUserConfigsRepository extends DefaultRepository
             $entities = BackfillTaskUserConfigService::run($family, $user);
         }
 
-        if (!$alreadyLoadedTasks) {
+        if (! $alreadyLoadedTasks) {
             /** @var TaskUserConfig $entity */
             foreach ($entities as $entity) {
                 $entity->completedFamilyTasks = $entity->getCompletedFamilyTasks($date, $entity->user);
@@ -71,10 +71,7 @@ class TaskUserConfigsRepository extends DefaultRepository
     }
 
     /**
-     * @param TaskUserConfig $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  TaskUserConfig  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {

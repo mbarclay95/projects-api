@@ -4,11 +4,9 @@ namespace App\Models\Goals;
 
 use App\Models\Users\User;
 use App\Repositories\GoalsRepository;
-use App\Traits\HasApiModel;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
@@ -19,33 +17,32 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
 /**
  * Class Goal
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property Carbon deleted_at
- *
  * @property string title
  * @property string unit
  * @property string length_of_time
  * @property string equality
  * @property string verb
- * @property integer expected_amount
- * @property integer current_amount
- *
- * @property integer user_id
+ * @property int expected_amount
+ * @property int current_amount
+ * @property int user_id
  * @property User user
- *
  * @property Collection|GoalDay[] goalDays
  */
 class Goal extends ApiModel
 {
-    use HasFactory, HasRepository, Filterable;
+    use Filterable, HasFactory, HasRepository;
 
     protected static array $apiModelAttributes = ['id', 'created_at', 'title', 'expected_amount', 'unit',
         'length_of_time', 'equality', 'verb', 'singular_unit', 'plural_unit', 'current_amount'];
+
     protected static array $apiModelEntities = [];
+
     protected static array $apiModelArrayEntities = [
-        'goalDays' => GoalDay::class
+        'goalDays' => GoalDay::class,
     ];
 
     protected static function getRepositoryClass(): string
@@ -67,12 +64,12 @@ class Goal extends ApiModel
 
     public function getSingularUnitAttribute(): string
     {
-        return (Str::singular($this->unit));
+        return Str::singular($this->unit);
     }
 
     public function getPluralUnitAttribute(): string
     {
-        return (Str::plural($this->unit));
+        return Str::plural($this->unit);
     }
 
     public function getCurrentAmount(Carbon $date): self

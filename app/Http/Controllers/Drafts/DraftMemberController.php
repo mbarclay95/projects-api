@@ -46,12 +46,12 @@ class DraftMemberController extends DraftChildController
     {
         $validated = $request->validate(static::$updatePickPositionsRules);
 
-        if (!$this->administers(Auth::user(), $validated['draftId'])) {
-            throw new AuthenticationException();
+        if (! $this->administers(Auth::user(), $validated['draftId'])) {
+            throw new AuthenticationException;
         }
 
         $draft = Draft::query()->findOrFail($validated['draftId']);
-        if (!in_array($draft->status, [DraftStatus::SIGNUP, DraftStatus::LOCKED], true)) {
+        if (! in_array($draft->status, [DraftStatus::SIGNUP, DraftStatus::LOCKED], true)) {
             throw ValidationException::withMessages([
                 'draftId' => 'The pick order can only be changed while the draft is in signup or locked.',
             ]);
@@ -61,14 +61,14 @@ class DraftMemberController extends DraftChildController
 
         DB::transaction(function () use ($validated) {
             DraftMember::query()
-                       ->where('draft_id', '=', $validated['draftId'])
-                       ->update(['pick_position' => null]);
+                ->where('draft_id', '=', $validated['draftId'])
+                ->update(['pick_position' => null]);
 
             foreach ($validated['positions'] as $position) {
                 DraftMember::query()
-                           ->where('draft_id', '=', $validated['draftId'])
-                           ->where('id', '=', $position['draftMemberId'])
-                           ->update(['pick_position' => $position['pickPosition']]);
+                    ->where('draft_id', '=', $validated['draftId'])
+                    ->where('id', '=', $position['draftMemberId'])
+                    ->update(['pick_position' => $position['pickPosition']]);
             }
         });
 
@@ -92,9 +92,9 @@ class DraftMemberController extends DraftChildController
     {
         $member = DraftMember::query()->findOrFail($draftMemberId);
 
-        if (!Auth::user()->hasPermissionTo(DraftMember::updatePermission())
-            || !$this->administers(Auth::user(), $member->draft_id)) {
-            throw new AuthenticationException();
+        if (! Auth::user()->hasPermissionTo(DraftMember::updatePermission())
+            || ! $this->administers(Auth::user(), $member->draft_id)) {
+            throw new AuthenticationException;
         }
 
         $member->claimed_at = null;

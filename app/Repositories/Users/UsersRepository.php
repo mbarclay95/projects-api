@@ -5,28 +5,20 @@ namespace App\Repositories\Users;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 use Spatie\Permission\Models\Role;
 
 class UsersRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         /** @var User[] $users */
         $users = User::query()
-                     ->with('roles', 'userConfig')
-                     ->orderBy('id')
-                     ->get();
+            ->with('roles', 'userConfig')
+            ->orderBy('id')
+            ->get();
 
         return User::toApiModels($users, ['clientPermissions', 'family_id', 'userConfig.money_app_token']);
     }
@@ -40,10 +32,10 @@ class UsersRepository extends DefaultRepository
         ]);
         $model->save();
         $roles = Role::query()
-                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
-                         return $role['id'];
-                     }))
-                     ->get();
+            ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
+                return $role['id'];
+            }))
+            ->get();
         $model->syncRoles($roles);
         $model->createFirstUserConfig($request['userConfig']['homePageRole']);
 
@@ -51,10 +43,7 @@ class UsersRepository extends DefaultRepository
     }
 
     /**
-     * @param User $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  User  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -62,10 +51,10 @@ class UsersRepository extends DefaultRepository
         $model->userConfig->side_menu_open = $request['userConfig']['sideMenuOpen'];
         $model->userConfig->home_page_role = $request['userConfig']['homePageRole'];
         $roles = Role::query()
-                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
-                         return $role['id'];
-                     }))
-                     ->get();
+            ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
+                return $role['id'];
+            }))
+            ->get();
         $model->syncRoles($roles);
         $model->save();
         $model->userConfig->save();

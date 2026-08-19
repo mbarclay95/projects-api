@@ -14,39 +14,28 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class TasksRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         return Task::query()
-                   ->where(function ($innerWhere) use ($user) {
-                       $innerWhere
-                           ->orWhere(function ($userWhere) use ($user) {
-                               $userWhere->where('tasks.owner_type', '=', User::class)
-                                         ->where('tasks.owner_id', '=', $user->id);
-                           })
-                           ->when($user->family, function ($familyCondition) use ($user) {
-                               $familyCondition->orWhere(function ($familyWhere) use ($user) {
-                                   $familyWhere->where('tasks.owner_type', '=', Family::class)
-                                               ->where('tasks.owner_id', '=', $user->family->id);
-                               });
-                           });
-                   })
-                   ->orderBy('due_date')
-                   ->with('tags', 'recurringTask')
-                   ->filter($request)
-                   ->get();
+            ->where(function ($innerWhere) use ($user) {
+                $innerWhere
+                    ->orWhere(function ($userWhere) use ($user) {
+                        $userWhere->where('tasks.owner_type', '=', User::class)
+                            ->where('tasks.owner_id', '=', $user->id);
+                    })
+                    ->when($user->family, function ($familyCondition) use ($user) {
+                        $familyCondition->orWhere(function ($familyWhere) use ($user) {
+                            $familyWhere->where('tasks.owner_type', '=', Family::class)
+                                ->where('tasks.owner_id', '=', $user->family->id);
+                        });
+                    });
+            })
+            ->orderBy('due_date')
+            ->with('tags', 'recurringTask')
+            ->filter($request)
+            ->get();
     }
 
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
-     */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $dueDate = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay();
@@ -74,10 +63,7 @@ class TasksRepository extends DefaultRepository
     }
 
     /**
-     * @param Task $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  Task  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -112,7 +98,7 @@ class TasksRepository extends DefaultRepository
             $model->completed_by_id = $user->id;
             $taskCompleted = true;
         }
-        if ($model->completed_at ) {
+        if ($model->completed_at) {
             if (isset($request['completedAt'])) {
                 $model->completed_at = Carbon::parse($request['completedAt']);
             } else {
@@ -140,9 +126,7 @@ class TasksRepository extends DefaultRepository
     }
 
     /**
-     * @param Task $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  Task  $model
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {

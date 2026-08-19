@@ -10,9 +10,9 @@ class AuthTestCase extends TestCase
 {
     use RefreshDatabase;
 
-    protected User|null $goodUser = null;
+    protected ?User $goodUser = null;
 
-    protected User|null $badUser = null;
+    protected ?User $badUser = null;
 
     protected function setUp(): void
     {
@@ -37,54 +37,54 @@ class AuthTestCase extends TestCase
     {
         $token = auth()->login($this->goodUser);
         $goodResponse = $this->actingAs($this->goodUser)
-                             ->get($endpoint, [
-                                 'accept' => 'application/json',
-                                 'authorization' => 'Bearer ' . $token
-                             ]);
+            ->get($endpoint, [
+                'accept' => 'application/json',
+                'authorization' => 'Bearer '.$token,
+            ]);
         $this->assertContains($goodResponse->status(), [200, 422]);
 
         $token = auth()->login($this->badUser);
         $this->get($endpoint, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token
+            'authorization' => 'Bearer '.$token,
         ])
-             ->assertUnauthorized();
+            ->assertUnauthorized();
     }
 
     protected function runTestsPOST(string $endpoint): void
     {
         $token = auth()->login($this->goodUser);
         $goodResponse = $this->actingAs($this->goodUser)
-                             ->post($endpoint, [], [
-                                 'accept' => 'application/json',
-                                 'authorization' => 'Bearer ' . $token
-                             ]);
+            ->post($endpoint, [], [
+                'accept' => 'application/json',
+                'authorization' => 'Bearer '.$token,
+            ]);
         $this->assertContains($goodResponse->status(), [200, 422]);
 
         $token = auth()->login($this->badUser);
         $this->post($endpoint, [], [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token
+            'authorization' => 'Bearer '.$token,
         ])
-             ->assertUnauthorized();
+            ->assertUnauthorized();
     }
 
     protected function runTestsPUT(string $endpoint): void
     {
         $token = auth()->login($this->goodUser);
         $goodResponse = $this->actingAs($this->goodUser)
-                             ->put($endpoint, [], [
-                                 'accept' => 'application/json',
-                                 'authorization' => 'Bearer ' . $token
-                             ]);
+            ->put($endpoint, [], [
+                'accept' => 'application/json',
+                'authorization' => 'Bearer '.$token,
+            ]);
         $this->assertContains($goodResponse->status(), [200, 422]);
 
         $token = auth()->login($this->badUser);
         $this->put($endpoint, [], [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token
+            'authorization' => 'Bearer '.$token,
         ])
-             ->assertUnauthorized();
+            ->assertUnauthorized();
     }
 
     protected function runTestsDELETE(string $endpoint): void
@@ -92,17 +92,16 @@ class AuthTestCase extends TestCase
         $token = auth()->login($this->badUser);
         $this->delete($endpoint, [], [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token
+            'authorization' => 'Bearer '.$token,
         ])
-             ->assertUnauthorized();
+            ->assertUnauthorized();
 
         $token = auth()->login($this->goodUser);
         $goodResponse = $this->actingAs($this->goodUser)
-                             ->delete($endpoint, [], [
-                                 'accept' => 'application/json',
-                                 'authorization' => 'Bearer ' . $token
-                             ]);
+            ->delete($endpoint, [], [
+                'accept' => 'application/json',
+                'authorization' => 'Bearer '.$token,
+            ]);
         $this->assertContains($goodResponse->status(), [200, 422]);
     }
-
 }

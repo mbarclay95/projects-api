@@ -18,11 +18,11 @@ class AuthController extends Controller
     {
         $credentials = [
             'username' => strtolower($request->post('username')),
-            'password' => $request->post('password')
+            'password' => $request->post('password'),
         ];
         $token = auth('api')->attempt($credentials);
 
-        if (!$token) {
+        if (! $token) {
             return new JsonResponse(['message' => 'Bad credentials'], 401);
         }
 
@@ -34,20 +34,20 @@ class AuthController extends Controller
         return new JsonResponse([
             'accessToken' => $token,
             'type' => 'bearer',
-            'expiresIn' => auth()->factory()->getTTL() * 60
+            'expiresIn' => auth()->factory()->getTTL() * 60,
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
-//        $token = auth()->getToken()->get();
+        //        $token = auth()->getToken()->get();
 
-//        /** @var JwtToken $jwtToken */
-//        $jwtToken = JwtToken::query()->where('token', '=', $token)->first();
-//        if ($jwtToken) {
-//            $jwtToken->revoked_at = Carbon::now();
-//            $jwtToken->save();
-//        }
+        //        /** @var JwtToken $jwtToken */
+        //        $jwtToken = JwtToken::query()->where('token', '=', $token)->first();
+        //        if ($jwtToken) {
+        //            $jwtToken->revoked_at = Carbon::now();
+        //            $jwtToken->save();
+        //        }
         auth()->logout(true);
 
         return response()->json(['success' => true]);
@@ -57,7 +57,7 @@ class AuthController extends Controller
     {
         /** @var User $me */
         $me = Auth::user();
-        if (!$me->userConfig) {
+        if (! $me->userConfig) {
             $me->userConfig = $me->createFirstUserConfig();
         }
 
@@ -74,7 +74,7 @@ class AuthController extends Controller
         /** @var User $me */
         $me = Auth::user();
 
-        if (!Hash::check($validated['currentPassword'], $me->password)) {
+        if (! Hash::check($validated['currentPassword'], $me->password)) {
             abort(401, 'Incorrect Credentials');
         }
 
@@ -103,15 +103,15 @@ class AuthController extends Controller
         $user->userConfig->home_page_role = $validated['userConfig']['homePageRole'];
         $user->userConfig->money_app_token = $validated['userConfig']['moneyAppToken'];
         $roles = Role::query()
-                     ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
-                         return $role['id'];
-                     }))
-                     ->get();
+            ->whereIn('id', Collection::make($request['roles'])->map(function ($role) {
+                return $role['id'];
+            }))
+            ->get();
         if ($user->roles->doesntContain(function ($role) {
-                return $role->name == Roles::ADMIN_ROLE;
-            }) && $roles->contains(function ($role) {
-                return $role->name == Roles::ADMIN_ROLE;
-            })) {
+            return $role->name == Roles::ADMIN_ROLE;
+        }) && $roles->contains(function ($role) {
+            return $role->name == Roles::ADMIN_ROLE;
+        })) {
             $roles = $roles->filter(function ($role) {
                 return $role->name != Roles::ADMIN_ROLE;
             });

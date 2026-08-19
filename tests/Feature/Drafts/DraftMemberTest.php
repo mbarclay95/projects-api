@@ -31,7 +31,7 @@ class DraftMemberTest extends TestCase
         $this->draft = Draft::createEntity(['name' => 'Member Draft'], $this->admin);
     }
 
-    public function testADuplicateNameIsRejectedOnCreate(): void
+    public function test_a_duplicate_name_is_rejected_on_create(): void
     {
         DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Mike']);
 
@@ -43,7 +43,7 @@ class DraftMemberTest extends TestCase
         self::assertSame(1, DraftMember::query()->where('draft_id', '=', $this->draft->id)->count());
     }
 
-    public function testADuplicateNameIsRejectedCaseInsensitivelyAndTrimmed(): void
+    public function test_a_duplicate_name_is_rejected_case_insensitively_and_trimmed(): void
     {
         DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Mike']);
 
@@ -53,7 +53,7 @@ class DraftMemberTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors('name');
     }
 
-    public function testTheSameNameIsFineInADifferentDraft(): void
+    public function test_the_same_name_is_fine_in_a_different_draft(): void
     {
         DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Mike']);
         $otherDraft = Draft::createEntity(['name' => 'Other Draft'], $this->admin);
@@ -64,18 +64,18 @@ class DraftMemberTest extends TestCase
         ])->assertOk();
     }
 
-    public function testRenamingAMemberToAnotherMembersNameIsRejected(): void
+    public function test_renaming_a_member_to_another_members_name_is_rejected(): void
     {
         DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Mike']);
         $gary = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Gary']);
 
         $this->putAs("api/draft-members/{$gary->id}", ['name' => 'Mike'])
-             ->assertStatus(422)->assertJsonValidationErrors('name');
+            ->assertStatus(422)->assertJsonValidationErrors('name');
 
         self::assertSame('Gary', $gary->fresh()->name);
     }
 
-    public function testRenamingAMemberToItsOwnNameIsFine(): void
+    public function test_renaming_a_member_to_its_own_name_is_fine(): void
     {
         $gary = DraftMember::factory()->create(['draft_id' => $this->draft->id, 'name' => 'Gary']);
 
@@ -88,7 +88,7 @@ class DraftMemberTest extends TestCase
 
         return $this->actingAs($this->admin)->json('POST', $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 
@@ -98,7 +98,7 @@ class DraftMemberTest extends TestCase
 
         return $this->actingAs($this->admin)->json('PUT', $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

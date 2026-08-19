@@ -12,22 +12,16 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class GoalsRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         /** @var Goal[] $goals */
         $goals = Goal::query()
-                     ->with(['goalDays' => function ($query) use ($request) {
-                         $query->filter($request);
-                     }])
-                     ->where('user_id', '=', $user->id)
-                     ->filter($request)
-                     ->get();
+            ->with(['goalDays' => function ($query) use ($request) {
+                $query->filter($request);
+            }])
+            ->where('user_id', '=', $user->id)
+            ->filter($request)
+            ->get();
 
         $weekOffset = intval($request['weekOffset']);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
@@ -38,11 +32,6 @@ class GoalsRepository extends DefaultRepository
         return $goals;
     }
 
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
-     */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $goal = new Goal([
@@ -61,10 +50,7 @@ class GoalsRepository extends DefaultRepository
     }
 
     /**
-     * @param Goal $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  Goal  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -83,17 +69,15 @@ class GoalsRepository extends DefaultRepository
     }
 
     /**
-     * @param Goal $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  Goal  $model
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {
         $model->delete();
 
         GoalDay::query()
-               ->where('goal_id', '=', $model->id)
-               ->delete();
+            ->where('goal_id', '=', $model->id)
+            ->delete();
 
         return true;
     }

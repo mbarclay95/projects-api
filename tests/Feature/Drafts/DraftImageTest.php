@@ -33,7 +33,7 @@ class DraftImageTest extends TestCase
         $this->stranger = User::factory()->create();
     }
 
-    public function testAnOrganizerCanUploadAnImageWithNoDraftInHand(): void
+    public function test_an_organizer_can_upload_an_image_with_no_draft_in_hand(): void
     {
         $response = $this->uploadAs($this->organizer)->assertSuccessful();
 
@@ -47,14 +47,14 @@ class DraftImageTest extends TestCase
      * The upload has no draft to scope to, so Draft::createPermission() is the
      * whole gate — a user without it must not be able to write to the bucket.
      */
-    public function testAUserWithoutTheDraftsRoleCannotUpload(): void
+    public function test_a_user_without_the_drafts_role_cannot_upload(): void
     {
         $this->uploadAs($this->stranger)->assertUnauthorized();
 
         self::assertEquals(0, DraftImage::query()->count());
     }
 
-    public function testTheStoragePathIsNotExposedInTheUploadResponse(): void
+    public function test_the_storage_path_is_not_exposed_in_the_upload_response(): void
     {
         $content = $this->uploadAs($this->organizer)->assertSuccessful()->getContent();
 
@@ -62,7 +62,7 @@ class DraftImageTest extends TestCase
         self::assertStringNotContainsString('s3Path', $content);
     }
 
-    public function testAnImageCanBeAttachedWhenTheDraftIsCreated(): void
+    public function test_an_image_can_be_attached_when_the_draft_is_created(): void
     {
         $draftImage = DraftImage::factory()->create(['created_by_id' => $this->organizer->id]);
 
@@ -79,7 +79,7 @@ class DraftImageTest extends TestCase
      * Remove is a null on update rather than an endpoint of its own, so this
      * is the only thing standing between the organizer and a stuck image.
      */
-    public function testAnImageCanBeClearedOnUpdate(): void
+    public function test_an_image_can_be_cleared_on_update(): void
     {
         $draft = $this->draftWithImage();
 
@@ -91,7 +91,7 @@ class DraftImageTest extends TestCase
         self::assertNull($draft->fresh()->draft_image_id);
     }
 
-    public function testAnUnknownImageIdIsRejected(): void
+    public function test_an_unknown_image_id_is_rejected(): void
     {
         $this->jsonAs($this->organizer, 'POST', 'api/drafts', [
             'name' => 'Imaged Draft',
@@ -99,7 +99,7 @@ class DraftImageTest extends TestCase
         ])->assertStatus(422);
     }
 
-    public function testTheAdminStreamServesTheImageWithAContentTypeFromItsExtension(): void
+    public function test_the_admin_stream_serves_the_image_with_a_content_type_from_its_extension(): void
     {
         $draftImage = DraftImage::factory()->create([
             'created_by_id' => $this->organizer->id,
@@ -108,26 +108,26 @@ class DraftImageTest extends TestCase
         Storage::disk('minio-s3')->put('draft-images/logo.svg', '<svg></svg>');
 
         $this->get("api/draft-images/{$draftImage->id}")
-             ->assertSuccessful()
-             ->assertHeader('Content-Type', 'image/svg+xml');
+            ->assertSuccessful()
+            ->assertHeader('Content-Type', 'image/svg+xml');
     }
 
-    public function testTheAdminStreamIs404ForAnUnknownImage(): void
+    public function test_the_admin_stream_is404_for_an_unknown_image(): void
     {
         $this->get('api/draft-images/9999')->assertStatus(404);
     }
 
-    public function testThePublicStreamServesTheImageToATokenHolder(): void
+    public function test_the_public_stream_serves_the_image_to_a_token_holder(): void
     {
         $draft = $this->draftWithImage();
         Storage::disk('minio-s3')->put($draft->draftImage->s3_path, 'png-bytes');
 
         $this->get("api/public/drafts/{$draft->id}/image?token={$draft->token}")
-             ->assertSuccessful()
-             ->assertHeader('Content-Type', 'image/png');
+            ->assertSuccessful()
+            ->assertHeader('Content-Type', 'image/png');
     }
 
-    public function testThePublicStreamIs404ForAWrongToken(): void
+    public function test_the_public_stream_is404_for_a_wrong_token(): void
     {
         $draft = $this->draftWithImage();
 
@@ -138,7 +138,7 @@ class DraftImageTest extends TestCase
      * A draft with no image 404s rather than streaming nothing, so the public
      * page's hasImage flag and this route cannot disagree visibly.
      */
-    public function testThePublicStreamIs404WhenTheDraftHasNoImage(): void
+    public function test_the_public_stream_is404_when_the_draft_has_no_image(): void
     {
         $draft = Draft::createEntity(['name' => 'Bare Draft'], $this->organizer);
 
@@ -169,7 +169,7 @@ class DraftImageTest extends TestCase
 
         return $this->actingAs($user)->json($method, $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

@@ -15,19 +15,20 @@ class TaskController extends CrudController
         'ownerId' => 'int',
         'completedStatus' => 'string',
         'recurringType' => 'string',
-//        'page' => 'int',
-//        'pageSize' => 'int',
+        //        'page' => 'int',
+        //        'pageSize' => 'int',
         'showPaused' => 'bool',
         'sort' => 'string',
         'sortDir' => 'string',
         'search' => 'string|nullable',
-        'tags' => 'array|nullable'
+        'tags' => 'array|nullable',
     ];
+
     protected static array $storeRules = [
         'name' => 'required|string',
         'description' => 'present|string|nullable',
         'ownerType' => 'required|string',
-//        'ownerId' => 'required|int',
+        //        'ownerId' => 'required|int',
         'recurring' => 'required|bool',
         'dueDate' => 'required|date',
         'frequencyAmount' => 'nullable|int',
@@ -36,6 +37,7 @@ class TaskController extends CrudController
         'taskPoint' => 'nullable|int',
         'priority' => 'int|required',
     ];
+
     protected static array $updateRules = [
         'name' => 'required|string',
         'description' => 'present|string|nullable',

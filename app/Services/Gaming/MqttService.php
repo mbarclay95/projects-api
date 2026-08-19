@@ -36,6 +36,6 @@ class MqttService
      */
     public static function broadcastToWs(array $data): void
     {
-        self::sendMessage("gaming/broadcast", json_encode($data));
+        self::sendMessage('gaming/broadcast', json_encode($data));
     }
 }

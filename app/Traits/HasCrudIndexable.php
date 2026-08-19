@@ -9,7 +9,7 @@ trait HasCrudIndexable
     public static function getEntities($request, User $auth, bool $viewAnyForUser)
     {
         return static::class::query()
-                            ->orderBy('id')
-                            ->get();
+            ->orderBy('id')
+            ->get();
     }
 }

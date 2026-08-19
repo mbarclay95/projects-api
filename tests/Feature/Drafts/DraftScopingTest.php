@@ -42,7 +42,7 @@ class DraftScopingTest extends TestCase
      * regression to "any drafts_role holder can edit any draft" either; that
      * is what testASecondAdminCanReadAndUpdateTheDraft is for.
      */
-    public function testOneAdminCannotUpdateOrDestroyAnotherAdminsDraft(): void
+    public function test_one_admin_cannot_update_or_destroy_another_admins_draft(): void
     {
         $this->jsonAs($this->stranger, 'PUT', "api/drafts/{$this->draft->id}", [
             'name' => 'Hijacked',
@@ -55,19 +55,19 @@ class DraftScopingTest extends TestCase
         self::assertNull($this->draft->fresh()->deleted_at);
     }
 
-    public function testASecondAdminCanReadAndUpdateTheDraft(): void
+    public function test_a_second_admin_can_read_and_update_the_draft(): void
     {
         $this->draft->draftAdmins()->create(['user_id' => $this->coAdmin->id]);
 
         $this->jsonAs($this->coAdmin, 'PUT', "api/drafts/{$this->draft->id}", [
             'name' => 'Renamed by co-admin',
         ])->assertSuccessful()
-          ->assertJsonFragment(['name' => 'Renamed by co-admin']);
+            ->assertJsonFragment(['name' => 'Renamed by co-admin']);
 
         $names = array_column(
             $this->jsonAs($this->coAdmin, 'GET', 'api/drafts?showArchived=0')
-                 ->assertSuccessful()
-                 ->json(),
+                ->assertSuccessful()
+                ->json(),
             'name'
         );
         self::assertContains('Renamed by co-admin', $names, 'a co-admin should see a draft it did not create');
@@ -77,7 +77,7 @@ class DraftScopingTest extends TestCase
      * The whereHas() scoping in Draft::getEntities() — the one the doc warns
      * is easy to "simplify" away.
      */
-    public function testAThirdUserHoldingDraftsRoleSeesNeitherDraftInIndex(): void
+    public function test_a_third_user_holding_drafts_role_sees_neither_draft_in_index(): void
     {
         $this->draft->draftAdmins()->create(['user_id' => $this->coAdmin->id]);
 
@@ -87,23 +87,23 @@ class DraftScopingTest extends TestCase
         self::assertNotContains('Owned Draft', $names);
     }
 
-    public function testShowIs404ForAUserWhoDoesNotAdministerTheDraft(): void
+    public function test_show_is404_for_a_user_who_does_not_administer_the_draft(): void
     {
         $this->jsonAs($this->stranger, 'GET', "api/drafts/{$this->draft->id}")->assertStatus(404);
     }
 
-    public function testShowSucceedsForAnAdminOfTheDraft(): void
+    public function test_show_succeeds_for_an_admin_of_the_draft(): void
     {
         $this->jsonAs($this->creator, 'GET', "api/drafts/{$this->draft->id}")
-             ->assertSuccessful()
-             ->assertJsonFragment(['name' => 'Owned Draft']);
+            ->assertSuccessful()
+            ->assertJsonFragment(['name' => 'Owned Draft']);
     }
 
     /**
      * Decision D in one assertion, on draft-teams; DraftChildController means
      * the other three child controllers follow the same path.
      */
-    public function testAChildCreateAgainstADraftYouDoNotAdministerIsRefused(): void
+    public function test_a_child_create_against_a_draft_you_do_not_administer_is_refused(): void
     {
         $this->jsonAs($this->stranger, 'POST', 'api/draft-teams', [
             'draftId' => $this->draft->id,
@@ -119,7 +119,7 @@ class DraftScopingTest extends TestCase
 
         return $this->actingAs($user)->json($method, $uri, $data, [
             'accept' => 'application/json',
-            'authorization' => 'Bearer ' . $token,
+            'authorization' => 'Bearer '.$token,
         ]);
     }
 }

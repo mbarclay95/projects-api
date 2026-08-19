@@ -11,8 +11,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class BackupJobsRepository extends DefaultRepository
 {
     /**
-     * @param $request
-     * @param Authenticatable $user
      * @return BackupJob|array
      */
     public function createEntity($request, Authenticatable $user): Model|array
@@ -20,7 +18,7 @@ class BackupJobsRepository extends DefaultRepository
         /** @var Backup $backup */
         $backup = $request['backup'];
 
-        $backupJob = new BackupJob();
+        $backupJob = new BackupJob;
         $backupJob->user()->associate($user);
         $backupJob->backup()->associate($backup->id);
         $backupJob->schedule()->associate($request['scheduleId'] ?? null);
@@ -30,7 +28,7 @@ class BackupJobsRepository extends DefaultRepository
             BackupStepJobsRepository::createEntityStatic([
                 'backupStepId' => $backupStep->id,
                 'backupJobId' => $backupJob->id,
-                'sort' => $backupStep->sort
+                'sort' => $backupStep->sort,
             ], $user);
         }
 

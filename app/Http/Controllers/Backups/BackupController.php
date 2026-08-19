@@ -12,11 +12,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class BackupController extends CrudController
 {
     protected static string $modelClass = Backup::class;
+
     protected static array $indexRules = [];
+
     protected static array $storeRules = [
         'name' => 'required|string',
         'backupSteps' => 'required|array',
     ];
+
     protected static array $updateRules = [
         'name' => 'required|string',
         'backupSteps' => 'required|array',
@@ -28,9 +31,9 @@ class BackupController extends CrudController
 
         /** @var Backup $backup */
         $backup = Backup::query()
-                        ->where('user_id', '=', $userId)
-                        ->find($backupId);
-        if (!$backup) {
+            ->where('user_id', '=', $userId)
+            ->find($backupId);
+        if (! $backup) {
             abort(404, 'Backup not found with the given backup_id');
         }
 

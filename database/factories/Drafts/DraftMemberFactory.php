@@ -2,11 +2,12 @@
 
 namespace Database\Factories\Drafts;
 
+use App\Models\Drafts\DraftMember;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Drafts\DraftMember>
+ * @extends Factory<DraftMember>
  */
 class DraftMemberFactory extends Factory
 {

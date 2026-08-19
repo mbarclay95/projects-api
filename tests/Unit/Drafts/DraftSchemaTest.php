@@ -24,7 +24,7 @@ class DraftSchemaTest extends TestCase
      * unique(draft_id, pick_position). A future tidy-up of the indexes would
      * break this without noticing.
      */
-    public function testManyMembersMayHaveNoPickPositionInOneDraft()
+    public function test_many_members_may_have_no_pick_position_in_one_draft()
     {
         $draft = $this->createDraft();
 
@@ -33,7 +33,7 @@ class DraftSchemaTest extends TestCase
         self::assertEquals(4, $draft->draftMembers()->whereNull('pick_position')->count());
     }
 
-    public function testTwoMembersCannotShareAPickPosition()
+    public function test_two_members_cannot_share_a_pick_position()
     {
         $draft = $this->createDraft();
         DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 3]);
@@ -48,7 +48,7 @@ class DraftSchemaTest extends TestCase
      * The same position in a different draft is fine — the index is composite,
      * not global.
      */
-    public function testTheSamePickPositionIsFineInAnotherDraft()
+    public function test_the_same_pick_position_is_fine_in_another_draft()
     {
         $draft = $this->createDraft();
         $otherDraft = $this->createDraft();
@@ -65,7 +65,7 @@ class DraftSchemaTest extends TestCase
      * is the 23505 stage 4 catches and turns into "that team was just taken"
      * rather than a 500.
      */
-    public function testATeamCannotBePickedTwice()
+    public function test_a_team_cannot_be_picked_twice()
     {
         $draft = $this->createDraft();
         $team = DraftTeam::factory()->create(['draft_id' => $draft->id]);
@@ -91,7 +91,7 @@ class DraftSchemaTest extends TestCase
      * unique(draft_id, pick_number) — the other half of the pick race, where
      * two writers land in the same slot with different teams.
      */
-    public function testTwoPicksCannotShareASlot()
+    public function test_two_picks_cannot_share_a_slot()
     {
         $draft = $this->createDraft();
         $member = DraftMember::factory()->create(['draft_id' => $draft->id, 'pick_position' => 1]);
@@ -111,7 +111,7 @@ class DraftSchemaTest extends TestCase
         ]));
     }
 
-    public function testTwoDraftsCannotShareAToken()
+    public function test_two_drafts_cannot_share_a_token()
     {
         $draft = $this->createDraft();
 

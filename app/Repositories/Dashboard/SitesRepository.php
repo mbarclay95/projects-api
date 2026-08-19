@@ -9,16 +9,11 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class SitesRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
-     */
     public function createEntity($request, Authenticatable $user): Model|array
     {
         $maxSort = (Site::query()
-                        ->where('folder_id', '=', $request['folderId'])
-                        ->max('sort')
+            ->where('folder_id', '=', $request['folderId'])
+            ->max('sort')
         ) ?? 0;
 
         $site = new Site([
@@ -26,7 +21,7 @@ class SitesRepository extends DefaultRepository
             'name' => $request['name'],
             'description' => $request['description'],
             'show' => true,
-            'url' => $request['url']
+            'url' => $request['url'],
         ]);
         if ($request['siteImage']) {
             $site->siteImage()->associate($request['siteImage']['id']);
@@ -39,10 +34,7 @@ class SitesRepository extends DefaultRepository
     }
 
     /**
-     * @param Site $model
-     * @param $request
-     * @param Authenticatable $user
-     * @return Model|array
+     * @param  Site  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
@@ -50,9 +42,9 @@ class SitesRepository extends DefaultRepository
         if ($model->show != $show) {
             if ($show) {
                 $model->sort = ((Site::query()
-                                     ->where('folder_id', '=', $request['folderId'])
-                                     ->max('sort')
-                    ) ?? 0) + 1;
+                    ->where('folder_id', '=', $request['folderId'])
+                    ->max('sort')
+                ) ?? 0) + 1;
             } else {
                 $model->sort = null;
                 $model->show = $request['show'];
@@ -69,9 +61,9 @@ class SitesRepository extends DefaultRepository
             $oldFolder = $model->folder;
             $model->folder()->associate($request['folderId']);
             $model->sort = ((Site::query()
-                                 ->where('folder_id', '=', $folderId)
-                                 ->max('sort')
-                ) ?? 0) + 1;
+                ->where('folder_id', '=', $folderId)
+                ->max('sort')
+            ) ?? 0) + 1;
             $model->save();
             $oldFolder->recalculateSitesSorting();
         }
@@ -86,8 +78,8 @@ class SitesRepository extends DefaultRepository
     public static function updateSitesSorts($request, Authenticatable $user): bool
     {
         $maxSort = (Site::query()
-                        ->where('folder_id', '=', $request['folderId'])
-                        ->max('sort')
+            ->where('folder_id', '=', $request['folderId'])
+            ->max('sort')
         ) ?? 0;
         foreach ($request['data'] as $movedSort) {
             if ($movedSort['sort'] > $maxSort) {
@@ -104,9 +96,7 @@ class SitesRepository extends DefaultRepository
     }
 
     /**
-     * @param Site $model
-     * @param Authenticatable $user
-     * @return bool
+     * @param  Site  $model
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {

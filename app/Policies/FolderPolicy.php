@@ -14,9 +14,6 @@ class FolderPolicy
 
     /**
      * Determine whether the user can view any models.
-     *
-     * @param User $user
-     * @return Response|bool
      */
     public function viewAny(User $user): Response|bool
     {
@@ -26,8 +23,6 @@ class FolderPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param User $user
-     * @param Folder $folder
      * @return Response|bool
      */
     public function view(User $user, Folder $folder)
@@ -37,9 +32,6 @@ class FolderPolicy
 
     /**
      * Determine whether the user can create models.
-     *
-     * @param User $user
-     * @return Response|bool
      */
     public function create(User $user): Response|bool
     {
@@ -48,10 +40,6 @@ class FolderPolicy
 
     /**
      * Determine whether the user can update the model.
-     *
-     * @param User $user
-     * @param Folder $folder
-     * @return Response|bool
      */
     public function update(User $user, Folder $folder): Response|bool
     {
@@ -60,10 +48,6 @@ class FolderPolicy
 
     /**
      * Determine whether the user can delete the model.
-     *
-     * @param User $user
-     * @param Folder $folder
-     * @return Response|bool
      */
     public function delete(User $user, Folder $folder): Response|bool
     {
@@ -73,8 +57,6 @@ class FolderPolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param User $user
-     * @param Folder $folder
      * @return Response|bool
      */
     public function restore(User $user, Folder $folder)
@@ -85,8 +67,6 @@ class FolderPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param User $user
-     * @param Folder $folder
      * @return Response|bool
      */
     public function forceDelete(User $user, Folder $folder)

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('families', function (Blueprint $table) {
-            $table->jsonb("task_points")->nullable();
+            $table->jsonb('task_points')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('families', function (Blueprint $table) {
-            $table->dropColumn("task_points");
+            $table->dropColumn('task_points');
         });
     }
 };

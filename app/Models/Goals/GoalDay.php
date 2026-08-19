@@ -14,25 +14,24 @@ use Mbarclay36\LaravelCrud\Traits\HasRepository;
 /**
  * Class GoalDay
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property Carbon date
- * @property integer amount
- *
- * @property integer goal_id
+ * @property int amount
+ * @property int goal_id
  * @property Goal goal
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
  */
 class GoalDay extends ApiModel
 {
-    use HasFactory, Filterable, HasRepository;
+    use Filterable, HasFactory, HasRepository;
 
     protected static array $apiModelAttributes = ['id', 'date', 'amount'];
+
     protected static array $apiModelEntities = [];
+
     protected static array $apiModelArrayEntities = [];
 
     protected $dateFormat = 'Y-m-d H:i:sO';
@@ -60,18 +59,18 @@ class GoalDay extends ApiModel
     public static function sumWeeklyAmount(Carbon $date, int $goalId): int
     {
         return GoalDay::query()
-                      ->where('date', '>=', $date->startOfWeek()->toDateString())
-                      ->where('date', '<=', $date->endOfWeek()->toDateString())
-                      ->where('goal_id', '=', $goalId)
-                      ->sum('amount');
+            ->where('date', '>=', $date->startOfWeek()->toDateString())
+            ->where('date', '<=', $date->endOfWeek()->toDateString())
+            ->where('goal_id', '=', $goalId)
+            ->sum('amount');
     }
 
     public static function sumMonthlyAmount(Carbon $date, int $goalId): int
     {
         return GoalDay::query()
-                      ->where('date', '>=', $date->startOfMonth()->toDateString())
-                      ->where('date', '<=', $date->endOfMonth()->toDateString())
-                      ->where('goal_id', '=', $goalId)
-                      ->sum('amount');
+            ->where('date', '>=', $date->startOfMonth()->toDateString())
+            ->where('date', '<=', $date->endOfMonth()->toDateString())
+            ->where('goal_id', '=', $goalId)
+            ->sum('amount');
     }
 }

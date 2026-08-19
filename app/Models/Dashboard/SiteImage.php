@@ -11,18 +11,14 @@ use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
  * Class SiteImage
- * @package App\Models
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string original_file_name
  * @property string s3_path
- *
- * @property integer user_id
+ * @property int user_id
  * @property User user
- *
  * @property Site site
  */
 class SiteImage extends ApiModel

@@ -14,12 +14,6 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 
 class FamilyMemberStatsRepository extends DefaultRepository
 {
-    /**
-     * @param $request
-     * @param Authenticatable $user
-     * @param bool $viewOnlyForUser
-     * @return Collection|array
-     */
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
         $familyId = $request['familyId'];
@@ -27,37 +21,37 @@ class FamilyMemberStatsRepository extends DefaultRepository
         $endDate = (clone $startDate)->addYear();
         /** @var User[] $familyMembers */
         $familyMembers = User::query()
-                             ->whereHas('family', function ($query) use ($familyId) {
-                                 $query->where('family_id', '=', $familyId);
-                             })
-                             ->orderBy('id')
-                             ->get();
+            ->whereHas('family', function ($query) use ($familyId) {
+                $query->where('family_id', '=', $familyId);
+            })
+            ->orderBy('id')
+            ->get();
 
         $topThree = DB::table(function ($query) use ($startDate, $endDate, $familyId) {
-            $query->selectRaw("completed_by_id, recurring_task_id, count(*), row_number() over (partition by completed_by_id order by count(*) desc) as rank")
-                  ->from('tasks')
-                  ->whereNotNull('completed_at')
-                  ->whereNotNull('recurring_task_id')
-                  ->where('completed_at', '>', $startDate->utc())
-                  ->where('completed_at', '<', $endDate->utc())
-                  ->where('owner_id', '=', $familyId)
-                  ->where('owner_type', '=', Family::class)
-                  ->groupByRaw("completed_by_id, recurring_task_id");
+            $query->selectRaw('completed_by_id, recurring_task_id, count(*), row_number() over (partition by completed_by_id order by count(*) desc) as rank')
+                ->from('tasks')
+                ->whereNotNull('completed_at')
+                ->whereNotNull('recurring_task_id')
+                ->where('completed_at', '>', $startDate->utc())
+                ->where('completed_at', '<', $endDate->utc())
+                ->where('owner_id', '=', $familyId)
+                ->where('owner_type', '=', Family::class)
+                ->groupByRaw('completed_by_id, recurring_task_id');
         }, 'ranked')
-                      ->join('recurring_tasks', 'recurring_tasks.id', '=', 'ranked.recurring_task_id')
-                      ->selectRaw("completed_by_id, recurring_tasks.name as task_name, ranked.count")
-                      ->where('ranked.rank', '<=', '3')
-                      ->get();
+            ->join('recurring_tasks', 'recurring_tasks.id', '=', 'ranked.recurring_task_id')
+            ->selectRaw('completed_by_id, recurring_tasks.name as task_name, ranked.count')
+            ->where('ranked.rank', '<=', '3')
+            ->get();
 
         $counts = Task::query()
-                      ->selectRaw("completed_by_id, count(*), sum(task_point)")
-                      ->whereNotNull('completed_at')
-                      ->where('completed_at', '>', $startDate)
-                      ->where('completed_at', '<', $endDate)
-                      ->where('owner_id', '=', $familyId)
-                      ->where('owner_type', '=', Family::class)
-                      ->groupBy('completed_by_id')
-                      ->get();
+            ->selectRaw('completed_by_id, count(*), sum(task_point)')
+            ->whereNotNull('completed_at')
+            ->where('completed_at', '>', $startDate)
+            ->where('completed_at', '<', $endDate)
+            ->where('owner_id', '=', $familyId)
+            ->where('owner_type', '=', Family::class)
+            ->groupBy('completed_by_id')
+            ->get();
 
         $expectedEndDate = $endDate;
         $today = Carbon::today('America/Los_Angeles');
@@ -65,12 +59,12 @@ class FamilyMemberStatsRepository extends DefaultRepository
             $expectedEndDate = $today;
         }
         $expectedPointsCount = TaskUserConfig::query()
-                                             ->selectRaw("user_id, sum(tasks_per_week)")
-                                             ->where('family_id', '=', $familyId)
-                                             ->where('start_date', '>', $startDate)
-                                             ->where('start_date', '<', $expectedEndDate)
-                                             ->groupBy('user_id')
-                                             ->get();
+            ->selectRaw('user_id, sum(tasks_per_week)')
+            ->where('family_id', '=', $familyId)
+            ->where('start_date', '>', $startDate)
+            ->where('start_date', '<', $expectedEndDate)
+            ->groupBy('user_id')
+            ->get();
 
         foreach ($familyMembers as $member) {
             $topTasks = $topThree
@@ -80,7 +74,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
                 ->map(function ($item) {
                     return [
                         'taskName' => $item->task_name,
-                        'count' => $item->count
+                        'count' => $item->count,
                     ];
                 })
                 ->values();

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Enums\Roles;
 use App\Models\Users\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;

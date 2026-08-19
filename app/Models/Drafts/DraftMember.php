@@ -19,18 +19,15 @@ use Illuminate\Validation\ValidationException;
  * A participant. Never has an account — identity is the secret below, held in
  * localStorage. Unrelated to DraftAdmin.
  *
- * @property integer id
+ * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
- *
  * @property string name
  * @property string secret
- * @property integer pick_position
+ * @property int pick_position
  * @property Carbon|null claimed_at
- *
- * @property integer draft_id
+ * @property int draft_id
  * @property Draft draft
- *
  * @property Collection|DraftPick[] draftPicks
  */
 class DraftMember extends BaseApiModel
@@ -73,10 +70,9 @@ class DraftMember extends BaseApiModel
     }
 
     /**
-     * @param DraftMember $entity
-     * @param $request
-     * @param User $auth
+     * @param  DraftMember  $entity
      * @return DraftMember|Model
+     *
      * @throws ValidationException
      */
     public static function updateEntity(Model $entity, $request, User $auth): Model

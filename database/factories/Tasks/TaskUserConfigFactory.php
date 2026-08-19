@@ -2,11 +2,12 @@
 
 namespace Database\Factories\Tasks;
 
+use App\Models\Tasks\TaskUserConfig;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tasks\TaskUserConfig>
+ * @extends Factory<TaskUserConfig>
  */
 class TaskUserConfigFactory extends Factory
 {
@@ -23,7 +24,7 @@ class TaskUserConfigFactory extends Factory
             'start_date' => Carbon::now()->startOfWeek()->toDateString(),
             'end_date' => Carbon::now()->endOfWeek()->toDateString(),
             'family_id' => 1,
-            'user_id' => 1
+            'user_id' => 1,
         ];
     }
 }

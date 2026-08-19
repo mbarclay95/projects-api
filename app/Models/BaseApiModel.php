@@ -13,8 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseApiModel extends Model
 {
-    use HasApiModel, HasCrudIndexable, HasCrudStorable, HasCrudShowable, HasCrudUpdatable, HasCrudDestroyable, HasCrudPermissions;
+    use HasApiModel, HasCrudDestroyable, HasCrudIndexable, HasCrudPermissions, HasCrudShowable, HasCrudStorable, HasCrudUpdatable;
 
     protected static $unguarded = true;
-
 }

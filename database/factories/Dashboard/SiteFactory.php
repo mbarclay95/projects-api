@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Dashboard;
 
+use App\Models\Dashboard\Site;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dashboard\Site>
+ * @extends Factory<Site>
  */
 class SiteFactory extends Factory
 {

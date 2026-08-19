@@ -42,8 +42,9 @@ class RunBackup extends Command
         $backupId = $this->input->getArgument('backupId');
         /** @var Backup $backup */
         $backup = Backup::query()->find($backupId);
-        if (!$backup) {
+        if (! $backup) {
             $this->output->error('Backup not found');
+
             return;
         }
 

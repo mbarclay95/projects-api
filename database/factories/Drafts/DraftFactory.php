@@ -3,11 +3,12 @@
 namespace Database\Factories\Drafts;
 
 use App\Enums\DraftStatus;
+use App\Models\Drafts\Draft;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Drafts\Draft>
+ * @extends Factory<Draft>
  */
 class DraftFactory extends Factory
 {

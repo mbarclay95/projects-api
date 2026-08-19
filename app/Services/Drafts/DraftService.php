@@ -74,8 +74,8 @@ class DraftService
         $position = (self::pickCount($draft) % self::memberCount($draft)) + 1;
 
         return $draft->draftMembers()
-                     ->where('pick_position', '=', $position)
-                     ->first();
+            ->where('pick_position', '=', $position)
+            ->first();
     }
 
     public static function nextPickNumber(Draft $draft): int
@@ -132,7 +132,7 @@ class DraftService
     private static function memberCount(Draft $draft): int
     {
         return $draft->draftMembers()
-                     ->whereNotNull('pick_position')
-                     ->count();
+            ->whereNotNull('pick_position')
+            ->count();
     }
 }

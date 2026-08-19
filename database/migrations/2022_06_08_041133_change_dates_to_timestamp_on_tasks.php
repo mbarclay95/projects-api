@@ -30,8 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-
-        });
+        Schema::table('tasks', function (Blueprint $table) {});
     }
 };

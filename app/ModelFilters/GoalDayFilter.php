@@ -19,6 +19,6 @@ class GoalDayFilter extends ModelFilter
     {
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
         $this->where('date', '>=', $date->startOfWeek()->toDateString())
-             ->where('date', '<=', $date->endOfWeek()->toDateString());
+            ->where('date', '<=', $date->endOfWeek()->toDateString());
     }
 }

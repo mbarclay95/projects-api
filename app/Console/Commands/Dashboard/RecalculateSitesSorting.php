@@ -36,9 +36,9 @@ class RecalculateSitesSorting extends Command
         foreach ($users as $user) {
             /** @var Folder[] $folders */
             $folders = Folder::query()
-                             ->where('user_id', '=', $user->id)
-                             ->with('sites')
-                             ->get();
+                ->where('user_id', '=', $user->id)
+                ->with('sites')
+                ->get();
 
             $this->recalculateFolderSorting($folders);
 
@@ -51,8 +51,7 @@ class RecalculateSitesSorting extends Command
     }
 
     /**
-     * @param Collection|Folder[] $folders
-     * @return void
+     * @param  Collection|Folder[]  $folders
      */
     private function recalculateFolderSorting($folders): void
     {

@@ -67,14 +67,14 @@ while this one moved to 12, a three-major gap that nobody noticed until a new
 feature needed both. Nothing warned about it, because neither repo imports anything
 from the other.
 
-Note that this repo runs Laravel 12 on the **legacy pre-11 skeleton** —
+Note that this repo runs Laravel 13 on the **legacy pre-11 skeleton** —
 `bootstrap/app.php` binds `App\Http\Kernel` and `App\Console\Kernel` as singletons.
 That is deliberate and shared with the public repo. Migrating either repo to the
 slim skeleton is a decision for both.
 
 ## Architecture
 
-This is a **Laravel 12 REST API** using JWT authentication, Spatie permissions, and a custom CRUD package (`mbarclay36/laravel-crud`).
+This is a **Laravel 13 REST API** using JWT authentication, Spatie permissions, and a custom CRUD package (`mbarclay36/laravel-crud`).
 
 ### Layered Pattern
 

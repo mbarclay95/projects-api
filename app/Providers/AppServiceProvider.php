@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Tasks\Family;
+use App\Models\Tasks\RecurringTask;
+use App\Models\Tasks\Task;
+use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'family' => Family::class,
+            'task' => Task::class,
+            'recurring-task' => RecurringTask::class,
+        ]);
     }
 }

@@ -21,7 +21,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'badUnit',
             'frequency_amount' => 3,
         ]);
@@ -34,7 +34,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'day',
             'frequency_amount' => 3,
         ]);
@@ -48,7 +48,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'week',
             'frequency_amount' => 3,
         ]);
@@ -62,7 +62,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'month',
             'frequency_amount' => 3,
         ]);
@@ -76,7 +76,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'year',
             'frequency_amount' => 3,
         ]);
@@ -90,7 +90,7 @@ class SetRecurringTaskDate extends TestCase
     {
         $task = RecurringTask::factory()->create([
             'owner_id' => $this->user->id,
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'frequency_unit' => 'year',
             'frequency_amount' => 3,
         ]);

@@ -86,7 +86,7 @@ else task_point / (frequency_amount * 1.0)
 end)");
         }
 
-        $dayCount = $dayCountQuery->where('owner_type', '=', Family::class)
+        $dayCount = $dayCountQuery->where('owner_type', '=', (new Family)->getMorphClass())
             ->where('owner_id', '=', $this->id)
             ->where('is_active', '=', true)
             ->first();
@@ -98,7 +98,7 @@ end)");
     public function getTotalFamilyTasksAttribute(): int
     {
         return Task::query()
-            ->where('owner_type', '=', Family::class)
+            ->where('owner_type', '=', (new Family)->getMorphClass())
             ->where('owner_id', '=', $this->id)
             ->whereNull('completed_at')
             ->whereNull('cleared_at')

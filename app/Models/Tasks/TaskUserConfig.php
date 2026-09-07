@@ -70,7 +70,7 @@ class TaskUserConfig extends ApiModel
     public function getTotalUserTasksAttribute(): int
     {
         return Task::query()
-            ->where('owner_type', '=', User::class)
+            ->where('owner_type', '=', (new User)->getMorphClass())
             ->where('owner_id', '=', $this->id)
             ->whereNull('completed_at')
             ->whereNull('cleared_at')

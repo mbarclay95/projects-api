@@ -163,11 +163,6 @@ class Task extends ApiModel
         return (bool) $this->recurring_task_id;
     }
 
-    public function getOwnerTypeAttribute($value): string
-    {
-        return $value == User::class ? 'user' : 'family';
-    }
-
     public function getCompletedByNameAttribute(): string
     {
         return $this->completedBy?->name;

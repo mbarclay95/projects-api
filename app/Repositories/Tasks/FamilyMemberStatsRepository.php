@@ -35,7 +35,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
                 ->where('completed_at', '>', $startDate->utc())
                 ->where('completed_at', '<', $endDate->utc())
                 ->where('owner_id', '=', $familyId)
-                ->where('owner_type', '=', Family::class)
+                ->where('owner_type', '=', (new Family)->getMorphClass())
                 ->groupByRaw('completed_by_id, recurring_task_id');
         }, 'ranked')
             ->join('recurring_tasks', 'recurring_tasks.id', '=', 'ranked.recurring_task_id')
@@ -49,7 +49,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
             ->where('completed_at', '>', $startDate)
             ->where('completed_at', '<', $endDate)
             ->where('owner_id', '=', $familyId)
-            ->where('owner_type', '=', Family::class)
+            ->where('owner_type', '=', (new Family)->getMorphClass())
             ->groupBy('completed_by_id')
             ->get();
 

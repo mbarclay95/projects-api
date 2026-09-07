@@ -18,12 +18,12 @@ class TagsRepository extends DefaultRepository
                 $where->where(function ($innerWhere) use ($user) {
                     $innerWhere
                         ->orWhere(function ($userWhere) use ($user) {
-                            $userWhere->where('owner_type', '=', User::class)
+                            $userWhere->where('owner_type', '=', (new User)->getMorphClass())
                                 ->where('owner_id', '=', $user->id);
                         })
                         ->when($user->family, function ($familyCondition) use ($user) {
                             $familyCondition->orWhere(function ($familyWhere) use ($user) {
-                                $familyWhere->where('owner_type', '=', Family::class)
+                                $familyWhere->where('owner_type', '=', (new Family)->getMorphClass())
                                     ->where('owner_id', '=', $user->family->id);
                             });
                         });

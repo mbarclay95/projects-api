@@ -113,6 +113,23 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 
 Complex list endpoints use `EloquentFilter` — filter classes live in `app/ModelFilters/` and are bound to their models. When adding filterable fields, update the corresponding filter class.
 
+### Morph map
+
+Polymorphic `*_type` columns hold short aliases, not PHP class names:
+`user`, `family`, `task`, `recurring-task`. The map is registered with
+`Relation::enforceMorphMap()` in `AppServiceProvider::boot()`, so calling
+`getMorphClass()` on a model outside the map throws
+`ClassMorphViolationException` instead of writing its class name into a column.
+Use `getMorphClass()`, never `Relation::getMorphAlias()` — the latter falls
+back to the class name for an unmapped model instead of throwing, which
+defeats the enforcement. Adding a new morphable model means adding it to the
+map first.
+
+The five columns holding these aliases: `tasks.owner_type`,
+`recurring_tasks.owner_type`, `taggables.taggable_type`,
+`model_has_roles.model_type`, `model_has_permissions.model_type` (the latter
+two are Spatie's permission tables).
+
 ### Real-Time Features
 
 - **Laravel Reverb** (WebSockets) for broadcasting events to clients

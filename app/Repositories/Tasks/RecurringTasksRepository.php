@@ -16,7 +16,7 @@ class RecurringTasksRepository extends DefaultRepository
         $task = new RecurringTask([
             'name' => $request['name'],
             'description' => $request['description'],
-            'owner_type' => $request['ownerType'] === 'family' ? Family::class : User::class,
+            'owner_type' => $request['ownerType'] === 'family' ? (new Family)->getMorphClass() : (new User)->getMorphClass(),
             'owner_id' => $request['ownerType'] === 'family' ? $user->family->id : $user->id,
             'frequency_amount' => $request['frequencyAmount'],
             'frequency_unit' => $request['frequencyUnit'],

@@ -57,7 +57,7 @@ class TaskFilter extends ModelFilter
 
     public function ownerType($ownerType)
     {
-        $ownerType = $ownerType === 'family' ? Family::class : User::class;
+        $ownerType = $ownerType === 'family' ? (new Family)->getMorphClass() : (new User)->getMorphClass();
         $this->where('tasks.owner_type', '=', $ownerType);
     }
 

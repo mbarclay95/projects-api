@@ -130,6 +130,20 @@ The five columns holding these aliases: `tasks.owner_type`,
 `model_has_roles.model_type`, `model_has_permissions.model_type` (the latter
 two are Spatie's permission tables).
 
+### Family membership
+
+Membership is a row in `family_user`, a plain pivot of `family_id` and
+`user_id` with a unique index on the pair. `Family::members()` and
+`User::family()` read it; `Family::syncMembers()` is the only writer, and
+removing a member deletes their `family_user` row and closes their current
+`task_user_configs` window rather than deleting past rows.
+
+`task_user_configs` holds dated per-week chore settings
+(`tasks_per_week`, `default_tasks_per_week`, `start_date`, `end_date`) and is
+not a membership table. Because removal now preserves history instead of
+deleting rows, the distinct `(family_id, user_id)` pairs in it are no longer
+the member list and must not be used as one.
+
 ### Real-Time Features
 
 - **Laravel Reverb** (WebSockets) for broadcasting events to clients

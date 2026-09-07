@@ -7,6 +7,7 @@ use App\Models\Tasks\Family;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -87,6 +88,17 @@ class TaskOwnerTest extends TestCase
 
         $stranger = User::factory()->create();
         $this->jsonAs($stranger, 'GET', 'api/tasks')->assertUnauthorized();
+    }
+
+    public function test_the_stored_owner_type_is_the_alias_not_the_class_name(): void
+    {
+        self::assertEquals('family', DB::table('tasks')->where('id', $this->familyTask->id)->value('owner_type'));
+        self::assertEquals('user', DB::table('tasks')->where('id', $this->userTask->id)->value('owner_type'));
+    }
+
+    public function test_the_stored_role_assignment_model_type_is_the_alias_not_the_class_name(): void
+    {
+        self::assertEquals('user', DB::table('model_has_roles')->where('model_id', $this->user->id)->value('model_type'));
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

@@ -9,7 +9,9 @@ use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;
 use App\Repositories\Tasks\FamiliesRepository;
+use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
@@ -27,6 +29,8 @@ class FamilyMembershipTest extends TestCase
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
+
+        self::assertEquals(2, DB::table('family_user')->where('family_id', $family->id)->count());
 
         // Read on an instance that is never saved, in this order: reading
         // min_week_offset dirties min_year, and saving this instance afterwards
@@ -95,6 +99,70 @@ class FamilyMembershipTest extends TestCase
 
         self::assertNull($memberOne->fresh()->family);
         self::assertEquals($family->id, $memberTwo->fresh()->family->id);
+
+        self::assertEquals(0, DB::table('family_user')->where('family_id', $family->id)->where('user_id', $memberOne->id)->count());
+        self::assertNotNull(TaskUserConfig::query()
+            ->where('family_id', '=', $family->id)
+            ->where('user_id', '=', $memberOne->id)
+            ->where('start_date', '=', $pastStart)
+            ->first());
+        $today = Carbon::now('America/Los_Angeles')->toDateString();
+        self::assertEquals(0, TaskUserConfig::query()
+            ->where('family_id', '=', $family->id)
+            ->where('user_id', '=', $memberOne->id)
+            ->where('end_date', '>=', $today)
+            ->count());
+    }
+
+    public function test_a_family_with_lapsed_configs_still_reports_all_members(): void
+    {
+        $memberOne = User::factory()->create();
+        $memberTwo = User::factory()->create();
+
+        $family = FamiliesRepository::createEntityStatic([
+            'name' => 'test family',
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
+        ], new User);
+
+        TaskUserConfig::query()
+            ->where('family_id', '=', $family->id)
+            ->update(['end_date' => Carbon::now('America/Los_Angeles')->subWeeks(2)->toDateString()]);
+
+        $memberIds = $family->fresh()->members->pluck('id');
+        self::assertCount(2, $memberIds);
+        self::assertTrue($memberIds->contains($memberOne->id));
+        self::assertTrue($memberIds->contains($memberTwo->id));
+    }
+
+    public function test_removing_the_only_member_does_not_resurrect_them_via_backfill(): void
+    {
+        $member = User::factory()->create();
+
+        $family = FamiliesRepository::createEntityStatic([
+            'name' => 'test family',
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'members' => [['id' => $member->id]],
+        ], new User);
+
+        FamiliesRepository::updateEntityStatic($family->fresh(), [
+            'name' => $family->name,
+            'taskStrategy' => $family->task_strategy,
+            'members' => [],
+        ], new User);
+
+        $countBefore = TaskUserConfig::query()
+            ->where('family_id', '=', $family->id)
+            ->where('user_id', '=', $member->id)
+            ->count();
+
+        $newConfigs = BackfillTaskUserConfigService::run($family->fresh(), $member);
+
+        self::assertCount(0, $newConfigs);
+        self::assertEquals($countBefore, TaskUserConfig::query()
+            ->where('family_id', '=', $family->id)
+            ->where('user_id', '=', $member->id)
+            ->count());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

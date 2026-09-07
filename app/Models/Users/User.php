@@ -5,6 +5,7 @@ namespace App\Models\Users;
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Tasks\Family;
+use App\Models\Tasks\FamilyUser;
 use App\Models\Tasks\TaskUserConfig;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -79,7 +80,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function family(): HasOneThrough
     {
-        return $this->hasOneThrough(Family::class, TaskUserConfig::class, 'user_id', 'id', 'id', 'family_id');
+        return $this->hasOneThrough(Family::class, FamilyUser::class, 'user_id', 'id', 'id', 'family_id');
     }
 
     public function createFirstUserConfig(?string $homePage = null): UserConfig
@@ -119,6 +120,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function getFamilyIdAttribute(): ?int
     {
-        return $this->taskUserConfig?->family_id;
+        return $this->family?->id;
     }
 }

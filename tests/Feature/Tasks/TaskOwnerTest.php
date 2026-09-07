@@ -31,6 +31,7 @@ class TaskOwnerTest extends TestCase
             'user_id' => $this->user->id,
             'family_id' => $this->family->id,
         ]);
+        $this->family->members()->attach($this->user->id);
         $this->user->assignRole(Roles::TASK_ROLE);
 
         $this->familyTask = Task::factory()->create([

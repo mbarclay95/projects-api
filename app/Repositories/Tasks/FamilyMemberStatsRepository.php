@@ -22,7 +22,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
         /** @var User[] $familyMembers */
         $familyMembers = User::query()
             ->whereHas('family', function ($query) use ($familyId) {
-                $query->where('family_id', '=', $familyId);
+                $query->where('family_user.family_id', '=', $familyId);
             })
             ->orderBy('id')
             ->get();

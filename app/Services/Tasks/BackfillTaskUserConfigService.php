@@ -56,6 +56,7 @@ class BackfillTaskUserConfigService
         /** @var TaskUserConfig $mostRecentConfig */
         $mostRecentConfig = TaskUserConfig::query()
             ->where('family_id', '=', $family->id)
+            ->whereIn('user_id', $family->members->pluck('id'))
             ->orderBy('end_date', 'desc')
             ->first();
         if (! $mostRecentConfig) {
@@ -68,6 +69,7 @@ class BackfillTaskUserConfigService
         $configs = TaskUserConfig::query()
             ->with('user')
             ->where('family_id', '=', $family->id)
+            ->whereIn('user_id', $family->members->pluck('id'))
             ->where('start_date', '<=', $date->toDateString())
             ->where('end_date', '>=', $date->toDateString())
             ->get();

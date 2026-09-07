@@ -17,7 +17,7 @@ class TaskHistoriesAuthTest extends AuthTestCase
         $this->initRoles([Roles::TASK_ROLE], []);
         /** @var Task $task */
         $task = Task::factory()->create([
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'owner_id' => $this->goodUser->id,
         ]);
         $this->runTestsGET("api/tasks/{$task->id}/history");
@@ -31,7 +31,7 @@ class TaskHistoriesAuthTest extends AuthTestCase
         $this->initRoles([Roles::TASK_ROLE], [Roles::TASK_ROLE]);
         /** @var Task $task */
         $task = Task::factory()->create([
-            'owner_type' => User::class,
+            'owner_type' => (new User)->getMorphClass(),
             'owner_id' => $this->goodUser->id,
         ]);
         $this->runTestsGET("api/tasks/{$task->id}/history");

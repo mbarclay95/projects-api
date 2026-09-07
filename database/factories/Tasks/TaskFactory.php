@@ -22,7 +22,7 @@ class TaskFactory extends Factory
         return [
             'name' => 'testing',
             'description' => null,
-            'owner_type' => Family::class,
+            'owner_type' => (new Family)->getMorphClass(),
             'owner_id' => 1,
             'due_date' => Carbon::now(),
             'task_point' => null,

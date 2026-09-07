@@ -2,6 +2,8 @@
 
 artisan="/usr/local/bin/php /var/www/html/artisan"
 
+$artisan migrate
+
 $artisan config:clear
 $artisan config:cache
 

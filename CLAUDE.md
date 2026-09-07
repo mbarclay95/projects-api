@@ -140,3 +140,13 @@ CI does not use `.env.testing`. The workflow in `.gitea/workflows/` supplies the
 That precedence cuts both ways: a real `DB_*` environment variable beats `.env.testing`, because Dotenv is immutable and will not overwrite what is already set. Do not put `DB_*` in the compose file's `environment:` block — doing so silently points the test suite at the dev database, and `RefreshDatabase` drops every table in it.
 
 `tests/CreatesApplication.php` guards against this with an allowlist: the suite refuses to run against any database not named in `ALLOWED_TEST_DATABASES`. Add a new test database there deliberately rather than loosening the check — CI runs on the same server as production.
+
+### There is no migration history
+
+`database/migrations/` is empty. The history was squashed into `database/schema/pgsql-schema.sql`, and new migrations accumulate on top of it as normal — `migrate` loads the schema file only when the target database has no migration history, then runs anything newer.
+
+Because that load shells out to `psql`, **a Postgres client is required wherever a database is built from scratch** — the dev image and CI both install `postgresql-client` for this reason. The production image deliberately does not: its database is already migrated, so the schema file is never loaded there. A fresh production database would need the client added.
+
+If the schema is ever re-dumped, `pg_dump` 17 re-emits the header line `SET transaction_timeout = 0;`, which the PostgreSQL 16 server here rejects. It has to be deleted from the dump again, in both places it appears.
+
+Squashing again later is the same three steps: `migrate:fresh --env=testing`, `schema:dump --prune --env=testing`, then strip that header.

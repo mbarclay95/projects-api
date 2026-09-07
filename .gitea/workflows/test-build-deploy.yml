@@ -33,6 +33,8 @@ jobs:
         run: touch .env
       - name: Composer install
         run: composer install -n --prefer-dist
+      - name: Install Postgres client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Run tests
         run: php artisan test
   build-image:

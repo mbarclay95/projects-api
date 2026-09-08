@@ -11,19 +11,19 @@ class UserGroupsAuthTest extends AuthTestCase
     /**
      * INDEX
      */
-    public function test_get_families_user_permissions(): void
+    public function test_get_user_groups_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        $this->runTestsGET('api/families');
+        $this->runTestsGET('api/user-groups');
     }
 
     /**
      * INDEX
      */
-    public function test_get_families_no_task_role_user_permissions(): void
+    public function test_get_user_groups_no_task_role_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
-        $this->runTestsGET('api/families');
+        $this->runTestsGET('api/user-groups');
     }
 
     /**
@@ -32,7 +32,7 @@ class UserGroupsAuthTest extends AuthTestCase
     public function test_post_task_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        $this->runTestsPOST('api/families');
+        $this->runTestsPOST('api/user-groups');
     }
 
     /**
@@ -41,7 +41,7 @@ class UserGroupsAuthTest extends AuthTestCase
     public function test_post_task_no_task_role_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
-        $this->runTestsPOST('api/families');
+        $this->runTestsPOST('api/user-groups');
     }
 
     /**
@@ -52,7 +52,7 @@ class UserGroupsAuthTest extends AuthTestCase
         $this->initRoles([Roles::TASK_ROLE], []);
         /** @var UserGroup $userGroup */
         $userGroup = UserGroup::factory()->create();
-        $this->runTestsGET("api/families/{$userGroup->id}");
+        $this->runTestsGET("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -63,7 +63,7 @@ class UserGroupsAuthTest extends AuthTestCase
         $this->initRoles([Roles::TASK_ROLE], []);
         /** @var UserGroup $userGroup */
         $userGroup = UserGroup::factory()->create();
-        $this->runTestsPUT("api/families/{$userGroup->id}");
+        $this->runTestsPUT("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -74,7 +74,7 @@ class UserGroupsAuthTest extends AuthTestCase
         $this->initRoles([Roles::ADMIN_ROLE], []);
         /** @var UserGroup $userGroup */
         $userGroup = UserGroup::factory()->create();
-        $this->runTestsDELETE("api/families/{$userGroup->id}");
+        $this->runTestsDELETE("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -85,6 +85,6 @@ class UserGroupsAuthTest extends AuthTestCase
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
         /** @var UserGroup $userGroup */
         $userGroup = UserGroup::factory()->create();
-        $this->runTestsDELETE("api/families/{$userGroup->id}");
+        $this->runTestsDELETE("api/user-groups/{$userGroup->id}");
     }
 }

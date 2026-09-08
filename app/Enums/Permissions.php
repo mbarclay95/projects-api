@@ -74,7 +74,7 @@ class Permissions
 
     const VIEW_TASKS_PAGE = self::CLIENT.'view_tasks_page';
 
-    const VIEW_FAMILIES_PAGE = self::CLIENT.'view_families_page';
+    const VIEW_USER_GROUPS_PAGE = self::CLIENT.'view_user_groups_page';
 
     const VIEW_EVENTS_PAGE = self::CLIENT.'view_events_page';
 

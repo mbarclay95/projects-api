@@ -93,7 +93,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('tasks', TaskController::class)->except('show');
     Route::apiResource('tags', TagController::class)->only('index');
-    Route::apiResource('families', UserGroupController::class);
+    Route::apiResource('user-groups', UserGroupController::class);
     Route::apiResource('family-stats', FamilyStatsController::class)->only('index');
     Route::apiResource('task-user-config', TaskUserConfigController::class)->only('index', 'update');
     Route::apiResource('tasks.history', TaskHistoryController::class)->only('index');

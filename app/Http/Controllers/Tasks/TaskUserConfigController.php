@@ -10,7 +10,7 @@ class TaskUserConfigController extends CrudController
     protected static string $modelClass = TaskUserConfig::class;
 
     protected static array $indexRules = [
-        'familyId' => 'int|required',
+        'userGroupId' => 'int|required',
         'weekOffset' => 'int|required',
     ];
 

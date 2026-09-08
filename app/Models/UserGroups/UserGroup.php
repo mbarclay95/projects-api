@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models\Families;
+namespace App\Models\UserGroups;
 
 use App\Enums\FamilyTaskStrategyEnum;
-use App\Models\ApiModels\FamilyMemberApiModel;
+use App\Models\ApiModels\UserGroupMemberApiModel;
 use App\Models\Tasks\{RecurringTask, Task, TaskUserConfig};
 use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
@@ -15,28 +15,29 @@ use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
- * Class Family
+ * Class UserGroup
  *
  * @property int id
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property string name
+ * @property string scope
  * @property string task_strategy
  * @property array task_points
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
  */
-class Family extends ApiModel
+class UserGroup extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'tasks_per_week', 'total_family_tasks',
+    protected static array $apiModelAttributes = ['id', 'name', 'scope', 'tasks_per_week', 'total_family_tasks',
         'task_strategy', 'task_points', 'min_week_offset', 'min_year'];
 
     protected static array $apiModelEntities = [];
 
     protected static array $apiModelArrayEntities = [
-        'members' => FamilyMemberApiModel::class,
+        'members' => UserGroupMemberApiModel::class,
     ];
 
     protected $casts = [
@@ -54,12 +55,12 @@ class Family extends ApiModel
             if ($newMembers->doesntContain('id', $member->id)) {
                 $this->members()->detach($member->id);
                 TaskUserConfig::query()
-                    ->where('family_id', '=', $this->id)
+                    ->where('user_group_id', '=', $this->id)
                     ->where('user_id', '=', $member->id)
                     ->where('start_date', '>=', $today)
                     ->delete();
                 TaskUserConfig::query()
-                    ->where('family_id', '=', $this->id)
+                    ->where('user_group_id', '=', $this->id)
                     ->where('user_id', '=', $member->id)
                     ->where('end_date', '>=', $today)
                     ->update(['end_date' => Carbon::parse($today)->subDay()->toDateString()]);
@@ -68,8 +69,8 @@ class Family extends ApiModel
         /** @var User $newMember */
         foreach ($newMembers as $newMember) {
             if ($this->members->doesntContain('id', $newMember->id)) {
-                $this->members()->attach($newMember->id);
-                TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'user' => $newMember], $newMember);
+                $this->members()->attach($newMember->id, ['scope' => $this->scope]);
+                TaskUserConfigsRepository::createEntityStatic(['userGroup' => $this, 'user' => $newMember], $newMember);
             }
         }
     }
@@ -99,7 +100,7 @@ else task_point / (frequency_amount * 1.0)
 end)");
         }
 
-        $dayCount = $dayCountQuery->where('owner_type', '=', (new Family)->getMorphClass())
+        $dayCount = $dayCountQuery->where('owner_type', '=', (new UserGroup)->getMorphClass())
             ->where('owner_id', '=', $this->id)
             ->where('is_active', '=', true)
             ->first();
@@ -111,7 +112,7 @@ end)");
     public function getTotalFamilyTasksAttribute(): int
     {
         return Task::query()
-            ->where('owner_type', '=', (new Family)->getMorphClass())
+            ->where('owner_type', '=', (new UserGroup)->getMorphClass())
             ->where('owner_id', '=', $this->id)
             ->whereNull('completed_at')
             ->whereNull('cleared_at')
@@ -129,7 +130,7 @@ end)");
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'family_user')->withTimestamps()->orderBy('users.id');
+        return $this->belongsToMany(User::class, 'user_group_user')->withTimestamps()->orderBy('users.id');
     }
 
     public function getTaskPointsAttribute($value): array
@@ -151,7 +152,7 @@ end)");
     {
         /** @var TaskUserConfig $config */
         $config = TaskUserConfig::query()
-            ->where('family_id', '=', $this->id)
+            ->where('user_group_id', '=', $this->id)
             ->whereIn('user_id', $this->members->pluck('id'))
             ->orderBy('start_date')
             ->first();

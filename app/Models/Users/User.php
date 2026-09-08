@@ -4,9 +4,9 @@ namespace App\Models\Users;
 
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
-use App\Models\Families\Family;
-use App\Models\Families\FamilyUser;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
+use App\Models\UserGroups\UserGroupUser;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -36,7 +36,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Collection|Role[] roles
  * @property Collection|Permission[] rolePermissions
  * @property Collection|Permission[] clientPermissions
- * @property Family family
+ * @property UserGroup taskGroup
  */
 class User extends Authenticatable implements JWTSubject
 {
@@ -44,7 +44,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected static $unguarded = true;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at', 'family_id'];
+    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at', 'task_group_id'];
 
     protected static array $apiModelEntities = [
         'userConfig' => UserConfig::class,
@@ -78,9 +78,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(TaskUserConfig::class);
     }
 
-    public function family(): HasOneThrough
+    public function taskGroup(): HasOneThrough
     {
-        return $this->hasOneThrough(Family::class, FamilyUser::class, 'user_id', 'id', 'id', 'family_id');
+        return $this->hasOneThrough(UserGroup::class, UserGroupUser::class, 'user_id', 'id', 'id', 'user_group_id')
+            ->where('user_group_user.scope', 'tasks');
     }
 
     public function createFirstUserConfig(?string $homePage = null): UserConfig
@@ -118,8 +119,8 @@ class User extends Authenticatable implements JWTSubject
             });
     }
 
-    public function getFamilyIdAttribute(): ?int
+    public function getTaskGroupIdAttribute(): ?int
     {
-        return $this->family?->id;
+        return $this->taskGroup?->id;
     }
 }

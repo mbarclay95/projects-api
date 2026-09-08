@@ -2,8 +2,8 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tags\Tag;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Exception;
@@ -30,7 +30,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property int task_point
  * @property string owner_type
  * @property int owner_id
- * @property User|Family owner
+ * @property User|UserGroup owner
  * @property Collection|Tag[] tags
  */
 class RecurringTask extends ApiModel

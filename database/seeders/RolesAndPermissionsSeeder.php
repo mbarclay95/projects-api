@@ -25,10 +25,10 @@ use App\Models\Gaming\GamingSession;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
 use App\Models\Logging\LogEvent;
-use App\Models\Families\Family;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -118,10 +118,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
             RoleApiModel::viewAnyPermission(),
 
-            Family::viewAnyPermission(),
-            Family::createPermission(),
-            Family::updatePermission(),
-            Family::deletePermission(),
+            UserGroup::viewAnyPermission(),
+            UserGroup::createPermission(),
+            UserGroup::updatePermission(),
+            UserGroup::deletePermission(),
 
             LogEvent::viewAnyPermission(),
 
@@ -218,8 +218,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Task::updatePermission(),
             Task::deletePermission(),
 
-            Family::viewForUserPermission(),
-            Family::updatePermission(),
+            UserGroup::viewForUserPermission(),
+            UserGroup::updatePermission(),
 
             FamilyMemberStatsApiModel::viewAnyForUserPermission(),
 

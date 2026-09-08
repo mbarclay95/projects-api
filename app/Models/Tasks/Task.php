@@ -2,9 +2,9 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\ApiModels\FamilyMemberApiModel;
-use App\Models\Families\Family;
+use App\Models\ApiModels\UserGroupMemberApiModel;
 use App\Models\Tags\Tag;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
@@ -33,7 +33,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property RecurringTask recurringTask
  * @property string owner_type
  * @property int owner_id
- * @property User|Family owner
+ * @property User|UserGroup owner
  * @property int completed_by_id
  * @property User completedBy
  * @property Collection|Tag[] tags
@@ -46,7 +46,7 @@ class Task extends ApiModel
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority', 'task_point'];
 
     protected static array $apiModelEntities = [
-        'completedBy' => FamilyMemberApiModel::class,
+        'completedBy' => UserGroupMemberApiModel::class,
     ];
 
     protected static array $apiModelArrayEntities = [

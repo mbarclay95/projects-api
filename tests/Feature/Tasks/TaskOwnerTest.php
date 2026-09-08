@@ -3,9 +3,9 @@
 namespace Tests\Feature\Tasks;
 
 use App\Enums\Roles;
-use App\Models\Families\Family;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
@@ -15,7 +15,7 @@ class TaskOwnerTest extends TestCase
 {
     private User $user;
 
-    private Family $family;
+    private UserGroup $family;
 
     private Task $familyTask;
 
@@ -26,16 +26,16 @@ class TaskOwnerTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
-        $this->family = Family::factory()->create();
+        $this->family = UserGroup::factory()->create();
         TaskUserConfig::factory()->create([
             'user_id' => $this->user->id,
-            'family_id' => $this->family->id,
+            'user_group_id' => $this->family->id,
         ]);
-        $this->family->members()->attach($this->user->id);
+        $this->family->members()->attach($this->user->id, ['scope' => 'tasks']);
         $this->user->assignRole(Roles::TASK_ROLE);
 
         $this->familyTask = Task::factory()->create([
-            'owner_type' => (new Family)->getMorphClass(),
+            'owner_type' => (new UserGroup)->getMorphClass(),
             'owner_id' => $this->family->id,
         ]);
         $this->userTask = Task::factory()->create([
@@ -46,7 +46,7 @@ class TaskOwnerTest extends TestCase
 
     public function test_a_family_owned_tasks_owner_is_a_family(): void
     {
-        self::assertInstanceOf(Family::class, $this->familyTask->owner);
+        self::assertInstanceOf(UserGroup::class, $this->familyTask->owner);
         self::assertEquals($this->family->id, $this->familyTask->owner->id);
     }
 

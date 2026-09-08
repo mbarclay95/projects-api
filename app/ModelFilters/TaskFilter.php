@@ -2,7 +2,7 @@
 
 namespace App\ModelFilters;
 
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\ModelFilter;
@@ -57,7 +57,7 @@ class TaskFilter extends ModelFilter
 
     public function ownerType($ownerType)
     {
-        $ownerType = $ownerType === 'user-group' ? (new Family)->getMorphClass() : (new User)->getMorphClass();
+        $ownerType = $ownerType === 'user-group' ? (new UserGroup)->getMorphClass() : (new User)->getMorphClass();
         $this->where('tasks.owner_type', '=', $ownerType);
     }
 

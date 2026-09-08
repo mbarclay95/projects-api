@@ -1,15 +1,15 @@
 <?php
 
-namespace Database\Factories\Families;
+namespace Database\Factories\UserGroups;
 
 use App\Enums\FamilyTaskStrategyEnum;
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Family>
+ * @extends Factory<UserGroup>
  */
-class FamilyFactory extends Factory
+class UserGroupFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -21,6 +21,7 @@ class FamilyFactory extends Factory
         return [
             'name' => 'testing',
             'task_strategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'scope' => 'tasks',
         ];
     }
 }

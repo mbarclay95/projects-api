@@ -4,7 +4,7 @@ namespace App\Models\ApiModels;
 
 use Mbarclay36\LaravelCrud\Traits\HasApiModel;
 
-class FamilyMemberApiModel
+class UserGroupMemberApiModel
 {
     use HasApiModel;
 

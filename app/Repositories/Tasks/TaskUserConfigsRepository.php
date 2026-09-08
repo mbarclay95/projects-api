@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
@@ -20,16 +20,16 @@ class TaskUserConfigsRepository extends DefaultRepository
     {
         $weekOffset = min(intval($request['weekOffset']), 1);
         $date = Carbon::now('America/Los_Angeles')->addWeeks($weekOffset);
-        /** @var Family $family */
-        $family = Family::query()
+        /** @var UserGroup $userGroup */
+        $userGroup = UserGroup::query()
             ->with('userConfigs')
-            ->find($request['familyId']);
+            ->find($request['userGroupId']);
         /** @var TaskUserConfig|Collection $entities */
         $entities = TaskUserConfig::query()
-            ->where('family_id', '=', $request['familyId'])
+            ->where('user_group_id', '=', $request['userGroupId'])
             ->where('start_date', '<=', $date->toDateString())
             ->where('end_date', '>=', $date->toDateString())
-            ->whereIn('user_id', $family->userConfigs->pluck('user_id'))
+            ->whereIn('user_id', $userGroup->userConfigs->pluck('user_id'))
             ->with('user')
             ->orderBy('user_id')
             ->get();
@@ -37,7 +37,7 @@ class TaskUserConfigsRepository extends DefaultRepository
         $alreadyLoadedTasks = false;
         if (($weekOffset == 0 || $weekOffset == 1) && $entities->count() == 0) {
             $alreadyLoadedTasks = true;
-            $entities = BackfillTaskUserConfigService::run($family, $user);
+            $entities = BackfillTaskUserConfigService::run($userGroup, $user);
         }
 
         if (! $alreadyLoadedTasks) {
@@ -61,7 +61,7 @@ class TaskUserConfigsRepository extends DefaultRepository
             'start_date' => array_key_exists('startDate', $request) ? $request['startDate'] : $date->startOfWeek()->toDateString(),
             'end_date' => array_key_exists('endDate', $request) ? $request['endDate'] : $date->endOfWeek()->toDateString(),
         ]);
-        $config->family()->associate($request['family']);
+        $config->userGroup()->associate($request['userGroup']);
         $config->user()->associate($configUser);
         $config->save();
 

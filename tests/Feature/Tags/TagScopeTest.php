@@ -3,9 +3,9 @@
 namespace Tests\Feature\Tags;
 
 use App\Enums\Roles;
-use App\Models\Families\Family;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ class TagScopeTest extends TestCase
 {
     private User $user;
 
-    private Family $family;
+    private UserGroup $family;
 
     protected function setUp(): void
     {
@@ -22,8 +22,8 @@ class TagScopeTest extends TestCase
 
         $this->user = User::factory()->create();
         $this->user->assignRole(Roles::TASK_ROLE);
-        $this->family = Family::factory()->create();
-        $this->family->members()->attach($this->user->id);
+        $this->family = UserGroup::factory()->create();
+        $this->family->members()->attach($this->user->id, ['scope' => 'tasks']);
     }
 
     public function test_the_tasks_scope_returns_tags_on_tasks_the_caller_can_see(): void
@@ -35,7 +35,7 @@ class TagScopeTest extends TestCase
         $userTask->updateTags(['kitchen']);
 
         $familyTask = Task::factory()->create([
-            'owner_type' => (new Family)->getMorphClass(),
+            'owner_type' => (new UserGroup)->getMorphClass(),
             'owner_id' => $this->family->id,
         ]);
         $familyTask->updateTags(['yard']);

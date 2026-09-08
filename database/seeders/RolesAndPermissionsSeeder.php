@@ -126,7 +126,7 @@ class RolesAndPermissionsSeeder extends Seeder
             LogEvent::viewAnyPermission(),
 
             Permissions::VIEW_USERS_PAGE,
-            Permissions::VIEW_FAMILIES_TAB,
+            Permissions::VIEW_FAMILIES_PAGE,
             Permissions::LISTEN_TO_UPTIME_KUMA_WEBSOCKET,
             Permissions::VIEW_LOGGING_PAGE,
         ]);

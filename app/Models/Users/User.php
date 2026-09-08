@@ -4,8 +4,8 @@ namespace App\Models\Users;
 
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
-use App\Models\Tasks\Family;
-use App\Models\Tasks\FamilyUser;
+use App\Models\Families\Family;
+use App\Models\Families\FamilyUser;
 use App\Models\Tasks\TaskUserConfig;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

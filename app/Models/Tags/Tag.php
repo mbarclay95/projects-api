@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\Tasks;
+namespace App\Models\Tags;
 
+use App\Models\Tasks\{RecurringTask, Task};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

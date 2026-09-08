@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Tasks;
+namespace App\Http\Controllers\Tags;
 
-use App\Models\Tasks\Tag;
+use App\Models\Tags\Tag;
 use Mbarclay36\LaravelCrud\CrudController;
 
 class TagController extends CrudController

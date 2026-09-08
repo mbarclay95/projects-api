@@ -95,7 +95,9 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 
 | Domain | Key files |
 |--------|-----------|
-| Tasks | `Task`, `RecurringTask`, `Family`, `Tag`, `TaskUserConfig` — 7 repositories |
+| Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
+| Families | `Family`, `FamilyUser` |
+| Tags | `Tag` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -143,6 +145,38 @@ removing a member deletes their `family_user` row and closes their current
 not a membership table. Because removal now preserves history instead of
 deleting rows, the distinct `(family_id, user_id)` pairs in it are no longer
 the member list and must not be used as one.
+
+### Families and tags live outside Tasks
+
+`App\Models\Families\Family`, `App\Models\Families\FamilyUser` and
+`App\Models\Tags\Tag` are shared models, deliberately kept outside any one
+feature's namespace rather than owned by Tasks. `Family` still carries
+task-specific columns and accessors (`task_strategy`, `task_points`,
+`userConfigs()`, and the `TaskUserConfig` writes in `syncMembers()`) — that is
+a decision, not leftover coupling. Carving them out would change the
+`/families` payload and every screen that reads it, which is its own piece of
+work.
+
+**Permission names are the model's fully-qualified class name** —
+`HasCrudPermissions` builds `permissions.name` as `static::class . '_view_any'`
+and friends — so moving a model's namespace orphans its old `permissions` rows.
+This no longer needs a migration: `RolesAndPermissionsSeeder` deletes any
+permission it doesn't declare on the run just finished, and `docker/start.sh`
+runs it on every container boot, so an old class name's permissions are pruned
+automatically and its role grants re-created under the new name. The pruned
+rows get fresh ids — nothing depends on a permission's id staying stable
+across a rename.
+
+The seeder still needs `PermissionRegistrar::forgetCachedPermissions()` around
+the prune (it already calls it at both ends of `run()`) — Spatie caches the
+permission list for 24 hours behind the file cache driver, and without the
+flush a correct prune looks like it did nothing.
+
+`Tests\TestCase` seeds `RolesAndPermissionsSeeder` against an empty schema, so
+the prune step never has anything to delete in a test run — a seeder that
+declared the wrong permission name would still leave the suite green. Checking
+the `permissions` table on the dev database by hand is what actually verifies
+a rename happened.
 
 ### Real-Time Features
 

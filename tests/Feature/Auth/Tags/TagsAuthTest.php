@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth\Tasks;
+namespace Tests\Feature\Auth\Tags;
 
 use App\Enums\Roles;
 use Tests\Feature\Auth\AuthTestCase;

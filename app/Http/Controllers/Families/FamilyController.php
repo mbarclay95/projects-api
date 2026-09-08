@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Tasks;
+namespace App\Http\Controllers\Families;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use Mbarclay36\LaravelCrud\CrudController;
 
 class FamilyController extends CrudController

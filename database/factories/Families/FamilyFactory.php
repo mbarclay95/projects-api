@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Factories\Tasks;
+namespace Database\Factories\Families;
 
 use App\Enums\FamilyTaskStrategyEnum;
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

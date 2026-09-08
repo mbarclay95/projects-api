@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature\Auth\Tasks;
+namespace Tests\Feature\Auth\Families;
 
 use App\Enums\Roles;
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use Tests\Feature\Auth\AuthTestCase;
 
 class FamiliesAuthTest extends AuthTestCase

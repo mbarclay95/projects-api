@@ -38,6 +38,11 @@ use Spatie\Permission\PermissionRegistrar;
 class RolesAndPermissionsSeeder extends Seeder
 {
     /**
+     * @var string[]
+     */
+    private array $declaredPermissionNames = [];
+
+    /**
      * Run the database seeds.
      */
     public function run(): void
@@ -55,6 +60,18 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createGamingSessionAdminRole();
         $this->createMoneyAppRole();
         $this->createDraftsRole();
+
+        // Permission names encode the granting model's namespace (see
+        // HasCrudPermissions), so a moved or renamed class leaves its old
+        // permission behind under a name nothing grants any more. Deleting
+        // whatever wasn't declared above keeps this table an exact mirror of
+        // the roles just built, and the cascading FK on role_has_permissions
+        // / model_has_permissions takes any stale grants with it.
+        if ($this->declaredPermissionNames !== []) {
+            Permission::whereNotIn('name', $this->declaredPermissionNames)->delete();
+        }
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
     //    private function createDefaultRole(): void
@@ -123,6 +140,7 @@ class RolesAndPermissionsSeeder extends Seeder
         /** @var Role $role */
         $role = Role::findOrCreate($role);
         foreach ($permissions as $permission) {
+            $this->declaredPermissionNames[] = $permission;
             /** @var Permission $permission */
             $permission = Permission::findOrCreate($permission);
             $permission->assignRole($role);

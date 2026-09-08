@@ -31,7 +31,7 @@ use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
 use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
-use App\Http\Controllers\Tasks\FamilyController;
+use App\Http\Controllers\Families\FamilyController;
 use App\Http\Controllers\Tasks\FamilyStatsController;
 use App\Http\Controllers\Tasks\TagController;
 use App\Http\Controllers\Tasks\TaskController;

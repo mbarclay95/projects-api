@@ -3,7 +3,7 @@
 namespace Tests\Feature\Tasks;
 
 use App\Enums\Roles;
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;

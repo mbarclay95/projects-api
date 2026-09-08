@@ -2,6 +2,7 @@
 
 namespace App\Models\Tasks;
 
+use App\Models\Families\Family;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Exception;

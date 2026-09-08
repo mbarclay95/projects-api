@@ -25,7 +25,7 @@ use App\Models\Gaming\GamingSession;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
 use App\Models\Logging\LogEvent;
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;

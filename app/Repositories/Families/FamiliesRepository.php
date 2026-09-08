@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories\Tasks;
+namespace App\Repositories\Families;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;

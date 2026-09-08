@@ -2,7 +2,7 @@
 
 namespace App\Services\Tasks;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;

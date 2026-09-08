@@ -2,7 +2,7 @@
 
 namespace Database\Factories\Tasks;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\Task;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;

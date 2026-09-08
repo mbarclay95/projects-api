@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Tasks;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\Tag;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;

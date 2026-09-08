@@ -3,10 +3,10 @@
 namespace Tests\Unit\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;
-use App\Repositories\Tasks\FamiliesRepository;
+use App\Repositories\Families\FamiliesRepository;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;

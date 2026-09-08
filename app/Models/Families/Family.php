@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models\Tasks;
+namespace App\Models\Families;
 
 use App\Enums\FamilyTaskStrategyEnum;
 use App\Models\ApiModels\FamilyMemberApiModel;
+use App\Models\Tasks\{RecurringTask, Task, TaskUserConfig};
 use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;

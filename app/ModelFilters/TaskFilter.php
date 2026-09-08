@@ -2,7 +2,7 @@
 
 namespace App\ModelFilters;
 
-use App\Models\Tasks\Family;
+use App\Models\Families\Family;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use EloquentFilter\ModelFilter;

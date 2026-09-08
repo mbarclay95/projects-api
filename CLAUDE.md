@@ -95,7 +95,9 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 
 | Domain | Key files |
 |--------|-----------|
-| Tasks | `Task`, `RecurringTask`, `Family`, `Tag`, `TaskUserConfig` — 7 repositories |
+| Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
+| Families | `Family`, `FamilyUser` |
+| Tags | `Tag` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -143,6 +145,36 @@ removing a member deletes their `family_user` row and closes their current
 not a membership table. Because removal now preserves history instead of
 deleting rows, the distinct `(family_id, user_id)` pairs in it are no longer
 the member list and must not be used as one.
+
+### Families and tags live outside Tasks
+
+`App\Models\Families\Family`, `App\Models\Families\FamilyUser` and
+`App\Models\Tags\Tag` are shared models, deliberately kept outside any one
+feature's namespace rather than owned by Tasks. `Family` still carries
+task-specific columns and accessors (`task_strategy`, `task_points`,
+`userConfigs()`, and the `TaskUserConfig` writes in `syncMembers()`) — that is
+a decision, not leftover coupling. Carving them out would change the
+`/families` payload and every screen that reads it, which is its own piece of
+work.
+
+Moving a model here is expensive and quiet in two ways that do not show up in
+a diff:
+
+- **Permission names are the model's fully-qualified class name.**
+  `HasCrudPermissions` builds `permissions.name` as `static::class . '_view_any'`
+  and friends, so moving a model's namespace means renaming its `permissions`
+  rows too — an in-place `update` that preserves `permissions.id`, so
+  `role_has_permissions` and `model_has_permissions` follow without their own
+  migration. Spatie caches the permission list for 24 hours behind the file
+  cache driver, and nothing in `docker/start.sh` clears it, so the migration
+  must end with `PermissionRegistrar::forgetCachedPermissions()` or a correct
+  rename looks like it did nothing.
+- **The test suite cannot see whether that migration is right.** `Tests\TestCase`
+  reseeds `RolesAndPermissionsSeeder` against an empty schema, which creates
+  the permission rows under the model's *current* namespace directly — so the
+  suite is green whether or not the rename migration exists. Only checking the
+  `permissions` table on the dev database by hand catches a missing or wrong
+  migration.
 
 ### Real-Time Features
 

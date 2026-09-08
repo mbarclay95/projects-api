@@ -3,8 +3,8 @@
 namespace App\Repositories\Tags;
 
 use App\Enums\TagScopeEnum;
-use App\Models\Families\Family;
 use App\Models\Tags\Tag;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
@@ -29,10 +29,10 @@ class TagsRepository extends DefaultRepository
                             $userWhere->where('owner_type', '=', (new User)->getMorphClass())
                                 ->where('owner_id', '=', $user->id);
                         })
-                        ->when($user->family, function ($familyCondition) use ($user) {
+                        ->when($user->taskGroup, function ($familyCondition) use ($user) {
                             $familyCondition->orWhere(function ($familyWhere) use ($user) {
-                                $familyWhere->where('owner_type', '=', (new Family)->getMorphClass())
-                                    ->where('owner_id', '=', $user->family->id);
+                                $familyWhere->where('owner_type', '=', (new UserGroup)->getMorphClass())
+                                    ->where('owner_id', '=', $user->taskGroup->id);
                             });
                         });
                 });

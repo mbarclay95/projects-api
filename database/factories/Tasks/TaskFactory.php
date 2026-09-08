@@ -2,8 +2,8 @@
 
 namespace Database\Factories\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tasks\Task;
+use App\Models\UserGroups\UserGroup;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class TaskFactory extends Factory
         return [
             'name' => 'testing',
             'description' => null,
-            'owner_type' => (new Family)->getMorphClass(),
+            'owner_type' => (new UserGroup)->getMorphClass(),
             'owner_id' => 1,
             'due_date' => Carbon::now(),
             'task_point' => null,

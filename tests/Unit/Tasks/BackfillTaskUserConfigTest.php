@@ -3,10 +3,10 @@
 namespace Tests\Unit\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
-use App\Models\Families\Family;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
-use App\Repositories\Families\FamiliesRepository;
+use App\Repositories\UserGroups\UserGroupsRepository;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +33,7 @@ class BackfillTaskUserConfigTest extends TestCase
     {
         /** @var User $familyMember */
         $familyMember = User::factory()->create();
-        /** @var Family $family */
+        /** @var UserGroup $family */
         $family = $this->initFamilyAndMembers($familyMember);
         $date = Carbon::now('America/Los_Angeles');
 
@@ -58,7 +58,7 @@ class BackfillTaskUserConfigTest extends TestCase
         $this->assertEquals($expectedConfigsCount, $configs->count());
         foreach ($configs as $config) {
             $this->assertEquals($config->user_id, $familyMember->id);
-            $this->assertEquals($config->family_id, $family->id);
+            $this->assertEquals($config->user_group_id, $family->id);
             $this->assertEquals($config->start_date, $date->startOfWeek()->toDateString());
             $this->assertEquals($config->end_date, $date->endOfWeek()->toDateString());
             $date = $date->addWeek();
@@ -73,6 +73,6 @@ class BackfillTaskUserConfigTest extends TestCase
             'members' => [['id' => $member->id]],
         ];
 
-        return FamiliesRepository::createEntityStatic($familyRequest, (new User));
+        return UserGroupsRepository::createEntityStatic($familyRequest, (new User));
     }
 }

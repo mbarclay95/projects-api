@@ -23,7 +23,7 @@ class TaskUserConfigFactory extends Factory
             'default_tasks_per_week' => 5,
             'start_date' => Carbon::now()->startOfWeek()->toDateString(),
             'end_date' => Carbon::now()->endOfWeek()->toDateString(),
-            'family_id' => 1,
+            'user_group_id' => 1,
             'user_id' => 1,
         ];
     }

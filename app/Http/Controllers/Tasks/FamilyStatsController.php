@@ -10,7 +10,7 @@ class FamilyStatsController extends CrudController
     protected static string $modelClass = FamilyMemberStatsApiModel::class;
 
     protected static array $indexRules = [
-        'familyId' => 'required|int',
+        'userGroupId' => 'required|int',
         'year' => 'required|int',
     ];
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Families;
+namespace App\Http\Controllers\UserGroups;
 
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use Mbarclay36\LaravelCrud\CrudController;
 
-class FamilyController extends CrudController
+class UserGroupController extends CrudController
 {
-    protected static string $modelClass = Family::class;
+    protected static string $modelClass = UserGroup::class;
 
     protected static array $indexRules = [];
 

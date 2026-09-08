@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Task;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -23,10 +23,10 @@ class TasksRepository extends DefaultRepository
                         $userWhere->where('tasks.owner_type', '=', (new User)->getMorphClass())
                             ->where('tasks.owner_id', '=', $user->id);
                     })
-                    ->when($user->family, function ($familyCondition) use ($user) {
+                    ->when($user->taskGroup, function ($familyCondition) use ($user) {
                         $familyCondition->orWhere(function ($familyWhere) use ($user) {
-                            $familyWhere->where('tasks.owner_type', '=', (new Family)->getMorphClass())
-                                ->where('tasks.owner_id', '=', $user->family->id);
+                            $familyWhere->where('tasks.owner_type', '=', (new UserGroup)->getMorphClass())
+                                ->where('tasks.owner_id', '=', $user->taskGroup->id);
                         });
                     });
             })
@@ -48,8 +48,8 @@ class TasksRepository extends DefaultRepository
                 'name' => $request['name'],
                 'description' => $request['description'] ?? null,
                 'due_date' => $dueDate->toDateString(),
-                'owner_type' => $request['ownerType'] === 'family' ? (new Family)->getMorphClass() : (new User)->getMorphClass(),
-                'owner_id' => $request['ownerType'] === 'family' ? $user->family->id : $user->id,
+                'owner_type' => $request['ownerType'] === 'user-group' ? (new UserGroup)->getMorphClass() : (new User)->getMorphClass(),
+                'owner_id' => $request['ownerType'] === 'user-group' ? $user->taskGroup->id : $user->id,
                 'priority' => $request['priority'],
             ]);
             if (array_key_exists('taskPoint', $request)) {
@@ -70,7 +70,7 @@ class TasksRepository extends DefaultRepository
         $model->name = $request['name'];
         $model->description = $request['description'];
         $model->due_date = Carbon::parse($request['dueDate'])->setTimezone('America/Los_Angeles')->startOfDay()->toDateString();
-        $model->owner_type = $request['ownerType'] === 'family' ? (new Family)->getMorphClass() : (new User)->getMorphClass();
+        $model->owner_type = $request['ownerType'] === 'user-group' ? (new UserGroup)->getMorphClass() : (new User)->getMorphClass();
         $model->owner_id = $request['ownerId'];
         $model->priority = $request['priority'];
         if (array_key_exists('taskPoint', $request)) {
@@ -80,7 +80,7 @@ class TasksRepository extends DefaultRepository
         if ($model->recurring_task_id) {
             $model->recurringTask->name = $request['name'];
             $model->recurringTask->description = $request['description'];
-            $model->recurringTask->owner_type = $request['ownerType'] === 'family' ? (new Family)->getMorphClass() : (new User)->getMorphClass();
+            $model->recurringTask->owner_type = $request['ownerType'] === 'user-group' ? (new UserGroup)->getMorphClass() : (new User)->getMorphClass();
             $model->recurringTask->owner_id = $request['ownerId'];
             $model->recurringTask->is_active = $request['isActive'];
             $model->recurringTask->priority = $request['priority'];

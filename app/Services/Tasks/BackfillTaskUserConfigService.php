@@ -2,8 +2,8 @@
 
 namespace App\Services\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
@@ -15,11 +15,11 @@ class BackfillTaskUserConfigService
     /**
      * @param  User  $user
      */
-    public static function run(Family $family, Authenticatable $user): Collection
+    public static function run(UserGroup $userGroup, Authenticatable $user): Collection
     {
         $newConfigs = new Collection;
 
-        $lastConfigsAndDate = static::getLastConfigsAndDate($family);
+        $lastConfigsAndDate = static::getLastConfigsAndDate($userGroup);
         if (! $lastConfigsAndDate) {
             return $newConfigs;
         }
@@ -33,7 +33,7 @@ class BackfillTaskUserConfigService
             /** @var TaskUserConfig $lastConfig */
             foreach ($lastConfigs as $lastConfig) {
                 $configParams = [
-                    'family' => $family,
+                    'userGroup' => $userGroup,
                     'tasksPerWeek' => $lastConfig->default_tasks_per_week,
                     'defaultTasksPerWeek' => $lastConfig->default_tasks_per_week,
                     'user' => $lastConfig->user,
@@ -51,12 +51,12 @@ class BackfillTaskUserConfigService
         return $newConfigs;
     }
 
-    private static function getLastConfigsAndDate(Family $family): ?array
+    private static function getLastConfigsAndDate(UserGroup $userGroup): ?array
     {
         /** @var TaskUserConfig $mostRecentConfig */
         $mostRecentConfig = TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
-            ->whereIn('user_id', $family->members->pluck('id'))
+            ->where('user_group_id', '=', $userGroup->id)
+            ->whereIn('user_id', $userGroup->members->pluck('id'))
             ->orderBy('end_date', 'desc')
             ->first();
         if (! $mostRecentConfig) {
@@ -68,8 +68,8 @@ class BackfillTaskUserConfigService
 
         $configs = TaskUserConfig::query()
             ->with('user')
-            ->where('family_id', '=', $family->id)
-            ->whereIn('user_id', $family->members->pluck('id'))
+            ->where('user_group_id', '=', $userGroup->id)
+            ->whereIn('user_id', $userGroup->members->pluck('id'))
             ->where('start_date', '<=', $date->toDateString())
             ->where('end_date', '>=', $date->toDateString())
             ->get();

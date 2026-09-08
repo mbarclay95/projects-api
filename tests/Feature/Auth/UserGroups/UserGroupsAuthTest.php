@@ -1,29 +1,29 @@
 <?php
 
-namespace Tests\Feature\Auth\Families;
+namespace Tests\Feature\Auth\UserGroups;
 
 use App\Enums\Roles;
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use Tests\Feature\Auth\AuthTestCase;
 
-class FamiliesAuthTest extends AuthTestCase
+class UserGroupsAuthTest extends AuthTestCase
 {
     /**
      * INDEX
      */
-    public function test_get_families_user_permissions(): void
+    public function test_get_user_groups_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        $this->runTestsGET('api/families');
+        $this->runTestsGET('api/user-groups');
     }
 
     /**
      * INDEX
      */
-    public function test_get_families_no_task_role_user_permissions(): void
+    public function test_get_user_groups_no_task_role_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
-        $this->runTestsGET('api/families');
+        $this->runTestsGET('api/user-groups');
     }
 
     /**
@@ -32,7 +32,7 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_post_task_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        $this->runTestsPOST('api/families');
+        $this->runTestsPOST('api/user-groups');
     }
 
     /**
@@ -41,7 +41,7 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_post_task_no_task_role_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
-        $this->runTestsPOST('api/families');
+        $this->runTestsPOST('api/user-groups');
     }
 
     /**
@@ -50,9 +50,9 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_get_family_user_permissions(): void
     {
         $this->initRoles([Roles::TASK_ROLE], []);
-        /** @var Family $family */
-        $family = Family::factory()->create();
-        $this->runTestsGET("api/families/{$family->id}");
+        /** @var UserGroup $userGroup */
+        $userGroup = UserGroup::factory()->create();
+        $this->runTestsGET("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -61,9 +61,9 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_put_task_user_permissions(): void
     {
         $this->initRoles([Roles::TASK_ROLE], []);
-        /** @var Family $family */
-        $family = Family::factory()->create();
-        $this->runTestsPUT("api/families/{$family->id}");
+        /** @var UserGroup $userGroup */
+        $userGroup = UserGroup::factory()->create();
+        $this->runTestsPUT("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -72,9 +72,9 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_delete_task_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], []);
-        /** @var Family $family */
-        $family = Family::factory()->create();
-        $this->runTestsDELETE("api/families/{$family->id}");
+        /** @var UserGroup $userGroup */
+        $userGroup = UserGroup::factory()->create();
+        $this->runTestsDELETE("api/user-groups/{$userGroup->id}");
     }
 
     /**
@@ -83,8 +83,8 @@ class FamiliesAuthTest extends AuthTestCase
     public function test_delete_task_no_task_role_user_permissions(): void
     {
         $this->initRoles([Roles::ADMIN_ROLE], [Roles::TASK_ROLE]);
-        /** @var Family $family */
-        $family = Family::factory()->create();
-        $this->runTestsDELETE("api/families/{$family->id}");
+        /** @var UserGroup $userGroup */
+        $userGroup = UserGroup::factory()->create();
+        $this->runTestsDELETE("api/user-groups/{$userGroup->id}");
     }
 }

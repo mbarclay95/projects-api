@@ -4,11 +4,11 @@ namespace Tests\Feature\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
 use App\Enums\Roles;
-use App\Models\Families\Family;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
-use App\Repositories\Families\FamiliesRepository;
+use App\Repositories\UserGroups\UserGroupsRepository;
 use App\Services\Tasks\BackfillTaskUserConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -24,17 +24,17 @@ class FamilyMembershipTest extends TestCase
         $memberOne->assignRole(Roles::TASK_ROLE);
         $memberTwo->assignRole(Roles::TASK_ROLE);
 
-        $family = FamiliesRepository::createEntityStatic([
+        $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
-        self::assertEquals(2, DB::table('family_user')->where('family_id', $family->id)->count());
+        self::assertEquals(2, DB::table('user_group_user')->where('user_group_id', $family->id)->count());
 
         // Read on an instance that is never saved, in this order: reading
         // min_week_offset dirties min_year, and saving this instance afterwards
-        // would fail since `families` has no min_year column.
+        // would fail since `user_groups` has no min_year column.
         $forOffsetCheck = $family->fresh();
         self::assertEquals(0, $forOffsetCheck->min_week_offset);
         self::assertEquals(Carbon::now()->year, $forOffsetCheck->min_year);
@@ -45,13 +45,13 @@ class FamilyMembershipTest extends TestCase
         $pastEnd = Carbon::now('America/Los_Angeles')->subWeeks(2)->endOfWeek()->toDateString();
         TaskUserConfig::factory()->create([
             'user_id' => $memberOne->id,
-            'family_id' => $family->id,
+            'user_group_id' => $family->id,
             'start_date' => $pastStart,
             'end_date' => $pastEnd,
         ]);
         TaskUserConfig::factory()->create([
             'user_id' => $memberTwo->id,
-            'family_id' => $family->id,
+            'user_group_id' => $family->id,
             'start_date' => $pastStart,
             'end_date' => $pastEnd,
         ]);
@@ -60,25 +60,25 @@ class FamilyMembershipTest extends TestCase
         self::assertTrue($memberIds->contains($memberOne->id));
         self::assertTrue($memberIds->contains($memberTwo->id));
 
-        self::assertEquals($family->id, $memberOne->family->id);
-        self::assertEquals($family->id, $memberOne->family_id);
-        self::assertEquals($family->id, $memberTwo->family->id);
-        self::assertEquals($family->id, $memberTwo->family_id);
+        self::assertEquals($family->id, $memberOne->taskGroup->id);
+        self::assertEquals($family->id, $memberOne->task_group_id);
+        self::assertEquals($family->id, $memberTwo->taskGroup->id);
+        self::assertEquals($family->id, $memberTwo->task_group_id);
 
-        $statsIds = collect($this->jsonAs($memberOne, 'GET', 'api/family-stats?familyId='.$family->id.'&year='.Carbon::now()->year)
+        $statsIds = collect($this->jsonAs($memberOne, 'GET', 'api/family-stats?userGroupId='.$family->id.'&year='.Carbon::now()->year)
             ->assertSuccessful()
             ->json())->pluck('id');
         self::assertCount(2, $statsIds);
         self::assertTrue($statsIds->contains($memberOne->id));
         self::assertTrue($statsIds->contains($memberTwo->id));
 
-        $configRows = $this->jsonAs($memberOne, 'GET', 'api/task-user-config?familyId='.$family->id.'&weekOffset=0')
+        $configRows = $this->jsonAs($memberOne, 'GET', 'api/task-user-config?userGroupId='.$family->id.'&weekOffset=0')
             ->assertSuccessful()
             ->json();
         self::assertCount(2, $configRows);
 
         $familyTask = Task::factory()->create([
-            'owner_type' => (new Family)->getMorphClass(),
+            'owner_type' => (new UserGroup)->getMorphClass(),
             'owner_id' => $family->id,
         ]);
         $this->jsonAs($memberOne, 'GET', 'api/tasks/'.$familyTask->id.'/history')->assertSuccessful();
@@ -87,7 +87,7 @@ class FamilyMembershipTest extends TestCase
         $stranger->assignRole(Roles::TASK_ROLE);
         $this->jsonAs($stranger, 'GET', 'api/tasks/'.$familyTask->id.'/history')->assertUnauthorized();
 
-        FamiliesRepository::updateEntityStatic($family->fresh(), [
+        UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
             'taskStrategy' => $family->task_strategy,
             'members' => [['id' => $memberTwo->id]],
@@ -97,18 +97,18 @@ class FamilyMembershipTest extends TestCase
         self::assertCount(1, $remainingIds);
         self::assertTrue($remainingIds->contains($memberTwo->id));
 
-        self::assertNull($memberOne->fresh()->family);
-        self::assertEquals($family->id, $memberTwo->fresh()->family->id);
+        self::assertNull($memberOne->fresh()->taskGroup);
+        self::assertEquals($family->id, $memberTwo->fresh()->taskGroup->id);
 
-        self::assertEquals(0, DB::table('family_user')->where('family_id', $family->id)->where('user_id', $memberOne->id)->count());
+        self::assertEquals(0, DB::table('user_group_user')->where('user_group_id', $family->id)->where('user_id', $memberOne->id)->count());
         self::assertNotNull(TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
+            ->where('user_group_id', '=', $family->id)
             ->where('user_id', '=', $memberOne->id)
             ->where('start_date', '=', $pastStart)
             ->first());
         $today = Carbon::now('America/Los_Angeles')->toDateString();
         self::assertEquals(0, TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
+            ->where('user_group_id', '=', $family->id)
             ->where('user_id', '=', $memberOne->id)
             ->where('end_date', '>=', $today)
             ->count());
@@ -119,14 +119,14 @@ class FamilyMembershipTest extends TestCase
         $memberOne = User::factory()->create();
         $memberTwo = User::factory()->create();
 
-        $family = FamiliesRepository::createEntityStatic([
+        $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
         TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
+            ->where('user_group_id', '=', $family->id)
             ->update(['end_date' => Carbon::now('America/Los_Angeles')->subWeeks(2)->toDateString()]);
 
         $memberIds = $family->fresh()->members->pluck('id');
@@ -139,20 +139,20 @@ class FamilyMembershipTest extends TestCase
     {
         $member = User::factory()->create();
 
-        $family = FamiliesRepository::createEntityStatic([
+        $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
             'members' => [['id' => $member->id]],
         ], new User);
 
-        FamiliesRepository::updateEntityStatic($family->fresh(), [
+        UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
             'taskStrategy' => $family->task_strategy,
             'members' => [],
         ], new User);
 
         $countBefore = TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
+            ->where('user_group_id', '=', $family->id)
             ->where('user_id', '=', $member->id)
             ->count();
 
@@ -160,7 +160,7 @@ class FamilyMembershipTest extends TestCase
 
         self::assertCount(0, $newConfigs);
         self::assertEquals($countBefore, TaskUserConfig::query()
-            ->where('family_id', '=', $family->id)
+            ->where('user_group_id', '=', $family->id)
             ->where('user_id', '=', $member->id)
             ->count());
     }

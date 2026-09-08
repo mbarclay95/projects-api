@@ -96,7 +96,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Domain | Key files |
 |--------|-----------|
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
-| Families | `Family`, `FamilyUser` |
+| UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
@@ -118,7 +118,7 @@ Complex list endpoints use `EloquentFilter` — filter classes live in `app/Mode
 ### Morph map
 
 Polymorphic `*_type` columns hold short aliases, not PHP class names:
-`user`, `family`, `task`, `recurring-task`. The map is registered with
+`user`, `user-group`, `task`, `recurring-task`. The map is registered with
 `Relation::enforceMorphMap()` in `AppServiceProvider::boot()`, so calling
 `getMorphClass()` on a model outside the map throws
 `ClassMorphViolationException` instead of writing its class name into a column.
@@ -132,30 +132,53 @@ The five columns holding these aliases: `tasks.owner_type`,
 `model_has_roles.model_type`, `model_has_permissions.model_type` (the latter
 two are Spatie's permission tables).
 
-### Family membership
+### User-group membership
 
-Membership is a row in `family_user`, a plain pivot of `family_id` and
-`user_id` with a unique index on the pair. `Family::members()` and
-`User::family()` read it; `Family::syncMembers()` is the only writer, and
-removing a member deletes their `family_user` row and closes their current
+Membership is a row in `user_group_user`, a plain pivot of `user_group_id` and
+`user_id` that also carries a denormalised `scope`, copied from the group.
+`UserGroup::members()` reads it; `User::taskGroup()` reads it filtered to
+`scope = 'tasks'`. `UserGroup::syncMembers()` is the only writer, and removing
+a member deletes their `user_group_user` row and closes their current
 `task_user_configs` window rather than deleting past rows.
+
+A user can be in at most one group per scope, enforced by a unique index on
+`(user_id, scope)`. A group's scope is set at creation and never updated —
+`UserGroupsRepository::updateEntity()` does not touch it — which is what keeps
+the pivot's denormalised copy from drifting: there is no scope change for the
+two to disagree about.
+
+`scope` is `not null` with no column default, so every writer has to name it
+explicitly rather than fall back to one. Four places do:
+`UserGroupsRepository::createEntity()`, `UserGroupFactory::definition()`,
+`UserGroup::syncMembers()` (which copies `$this->scope` onto each pivot row),
+and the tests that call `members()->attach()` directly rather than going
+through `syncMembers()`. Miss one and the failure is a loud not-null
+violation, not a silent mis-scope.
 
 `task_user_configs` holds dated per-week chore settings
 (`tasks_per_week`, `default_tasks_per_week`, `start_date`, `end_date`) and is
-not a membership table. Because removal now preserves history instead of
-deleting rows, the distinct `(family_id, user_id)` pairs in it are no longer
-the member list and must not be used as one.
+not a membership table. Because removal preserves history instead of deleting
+rows, the distinct `(user_group_id, user_id)` pairs in it are no longer the
+member list and must not be used as one.
 
-### Families and tags live outside Tasks
+### UserGroups and tags live outside Tasks
 
-`App\Models\Families\Family`, `App\Models\Families\FamilyUser` and
+`App\Models\UserGroups\UserGroup`, `App\Models\UserGroups\UserGroupUser` and
 `App\Models\Tags\Tag` are shared models, deliberately kept outside any one
-feature's namespace rather than owned by Tasks. `Family` still carries
+feature's namespace rather than owned by Tasks. `UserGroup` still carries
 task-specific columns and accessors (`task_strategy`, `task_points`,
 `userConfigs()`, and the `TaskUserConfig` writes in `syncMembers()`) — that is
 a decision, not leftover coupling. Carving them out would change the
-`/families` payload and every screen that reads it, which is its own piece of
-work.
+`/user-groups` payload and every screen that reads it, which is its own piece
+of work.
+
+The line drawn here is the group concept, not the vocabulary that uses it:
+`UserGroup` and its table are renamed end to end, but "family" stays the
+Tasks feature's own word for a tasks-scoped group, and a per-scope label would
+say the same thing for any other scope. `FamilyStatsController`,
+`FamilyMemberStatsRepository`, `FamilyMemberStatsApiModel` and
+`FamilyTaskStrategyEnum` are deliberate survivors of that line, not leftovers
+from an incomplete rename.
 
 **Permission names are the model's fully-qualified class name** —
 `HasCrudPermissions` builds `permissions.name` as `static::class . '_view_any'`
@@ -177,6 +200,13 @@ the prune step never has anything to delete in a test run — a seeder that
 declared the wrong permission name would still leave the suite green. Checking
 the `permissions` table on the dev database by hand is what actually verifies
 a rename happened.
+
+`UsersRepository`'s second argument to `toApiModels()` is a *hide* list, not a
+show list — it names attributes to exclude from the `/users` payload by
+string. Renaming an attribute that appears in it stops the entry from
+matching, which silently un-hides the attribute instead of failing to build.
+Nothing asserts the `/users` payload shape, so a stale hide-list entry ships
+green.
 
 ### Tag scopes
 

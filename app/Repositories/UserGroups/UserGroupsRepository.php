@@ -1,36 +1,37 @@
 <?php
 
-namespace App\Repositories\Families;
+namespace App\Repositories\UserGroups;
 
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
-class FamiliesRepository extends DefaultRepository
+class UserGroupsRepository extends DefaultRepository
 {
     public function createEntity($request, Authenticatable $user): Model|array
     {
-        $family = new Family([
+        $userGroup = new UserGroup([
             'name' => $request['name'],
             'task_strategy' => $request['taskStrategy'],
+            'scope' => 'tasks',
         ]);
         $members = User::query()
             ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
                 return $user['id'];
             }))
             ->get();
-        $family->save();
-        $family->syncMembers($members);
-        $family->refresh();
+        $userGroup->save();
+        $userGroup->syncMembers($members);
+        $userGroup->refresh();
 
-        return $family;
+        return $userGroup;
     }
 
     /**
-     * @param  Family  $model
+     * @param  UserGroup  $model
      */
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {

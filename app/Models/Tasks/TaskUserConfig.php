@@ -2,7 +2,7 @@
 
 namespace App\Models\Tasks;
 
-use App\Models\Families\Family;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -20,8 +20,8 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property int default_tasks_per_week
  * @property Carbon start_date
  * @property Carbon end_date
- * @property int family_id
- * @property Family family
+ * @property int user_group_id
+ * @property UserGroup userGroup
  * @property int user_id
  * @property User user
  */
@@ -29,7 +29,7 @@ class TaskUserConfig extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'default_tasks_per_week', 'family_id'];
+    protected static array $apiModelAttributes = ['id', 'user_id', 'user_name', 'tasks_per_week', 'default_tasks_per_week', 'user_group_id'];
 
     protected static array $apiModelEntities = [];
 
@@ -37,9 +37,9 @@ class TaskUserConfig extends ApiModel
         'completedFamilyTasks' => Task::class,
     ];
 
-    public function family(): BelongsTo
+    public function userGroup(): BelongsTo
     {
-        return $this->belongsTo(Family::class);
+        return $this->belongsTo(UserGroup::class);
     }
 
     public function user(): BelongsTo

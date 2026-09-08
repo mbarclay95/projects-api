@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Tasks;
 
-use App\Models\Families\Family;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
+use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -16,26 +16,26 @@ class FamilyMemberStatsRepository extends DefaultRepository
 {
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
-        $familyId = $request['familyId'];
+        $userGroupId = $request['userGroupId'];
         $startDate = Carbon::today('America/Los_Angeles')->setDate($request['year'], 1, 1);
         $endDate = (clone $startDate)->addYear();
         /** @var User[] $familyMembers */
         $familyMembers = User::query()
-            ->whereHas('family', function ($query) use ($familyId) {
-                $query->where('family_user.family_id', '=', $familyId);
+            ->whereHas('taskGroup', function ($query) use ($userGroupId) {
+                $query->where('user_group_user.user_group_id', '=', $userGroupId);
             })
             ->orderBy('id')
             ->get();
 
-        $topThree = DB::table(function ($query) use ($startDate, $endDate, $familyId) {
+        $topThree = DB::table(function ($query) use ($startDate, $endDate, $userGroupId) {
             $query->selectRaw('completed_by_id, recurring_task_id, count(*), row_number() over (partition by completed_by_id order by count(*) desc) as rank')
                 ->from('tasks')
                 ->whereNotNull('completed_at')
                 ->whereNotNull('recurring_task_id')
                 ->where('completed_at', '>', $startDate->utc())
                 ->where('completed_at', '<', $endDate->utc())
-                ->where('owner_id', '=', $familyId)
-                ->where('owner_type', '=', (new Family)->getMorphClass())
+                ->where('owner_id', '=', $userGroupId)
+                ->where('owner_type', '=', (new UserGroup)->getMorphClass())
                 ->groupByRaw('completed_by_id, recurring_task_id');
         }, 'ranked')
             ->join('recurring_tasks', 'recurring_tasks.id', '=', 'ranked.recurring_task_id')
@@ -48,8 +48,8 @@ class FamilyMemberStatsRepository extends DefaultRepository
             ->whereNotNull('completed_at')
             ->where('completed_at', '>', $startDate)
             ->where('completed_at', '<', $endDate)
-            ->where('owner_id', '=', $familyId)
-            ->where('owner_type', '=', (new Family)->getMorphClass())
+            ->where('owner_id', '=', $userGroupId)
+            ->where('owner_type', '=', (new UserGroup)->getMorphClass())
             ->groupBy('completed_by_id')
             ->get();
 
@@ -60,7 +60,7 @@ class FamilyMemberStatsRepository extends DefaultRepository
         }
         $expectedPointsCount = TaskUserConfig::query()
             ->selectRaw('user_id, sum(tasks_per_week)')
-            ->where('family_id', '=', $familyId)
+            ->where('user_group_id', '=', $userGroupId)
             ->where('start_date', '>', $startDate)
             ->where('start_date', '<', $expectedEndDate)
             ->groupBy('user_id')

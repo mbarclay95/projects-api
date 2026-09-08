@@ -32,7 +32,7 @@ class TaskHistoryController extends CrudController
             throw new AuthenticationException;
         }
         $familyId = $user->getFamilyIdAttribute();
-        if (($task->owner_type == 'family' && $task->owner_id != $familyId) ||
+        if (($task->owner_type == 'user-group' && $task->owner_id != $familyId) ||
             ($task->owner_type == 'user' && $task->owner_id != $user->id)) {
             throw new AuthenticationException;
         }

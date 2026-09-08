@@ -58,7 +58,7 @@ class TaskOwnerTest extends TestCase
 
     public function test_filtering_by_owner_type_family_returns_only_the_family_task(): void
     {
-        $ids = collect($this->jsonAs($this->user, 'GET', 'api/tasks?ownerType=family')
+        $ids = collect($this->jsonAs($this->user, 'GET', 'api/tasks?ownerType=user-group')
             ->assertSuccessful()
             ->json())->pluck('id');
 
@@ -72,7 +72,7 @@ class TaskOwnerTest extends TestCase
             ->assertSuccessful()
             ->json())->keyBy('id');
 
-        self::assertEquals('family', $byId[$this->familyTask->id]['ownerType']);
+        self::assertEquals('user-group', $byId[$this->familyTask->id]['ownerType']);
         self::assertEquals('user', $byId[$this->userTask->id]['ownerType']);
     }
 
@@ -93,7 +93,7 @@ class TaskOwnerTest extends TestCase
 
     public function test_the_stored_owner_type_is_the_alias_not_the_class_name(): void
     {
-        self::assertEquals('family', DB::table('tasks')->where('id', $this->familyTask->id)->value('owner_type'));
+        self::assertEquals('user-group', DB::table('tasks')->where('id', $this->familyTask->id)->value('owner_type'));
         self::assertEquals('user', DB::table('tasks')->where('id', $this->userTask->id)->value('owner_type'));
     }
 

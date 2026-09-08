@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap([
             'user' => User::class,
-            'family' => Family::class,
+            'user-group' => Family::class,
             'task' => Task::class,
             'recurring-task' => RecurringTask::class,
         ]);

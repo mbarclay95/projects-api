@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Tags;
 
+use App\Enums\TagScopeEnum;
 use App\Models\Families\Family;
 use App\Models\Tags\Tag;
 use App\Models\Users\User;
@@ -12,6 +13,13 @@ use Mbarclay36\LaravelCrud\DefaultRepository;
 class TagsRepository extends DefaultRepository
 {
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
+    {
+        return match (TagScopeEnum::from($request['scope'])) {
+            TagScopeEnum::TASKS => $this->taskTags($user),
+        };
+    }
+
+    private function taskTags(Authenticatable $user): Collection
     {
         return Tag::query()
             ->whereHas('tasks', function ($where) use ($user) {

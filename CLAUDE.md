@@ -178,6 +178,36 @@ declared the wrong permission name would still leave the suite green. Checking
 the `permissions` table on the dev database by hand is what actually verifies
 a rename happened.
 
+### Tag scopes
+
+`GET /tags` requires a `scope`; a request without one is a 422, not a default.
+Nothing on a `tags` row says which feature it belongs to, and there is not
+going to be one — the pool of tags a feature offers is defined the same way
+its rows are defined: a relation on `Tag` plus that feature's own visibility
+rule (a task is owned by a user *or* a family, so the tasks scope is an
+`orWhere` over both; a differently-owned feature gets a different rule, not
+the same one reused).
+
+The tasks scope covers `tasks` alone, and that is complete rather than a gap.
+`Task::updateTags()` is the only tag writer in the app. `RecurringTask::tags()`
+is declared but nothing ever writes through it — a recurring task hands its
+tag strings to the `Task` it generates, which ends in that same
+`updateTags()`. Every row in `taggables` is therefore a `task` row; there is
+nothing a `recurring-task` clause would catch.
+
+Adding a scope touches three places, and only one of them fails loudly:
+
+- a case on `TagScopeEnum`
+- an arm of the `match` in `TagsRepository::getEntities()`
+- the `in:` list in `TagController::$indexRules`
+
+The `in:` list is built by concatenating `TagScopeEnum` cases' `->value`
+(`Rule::enum(...)` cannot run in a static property initializer), so the list
+and the enum can never disagree on the strings — but the list is still
+extended by hand alongside the enum. Miss it and the new scope 422s. Miss the
+`match` arm and `TagScopeEnum::from()` throws `UnhandledMatchError` instead of
+silently returning the wrong list.
+
 ### Real-Time Features
 
 - **Laravel Reverb** (WebSockets) for broadcasting events to clients

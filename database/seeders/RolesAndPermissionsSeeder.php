@@ -26,7 +26,7 @@ use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
 use App\Models\Logging\LogEvent;
 use App\Models\Families\Family;
-use App\Models\Tasks\Tag;
+use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\Users\User;

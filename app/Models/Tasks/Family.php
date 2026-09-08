@@ -8,8 +8,8 @@ use App\Models\Users\User;
 use App\Repositories\Tasks\TaskUserConfigsRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
@@ -48,14 +48,26 @@ class Family extends ApiModel
      */
     public function syncMembers($newMembers): void
     {
+        $today = Carbon::now('America/Los_Angeles')->toDateString();
         foreach ($this->members as $member) {
             if ($newMembers->doesntContain('id', $member->id)) {
-                $member->taskUserConfig()->where('family_id', '=', $this->id)->delete();
+                $this->members()->detach($member->id);
+                TaskUserConfig::query()
+                    ->where('family_id', '=', $this->id)
+                    ->where('user_id', '=', $member->id)
+                    ->where('start_date', '>=', $today)
+                    ->delete();
+                TaskUserConfig::query()
+                    ->where('family_id', '=', $this->id)
+                    ->where('user_id', '=', $member->id)
+                    ->where('end_date', '>=', $today)
+                    ->update(['end_date' => Carbon::parse($today)->subDay()->toDateString()]);
             }
         }
         /** @var User $newMember */
         foreach ($newMembers as $newMember) {
             if ($this->members->doesntContain('id', $newMember->id)) {
+                $this->members()->attach($newMember->id);
                 TaskUserConfigsRepository::createEntityStatic(['family' => $this, 'user' => $newMember], $newMember);
             }
         }
@@ -114,13 +126,9 @@ end)");
             ->where('task_user_configs.end_date', '>=', $date);
     }
 
-    public function members(): HasManyThrough
+    public function members(): BelongsToMany
     {
-        $date = Carbon::now('America/Los_Angeles')->toDateString();
-
-        return $this->hasManyThrough(User::class, TaskUserConfig::class, 'family_id', 'id', 'id', 'user_id')
-            ->where('task_user_configs.start_date', '<=', $date)
-            ->where('task_user_configs.end_date', '>=', $date);
+        return $this->belongsToMany(User::class, 'family_user')->withTimestamps()->orderBy('users.id');
     }
 
     public function getTaskPointsAttribute($value): array

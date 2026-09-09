@@ -3,6 +3,7 @@
 namespace Tests\Feature\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
+use App\Enums\FeatureEnum;
 use App\Enums\Roles;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
@@ -26,6 +27,7 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
+            'scope' => FeatureEnum::TASKS->value,
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
@@ -121,6 +123,7 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
+            'scope' => FeatureEnum::TASKS->value,
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
@@ -141,6 +144,7 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
+            'scope' => FeatureEnum::TASKS->value,
             'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $member->id]],
         ], new User);

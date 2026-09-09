@@ -25,6 +25,7 @@ use App\Models\Gaming\GamingSession;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
 use App\Models\Grocery\GroceryItem;
+use App\Models\Grocery\GroceryListItem;
 use App\Models\Logging\LogEvent;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
@@ -289,13 +290,14 @@ class RolesAndPermissionsSeeder extends Seeder
     }
 
     /**
-     * GroceryItem::updatePermission() and GroceryItem::deletePermission() —
-     * the unscoped variants — must never be granted here. Either one
+     * GroceryItem::updatePermission() / GroceryItem::deletePermission() and
+     * GroceryListItem::updatePermission() / GroceryListItem::deletePermission()
+     * — the unscoped variants — must never be granted here. Either one
      * short-circuits the ownership test in cannotUpdate()/cannotDestroy(),
      * letting any holder of this role edit any group's items. The scoped
-     * grants below do not work on their own until GroceryItemController
-     * overrides both methods, because the package compares $model->user_id
-     * and grocery_items has no such column.
+     * grants below do not work on their own until GroceryItemController and
+     * GroceryListItemController override both methods, because the package
+     * compares $model->user_id and neither table has such a column.
      */
     private function createGroceryRole(): void
     {
@@ -304,6 +306,11 @@ class RolesAndPermissionsSeeder extends Seeder
             GroceryItem::createPermission(),
             GroceryItem::updateForUserPermission(),
             GroceryItem::deleteForUserPermission(),
+
+            GroceryListItem::viewAnyForUserPermission(),
+            GroceryListItem::createPermission(),
+            GroceryListItem::updateForUserPermission(),
+            GroceryListItem::deleteForUserPermission(),
 
             Tag::viewAnyForUserPermission(),
 

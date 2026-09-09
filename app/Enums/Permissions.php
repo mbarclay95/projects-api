@@ -88,5 +88,7 @@ class Permissions
 
     const VIEW_DRAFTS_PAGE = self::CLIENT.'view_drafts_page';
 
+    const VIEW_GROCERY_PAGE = self::CLIENT.'view_grocery_page';
+
     const LISTEN_TO_UPTIME_KUMA_WEBSOCKET = self::CLIENT.'listen_to_uptime_kuma_websocket';
 }

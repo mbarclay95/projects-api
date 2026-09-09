@@ -4,6 +4,7 @@ namespace Tests\Feature\Grocery;
 
 use App\Enums\Roles;
 use App\Models\Grocery\GroceryItem;
+use App\Models\Grocery\GroceryListItem;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
@@ -188,6 +189,36 @@ class GroceryItemsTest extends TestCase
             ->assertSuccessful();
 
         self::assertNull($item->fresh());
+    }
+
+    public function test_a_delete_removes_its_list_entries_bought_and_unbought_and_leaves_another_items_entries_alone(): void
+    {
+        $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+
+        $unboughtEntry = GroceryListItem::factory()->create([
+            'grocery_item_id' => $item->id,
+            'user_group_id' => $this->group->id,
+            'added_by_user_id' => $this->user->id,
+        ]);
+        $boughtEntry = GroceryListItem::factory()->create([
+            'grocery_item_id' => $item->id,
+            'user_group_id' => $this->group->id,
+            'added_by_user_id' => $this->user->id,
+            'bought_at' => now(),
+        ]);
+        $otherEntry = GroceryListItem::factory()->create([
+            'grocery_item_id' => $otherItem->id,
+            'user_group_id' => $this->group->id,
+            'added_by_user_id' => $this->user->id,
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/grocery-items/{$item->id}")
+            ->assertSuccessful();
+
+        self::assertNull($unboughtEntry->fresh());
+        self::assertNull($boughtEntry->fresh());
+        self::assertNotNull($otherEntry->fresh());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

@@ -7,6 +7,7 @@ use App\Models\Tags\Tag;
 use App\Traits\HasTags;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
@@ -37,4 +38,9 @@ class GroceryItem extends ApiModel
         'unit' => GroceryItemUnit::class,
         'default_quantity' => 'float',
     ];
+
+    public function listItems(): HasMany
+    {
+        return $this->hasMany(GroceryListItem::class);
+    }
 }

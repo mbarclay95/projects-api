@@ -22,8 +22,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  * @property string name
  * @property string scope
- * @property string task_strategy
- * @property array task_points
+ * @property array config
  * @property Collection|TaskUserConfig[] userConfigs
  * @property Collection|User[] members
  */
@@ -41,8 +40,7 @@ class UserGroup extends ApiModel
     ];
 
     protected $casts = [
-        'task_strategy' => FamilyTaskStrategyEnum::class,
-        'task_points' => 'array',
+        'config' => 'array',
     ];
 
     /**
@@ -133,19 +131,19 @@ end)");
         return $this->belongsToMany(User::class, 'user_group_user')->withTimestamps()->orderBy('users.id');
     }
 
-    public function getTaskPointsAttribute($value): array
+    public function getTaskStrategyAttribute(): ?FamilyTaskStrategyEnum
     {
-        if ($value) {
-            $valueArray = json_decode($value, true);
-            if (array_key_exists('points', $valueArray)) {
-                $numbers = $valueArray['points'];
-                sort($numbers);
+        $taskStrategy = $this->config['task_strategy'] ?? null;
 
-                return $numbers;
-            }
-        }
+        return $taskStrategy ? FamilyTaskStrategyEnum::from($taskStrategy) : null;
+    }
 
-        return [];
+    public function getTaskPointsAttribute(): array
+    {
+        $taskPoints = $this->config['task_points'] ?? [];
+        sort($taskPoints);
+
+        return $taskPoints;
     }
 
     public function getMinWeekOffsetAttribute(): int

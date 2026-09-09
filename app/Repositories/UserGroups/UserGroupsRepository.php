@@ -2,6 +2,7 @@
 
 namespace App\Repositories\UserGroups;
 
+use App\Enums\FeatureEnum;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -15,7 +16,7 @@ class UserGroupsRepository extends DefaultRepository
     {
         $userGroup = new UserGroup([
             'name' => $request['name'],
-            'task_strategy' => $request['taskStrategy'],
+            'config' => FeatureEnum::TASKS->buildConfig($request, []),
             'scope' => 'tasks',
         ]);
         $members = User::query()
@@ -36,12 +37,7 @@ class UserGroupsRepository extends DefaultRepository
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $model->name = $request['name'];
-        $model->task_strategy = $request['taskStrategy'];
-        if (array_key_exists('taskPoints', $request)) {
-            $model->task_points = [
-                'points' => $request['taskPoints'],
-            ];
-        }
+        $model->config = FeatureEnum::TASKS->buildConfig($request, $model->config);
         $members = User::query()
             ->whereIn('id', Collection::make($request['members'])->map(function ($user) {
                 return $user['id'];

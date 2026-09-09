@@ -26,7 +26,7 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
@@ -89,7 +89,7 @@ class FamilyMembershipTest extends TestCase
 
         UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
-            'taskStrategy' => $family->task_strategy,
+            'taskStrategy' => $family->task_strategy->value,
             'members' => [['id' => $memberTwo->id]],
         ], new User);
 
@@ -121,7 +121,7 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
@@ -141,13 +141,13 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $member->id]],
         ], new User);
 
         UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
-            'taskStrategy' => $family->task_strategy,
+            'taskStrategy' => $family->task_strategy->value,
             'members' => [],
         ], new User);
 

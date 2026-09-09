@@ -51,7 +51,7 @@ class DefaultTasksPerWeekTest extends TestCase
     {
         $familyRequest = [
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $member->id]],
         ];
 

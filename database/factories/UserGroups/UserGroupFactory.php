@@ -20,7 +20,7 @@ class UserGroupFactory extends Factory
     {
         return [
             'name' => 'testing',
-            'task_strategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'config' => ['task_strategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value, 'task_points' => []],
             'scope' => 'tasks',
         ];
     }

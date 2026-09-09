@@ -38,6 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Collection|Permission[] rolePermissions
  * @property Collection|Permission[] clientPermissions
  * @property UserGroup taskGroup
+ * @property UserGroup groceryGroup
  */
 class User extends Authenticatable implements JWTSubject
 {
@@ -83,6 +84,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOneThrough(UserGroup::class, UserGroupUser::class, 'user_id', 'id', 'id', 'user_group_id')
             ->where('user_group_user.scope', 'tasks');
+    }
+
+    public function groceryGroup(): HasOneThrough
+    {
+        return $this->hasOneThrough(UserGroup::class, UserGroupUser::class, 'user_id', 'id', 'id', 'user_group_id')
+            ->where('user_group_user.scope', FeatureEnum::GROCERY->value);
     }
 
     public function createFirstUserConfig(?string $homePage = null): UserConfig

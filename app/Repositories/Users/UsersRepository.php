@@ -20,7 +20,7 @@ class UsersRepository extends DefaultRepository
             ->orderBy('id')
             ->get();
 
-        return User::toApiModels($users, ['clientPermissions', 'task_group_id', 'userConfig.money_app_token']);
+        return User::toApiModels($users, ['clientPermissions', 'group_ids', 'userConfig.money_app_token']);
     }
 
     public function createEntity($request, Authenticatable $user): Model|array

@@ -137,9 +137,15 @@ two are Spatie's permission tables).
 Membership is a row in `user_group_user`, a plain pivot of `user_group_id` and
 `user_id` that also carries a denormalised `scope`, copied from the group.
 `UserGroup::members()` reads it; `User::taskGroup()` reads it filtered to
-`scope = 'tasks'`. `UserGroup::syncMembers()` is the only writer, and removing
-a member deletes their `user_group_user` row and closes their current
-`task_user_configs` window rather than deleting past rows.
+`scope = 'tasks'`. `UserGroup::syncMembers()` is the only writer. `attach()`
+and `detach()` on the pivot happen for every scope; removing a member always
+deletes their `user_group_user` row, and for a tasks-scoped group also closes
+their current `task_user_configs` window rather than deleting past rows. A
+grocery group has no `task_user_configs` rows to close.
+
+That guard is why "a member of a group" and "someone who does chores" are no
+longer the same statement: `syncMembers()` writes a `TaskUserConfig`, on both
+the attach and the detach side, only when `$this->scope === FeatureEnum::TASKS->value`.
 
 A user can be in at most one group per scope, enforced by a unique index on
 `(user_id, scope)`. A group's scope is set at creation and never updated —
@@ -157,20 +163,41 @@ violation, not a silent mis-scope.
 
 `task_user_configs` holds dated per-week chore settings
 (`tasks_per_week`, `default_tasks_per_week`, `start_date`, `end_date`) and is
-not a membership table. Because removal preserves history instead of deleting
-rows, the distinct `(user_group_id, user_id)` pairs in it are no longer the
-member list and must not be used as one.
+not a membership table for any scope. Because removal preserves history
+instead of deleting rows, the distinct `(user_group_id, user_id)` pairs in it
+are no longer the member list and must not be used as one — and now that a
+non-tasks scope exists, it is not even every member's list, only a
+tasks-scoped group's.
 
 ### UserGroups and tags live outside Tasks
 
 `App\Models\UserGroups\UserGroup`, `App\Models\UserGroups\UserGroupUser` and
 `App\Models\Tags\Tag` are shared models, deliberately kept outside any one
-feature's namespace rather than owned by Tasks. `UserGroup` still carries
-task-specific columns and accessors (`task_strategy`, `task_points`,
-`userConfigs()`, and the `TaskUserConfig` writes in `syncMembers()`) — that is
-a decision, not leftover coupling. Carving them out would change the
-`/user-groups` payload and every screen that reads it, which is its own piece
-of work.
+feature's namespace rather than owned by Tasks. The task-specific settings on
+`UserGroup` live in a `config` jsonb column keyed by snake_case
+(`task_strategy`, `task_points`) — that is a storage decision, not the
+`/user-groups` API shape: `taskStrategy` and `taskPoints` stay top-level
+fields on the payload, produced by `getTaskStrategyAttribute()` and
+`getTaskPointsAttribute()` reading out of `config`. `userConfigs()` and the
+`TaskUserConfig` writes in `syncMembers()` are still tasks-only, now gated on
+`scope` rather than being the only path there is.
+
+`scope` stays a plain, uncast string column — **do not add
+`'scope' => FeatureEnum::class` to `$casts`.** It looks like the natural move
+once the enum exists, and it breaks `syncMembers()`, which copies
+`$this->scope` straight into `attach($id, ['scope' => $this->scope])`; the
+pivot wants a string, not an enum instance.
+
+**Per-scope validation lives in the repository, not the controller.**
+`CrudController` validates `static::$storeRules` / `$updateRules` before it
+has looked at the model, so an update request cannot see the group's scope —
+taking it from the request body would let a caller declare a tasks group to be
+grocery and skip `taskStrategy`'s `required`. `UserGroupsRepository` resolves
+the scope instead — from `$request['scope']` on create, from `$model->scope`
+on update — and runs a second validation stage,
+`Validator::make($request, $scope->groupConfigRules())->validate()`.
+`ValidationException` renders as a 422 from anywhere in the request, so the
+repository's rejection is a 422 exactly like the controller's.
 
 The line drawn here is the group concept, not the vocabulary that uses it:
 `UserGroup` and its table are renamed end to end, but "family" stays the
@@ -204,11 +231,12 @@ a rename happened.
 `UsersRepository`'s second argument to `toApiModels()` is a *hide* list, not a
 show list — it names attributes to exclude from the `/users` payload by
 string. Renaming an attribute that appears in it stops the entry from
-matching, which silently un-hides the attribute instead of failing to build.
-Nothing asserts the `/users` payload shape, so a stale hide-list entry ships
-green.
+matching, which silently un-hides the attribute instead of failing to build:
+the current entry is `group_ids`, renamed from `task_group_id` when `/me`'s
+map grew a key per group scope. Nothing asserts the `/users` payload shape, so
+a stale hide-list entry ships green.
 
-### Tag scopes
+### Tag scopes and group scopes
 
 `GET /tags` requires a `scope`; a request without one is a 422, not a default.
 Nothing on a `tags` row says which feature it belongs to, and there is not
@@ -225,18 +253,35 @@ tag strings to the `Task` it generates, which ends in that same
 `updateTags()`. Every row in `taggables` is therefore a `task` row; there is
 nothing a `recurring-task` clause would catch.
 
-Adding a scope touches three places, and only one of them fails loudly:
+Everything that varies by scope — for tags or for user groups — lives on
+`App\Enums\FeatureEnum`: a case per feature, plus two arrays over its cases.
 
-- a case on `TagScopeEnum`
-- an arm of the `match` in `TagsRepository::getEntities()`
-- the `in:` list in `TagController::$indexRules`
+| | |
+|---|---|
+| `TAG_SCOPES` | features with a tag list — an arm of the `match` in `TagsRepository::getEntities()` |
+| `GROUP_SCOPES` | features that can have a `user_groups` row — an arm of `groupConfigRules()` and `buildConfig()` |
 
-The `in:` list is built by concatenating `TagScopeEnum` cases' `->value`
-(`Rule::enum(...)` cannot run in a static property initializer), so the list
-and the enum can never disagree on the strings — but the list is still
-extended by hand alongside the enum. Miss it and the new scope 422s. Miss the
-`match` arm and `TagScopeEnum::from()` throws `UnhandledMatchError` instead of
-silently returning the wrong list.
+A case in neither array simply does not exist to either mechanism: `grocery`
+is in `GROUP_SCOPES` and not in `TAG_SCOPES`, so a grocery group can be
+created while `GET /tags?scope=grocery` stays a 422. Adding a feature is a
+case, membership in whichever arrays it opts into, and a `match` arm wherever
+it opted in — the arms are what fail loudly. `TagsRepository::getEntities()`'s
+`match` and `FeatureEnum::groupConfigRules()` / `buildConfig()` throw
+`UnhandledMatchError` on a case with no arm, rather than silently returning
+the wrong thing. The arrays are deliberately the silent half.
+
+**The `in:` lists are built from these arrays, not hand-extended.**
+`Rule::in()` cannot run in a static property initializer, so
+`TagController::$indexRules` and `UserGroupController::$storeRules` are
+assigned in each controller's **constructor**, where a function call is legal
+— `Rule::in(FeatureEnum::tagScopeValues())` and
+`Rule::in(FeatureEnum::groupScopeValues())` respectively. Both controllers
+still **declare** the static property being assigned
+(`protected static array $indexRules = [];` / `$storeRules = [];`) — a
+subclass that drops the redeclaration writes to `CrudController`'s own slot,
+which every other controller shares, and `CrudController` reads all three
+properties through `static::` inside `index()` / `store()` / `update()`,
+after construction, so a constructor assignment is in time.
 
 ### Real-Time Features
 

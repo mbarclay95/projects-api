@@ -3,6 +3,7 @@
 namespace Tests\Unit\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
+use App\Enums\FeatureEnum;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
@@ -51,7 +52,8 @@ class DefaultTasksPerWeekTest extends TestCase
     {
         $familyRequest = [
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'scope' => FeatureEnum::TASKS->value,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $member->id]],
         ];
 

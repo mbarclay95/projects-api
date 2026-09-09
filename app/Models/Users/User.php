@@ -2,6 +2,7 @@
 
 namespace App\Models\Users;
 
+use App\Enums\FeatureEnum;
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
 use App\Models\Tasks\TaskUserConfig;
@@ -44,7 +45,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected static $unguarded = true;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at', 'task_group_id'];
+    protected static array $apiModelAttributes = ['id', 'name', 'last_logged_in_at', 'group_ids'];
 
     protected static array $apiModelEntities = [
         'userConfig' => UserConfig::class,
@@ -119,8 +120,14 @@ class User extends Authenticatable implements JWTSubject
             });
     }
 
-    public function getTaskGroupIdAttribute(): ?int
+    public function getGroupIdsAttribute(): array
     {
-        return $this->taskGroup?->id;
+        $groupIdsByScope = UserGroupUser::query()
+            ->where('user_id', $this->id)
+            ->pluck('user_group_id', 'scope');
+
+        return collect(FeatureEnum::GROUP_SCOPES)
+            ->mapWithKeys(fn (FeatureEnum $scope) => [$scope->value => $groupIdsByScope->get($scope->value)])
+            ->all();
     }
 }

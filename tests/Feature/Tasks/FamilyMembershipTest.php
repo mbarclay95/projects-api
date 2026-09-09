@@ -3,6 +3,7 @@
 namespace Tests\Feature\Tasks;
 
 use App\Enums\FamilyTaskStrategyEnum;
+use App\Enums\FeatureEnum;
 use App\Enums\Roles;
 use App\Models\Tasks\Task;
 use App\Models\Tasks\TaskUserConfig;
@@ -26,7 +27,8 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'scope' => FeatureEnum::TASKS->value,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
@@ -61,9 +63,20 @@ class FamilyMembershipTest extends TestCase
         self::assertTrue($memberIds->contains($memberTwo->id));
 
         self::assertEquals($family->id, $memberOne->taskGroup->id);
-        self::assertEquals($family->id, $memberOne->task_group_id);
+        self::assertEquals($family->id, $memberOne->group_ids['tasks']);
         self::assertEquals($family->id, $memberTwo->taskGroup->id);
-        self::assertEquals($family->id, $memberTwo->task_group_id);
+        self::assertEquals($family->id, $memberTwo->group_ids['tasks']);
+
+        $groceryGroup = UserGroupsRepository::createEntityStatic([
+            'name' => 'test grocery group',
+            'scope' => FeatureEnum::GROCERY->value,
+            'members' => [['id' => $memberOne->id]],
+        ], new User);
+
+        self::assertEquals([
+            'tasks' => $family->id,
+            'grocery' => $groceryGroup->id,
+        ], $memberOne->fresh()->group_ids);
 
         $statsIds = collect($this->jsonAs($memberOne, 'GET', 'api/family-stats?userGroupId='.$family->id.'&year='.Carbon::now()->year)
             ->assertSuccessful()
@@ -89,7 +102,7 @@ class FamilyMembershipTest extends TestCase
 
         UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
-            'taskStrategy' => $family->task_strategy,
+            'taskStrategy' => $family->task_strategy->value,
             'members' => [['id' => $memberTwo->id]],
         ], new User);
 
@@ -121,7 +134,8 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'scope' => FeatureEnum::TASKS->value,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $memberOne->id], ['id' => $memberTwo->id]],
         ], new User);
 
@@ -141,13 +155,14 @@ class FamilyMembershipTest extends TestCase
 
         $family = UserGroupsRepository::createEntityStatic([
             'name' => 'test family',
-            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT,
+            'scope' => FeatureEnum::TASKS->value,
+            'taskStrategy' => FamilyTaskStrategyEnum::PER_TASK_POINT->value,
             'members' => [['id' => $member->id]],
         ], new User);
 
         UserGroupsRepository::updateEntityStatic($family->fresh(), [
             'name' => $family->name,
-            'taskStrategy' => $family->task_strategy,
+            'taskStrategy' => $family->task_strategy->value,
             'members' => [],
         ], new User);
 

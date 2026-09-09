@@ -79,6 +79,7 @@ class TagScopeTest extends TestCase
     {
         $this->jsonAs($this->user, 'GET', 'api/tags')->assertStatus(422);
         $this->jsonAs($this->user, 'GET', 'api/tags?scope=groceries')->assertStatus(422);
+        $this->jsonAs($this->user, 'GET', 'api/tags?scope=grocery')->assertStatus(422);
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

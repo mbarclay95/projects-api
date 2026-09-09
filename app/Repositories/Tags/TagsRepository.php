@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Tags;
 
-use App\Enums\TagScopeEnum;
+use App\Enums\FeatureEnum;
 use App\Models\Tags\Tag;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
@@ -14,8 +14,8 @@ class TagsRepository extends DefaultRepository
 {
     public function getEntities($request, Authenticatable $user, bool $viewOnlyForUser): Collection|array
     {
-        return match (TagScopeEnum::from($request['scope'])) {
-            TagScopeEnum::TASKS => $this->taskTags($user),
+        return match (FeatureEnum::from($request['scope'])) {
+            FeatureEnum::TASKS => $this->taskTags($user),
         };
     }
 

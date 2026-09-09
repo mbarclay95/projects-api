@@ -305,6 +305,15 @@ compares `lower(name)` on both create and update, throwing a
 `ValidationException` rather than relying on a database constraint, so a
 duplicate name is a 422 with a message rather than a 500 from a failed insert.
 
+Every item declares how it's quantified: `unit`, a required `App\Enums\GroceryItemUnit`
+(`NONE`, `WEIGHT`, `COUNT`) with no database default, so the frontend always sends
+one explicitly. `default_quantity` is a nullable decimal alongside it — a default
+amount for a future shopping-list entry to seed from, not anything read elsewhere
+yet. `GroceryItemsRepository` rejects a non-null `default_quantity` on a `NONE`
+item with a 422; nothing constrains the other two, since a household may not always
+know a default when they enter an item. `WEIGHT` is assumed to be pounds — there's
+no sub-unit column.
+
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so
 `TagController::$indexRules` and `UserGroupController::$storeRules` are

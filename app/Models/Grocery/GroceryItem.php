@@ -2,6 +2,7 @@
 
 namespace App\Models\Grocery;
 
+use App\Enums\GroceryItemUnit;
 use App\Models\Tags\Tag;
 use App\Traits\HasTags;
 use Carbon\Carbon;
@@ -18,15 +19,22 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property string name
  * @property string|null notes
  * @property int user_group_id
+ * @property GroceryItemUnit unit
+ * @property float|null default_quantity
  * @property Collection|Tag[] tags
  */
 class GroceryItem extends ApiModel
 {
     use HasFactory, HasTags;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'notes'];
+    protected static array $apiModelAttributes = ['id', 'name', 'notes', 'unit', 'default_quantity'];
 
     protected static array $apiModelArrayEntities = [
         'tags' => Tag::class,
+    ];
+
+    protected $casts = [
+        'unit' => GroceryItemUnit::class,
+        'default_quantity' => 'float',
     ];
 }

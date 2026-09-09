@@ -67,6 +67,7 @@ class GroceryItemsTest extends TestCase
             'name' => 'milk',
             'notes' => null,
             'tags' => [],
+            'unit' => 'none',
         ])->assertStatus(422);
     }
 
@@ -76,14 +77,18 @@ class GroceryItemsTest extends TestCase
             'name' => 'milk',
             'notes' => 'whole',
             'tags' => ['costco', 'dairy'],
+            'unit' => 'weight',
+            'defaultQuantity' => 1,
         ])->assertSuccessful()->json();
 
         self::assertEquals('milk', $response['name']);
         self::assertEquals(['costco', 'dairy'], $response['tags']);
+        self::assertEquals('weight', $response['unit']);
+        self::assertEquals(1, $response['defaultQuantity']);
         self::assertEquals($this->group->id, GroceryItem::query()->findOrFail($response['id'])->user_group_id);
     }
 
-    public function test_a_put_changes_name_notes_and_tags_detaching_a_removed_tag(): void
+    public function test_a_put_changes_name_notes_tags_unit_and_default_quantity_detaching_a_removed_tag(): void
     {
         $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
         $item->updateTags(['costco', 'produce']);
@@ -92,11 +97,36 @@ class GroceryItemsTest extends TestCase
             'name' => 'renamed',
             'notes' => 'updated notes',
             'tags' => ['produce'],
+            'unit' => 'count',
+            'defaultQuantity' => 4,
         ])->assertSuccessful()->json();
 
         self::assertEquals('renamed', $response['name']);
         self::assertEquals('updated notes', $response['notes']);
         self::assertEquals(['produce'], $response['tags']);
+        self::assertEquals('count', $response['unit']);
+        self::assertEquals(4, $response['defaultQuantity']);
+    }
+
+    public function test_a_post_with_an_unknown_unit_is_a_422(): void
+    {
+        $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+            'name' => 'milk',
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'gallons',
+        ])->assertStatus(422);
+    }
+
+    public function test_a_post_with_no_unit_and_a_default_quantity_is_a_422(): void
+    {
+        $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+            'name' => 'salt',
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'none',
+            'defaultQuantity' => 1,
+        ])->assertStatus(422);
     }
 
     public function test_a_post_whose_name_matches_an_existing_item_differing_only_in_case_is_a_422(): void
@@ -107,6 +137,7 @@ class GroceryItemsTest extends TestCase
             'name' => 'MILK',
             'notes' => null,
             'tags' => [],
+            'unit' => 'none',
         ])->assertStatus(422);
     }
 
@@ -119,6 +150,7 @@ class GroceryItemsTest extends TestCase
             'name' => 'Milk',
             'notes' => null,
             'tags' => [],
+            'unit' => 'none',
         ])->assertSuccessful();
     }
 
@@ -131,6 +163,7 @@ class GroceryItemsTest extends TestCase
             'name' => 'hijacked',
             'notes' => null,
             'tags' => [],
+            'unit' => 'none',
         ])->assertUnauthorized();
 
         self::assertEquals('untouched', $otherItem->fresh()->name);

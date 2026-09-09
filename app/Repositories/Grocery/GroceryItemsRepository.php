@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Grocery;
 
+use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -31,11 +32,14 @@ class GroceryItemsRepository extends DefaultRepository
         }
 
         $this->assertNameIsUnique($request['name'], $user->groceryGroup->id);
+        $this->assertQuantityMatchesUnit($request['unit'], $request['defaultQuantity'] ?? null);
 
         $item = new GroceryItem([
             'name' => $request['name'],
             'notes' => $request['notes'] ?? null,
             'user_group_id' => $user->groceryGroup->id,
+            'unit' => $request['unit'],
+            'default_quantity' => $request['defaultQuantity'] ?? null,
         ]);
         $item->save();
         $item->updateTags($request['tags']);
@@ -49,9 +53,12 @@ class GroceryItemsRepository extends DefaultRepository
     public function updateEntity(Model $model, $request, Authenticatable $user): Model|array
     {
         $this->assertNameIsUnique($request['name'], $model->user_group_id, $model->id);
+        $this->assertQuantityMatchesUnit($request['unit'], $request['defaultQuantity'] ?? null);
 
         $model->name = $request['name'];
         $model->notes = $request['notes'] ?? null;
+        $model->unit = $request['unit'];
+        $model->default_quantity = $request['defaultQuantity'] ?? null;
         $model->updateTags($request['tags']);
         $model->save();
 
@@ -68,6 +75,15 @@ class GroceryItemsRepository extends DefaultRepository
 
         if ($duplicateExists) {
             throw ValidationException::withMessages(['name' => 'That item is already on the master list.']);
+        }
+    }
+
+    private function assertQuantityMatchesUnit(string $unit, ?float $defaultQuantity): void
+    {
+        if ($unit === GroceryItemUnit::NONE->value && $defaultQuantity !== null) {
+            throw ValidationException::withMessages([
+                'defaultQuantity' => 'An item with no unit can\'t have a default quantity.',
+            ]);
         }
     }
 }

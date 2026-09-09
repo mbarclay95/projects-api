@@ -2,26 +2,34 @@
 
 namespace App\Http\Controllers\Grocery;
 
+use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
 use Mbarclay36\LaravelCrud\CrudController;
 
 class GroceryItemController extends CrudController
 {
     protected static string $modelClass = GroceryItem::class;
 
-    protected static array $storeRules = [
-        'name' => 'required|string',
-        'notes' => 'nullable|string',
-        'tags' => 'array|present',
-    ];
+    protected static array $storeRules = [];
 
-    protected static array $updateRules = [
-        'name' => 'required|string',
-        'notes' => 'nullable|string',
-        'tags' => 'array|present',
-    ];
+    protected static array $updateRules = [];
+
+    public function __construct()
+    {
+        $rules = [
+            'name' => 'required|string',
+            'notes' => 'nullable|string',
+            'tags' => 'array|present',
+            'unit' => ['required', 'string', Rule::enum(GroceryItemUnit::class)],
+            'defaultQuantity' => 'nullable|numeric',
+        ];
+
+        static::$storeRules = $rules;
+        static::$updateRules = $rules;
+    }
 
     /**
      * The CRUD package's default compares $model->user_id, a column

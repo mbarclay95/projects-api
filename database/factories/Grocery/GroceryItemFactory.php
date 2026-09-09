@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Grocery;
 
+use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,6 +22,8 @@ class GroceryItemFactory extends Factory
             'name' => 'testing',
             'notes' => null,
             'user_group_id' => 1,
+            'unit' => GroceryItemUnit::NONE,
+            'default_quantity' => null,
         ];
     }
 }

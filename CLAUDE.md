@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem` — `GroceryItemController`, `GroceryItemsRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryItemsRepository`, `GroceryListItemsRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -289,15 +289,16 @@ feature wants a personal grocery item the way tasks want a personal task.
 `User::groceryGroup()` is a `HasOneThrough` mirroring `taskGroup()`, filtered
 to `user_group_user.scope = 'grocery'`.
 
-`GroceryItemController` overrides `cannotUpdate()` and `cannotDestroy()` to add
+`GroceryItemController` and `GroceryListItemController` both override
+`cannotUpdate()` and `cannotDestroy()` to add
 `$model->user_group_id !== $user->groceryGroup?->id` alongside the permission
 check — the package's own `_for_user` fallback compares `$model->user_id`, a
-column this table doesn't have. This is the same hazard already written up for
+column neither table has. This is the same hazard already written up for
 Drafts (`createDraftsRole()`'s comment in `RolesAndPermissionsSeeder`): the
 role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
-and never the unscoped pair, because either unscoped grant satisfies
-`CrudController`'s check before the override's second clause runs. The
-overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
+for both models and never the unscoped pair, because either unscoped grant
+satisfies `CrudController`'s check before the override's second clause runs.
+Both overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
 missing permission row is a 500, not a 401.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
@@ -307,12 +308,55 @@ duplicate name is a 422 with a message rather than a 500 from a failed insert.
 
 Every item declares how it's quantified: `unit`, a required `App\Enums\GroceryItemUnit`
 (`NONE`, `WEIGHT`, `COUNT`) with no database default, so the frontend always sends
-one explicitly. `default_quantity` is a nullable decimal alongside it — a default
-amount for a future shopping-list entry to seed from, not anything read elsewhere
-yet. `GroceryItemsRepository` rejects a non-null `default_quantity` on a `NONE`
-item with a 422; nothing constrains the other two, since a household may not always
-know a default when they enter an item. `WEIGHT` is assumed to be pounds — there's
-no sub-unit column.
+one explicitly. `default_quantity` is a nullable decimal alongside it. `GroceryItemsRepository`
+rejects a non-null `default_quantity` on a `NONE` item with a 422; nothing constrains
+the other two, since a household may not always know a default when they enter an
+item. `WEIGHT` is assumed to be pounds — there's no sub-unit column.
+
+`grocery_list_items` is the shopping list: one row per `grocery_item_id`
+currently on it, carrying `user_group_id`, `added_by_user_id`, a nullable
+`quantity` and a nullable `bought_at` — all bare indexed integers with no
+foreign keys, the same reasoning as `grocery_items.user_group_id`. Its
+`user_group_id` duplicates what the entry's `grocery_items` row already says;
+that is deliberate and safe for the same reason `user_group_user.scope` is
+safe — an item's group is set at creation and there is no request field that
+changes it, so the two can never disagree — and it buys a plain indexed
+`where` for `GroceryListItemsRepository::getEntities()` and a
+`cannotUpdate()` / `cannotDestroy()` pair that read like
+`GroceryItemController`'s, rather than a `whereHas` through the item on every
+check.
+
+Buying an entry sets `bought_at` rather than deleting the row: `getEntities()`
+returns `whereNull('bought_at')` only, so a bought entry drops off the index
+the instant it's ticked, and the row stays in the table for good — nothing
+reads it yet, but a later "what do we usually buy" view could.
+`GroceryListItem::getBoughtAttribute()` exposes this as a `bought` boolean
+rather than the timestamp; `updateEntity()` writes `bought_at` as
+`$model->bought_at ?? now()` when `bought` is true and `null` when it's
+false, so a client never invents its own timestamp. Because bought rows are
+kept, uniqueness is enforced over unbought rows only — an item with an
+unbought entry can't be added again, but an item whose only entries are
+bought can. That's a `ValidationException` in the repository rather than a
+partial unique index, the same call `GroceryItemsRepository` makes for its
+own name-uniqueness rule and for the same reason: a 422 with a message rather
+than a 500 from a failed insert.
+
+`default_quantity` is what the Add Items picker seeds a new entry's
+`quantity` from — the repository stores exactly what it's sent and defaults
+nothing itself. An entry's quantity follows its item's `unit`:
+`GroceryListItemsRepository` nulls it silently, on both create and update,
+whenever `$item->unit === GroceryItemUnit::NONE`, rather than rejecting it
+with a 422 the way the master list does. The difference is who can produce
+the bad state: the master-list modal lets someone type a number for a `NONE`
+item and can tell them why it was refused, but nothing in the shopping-list
+UI can produce one, and a 422 here would strand an entry whose item was
+changed to `NONE` after the entry was created — ticking it off PUTs the whole
+entity, stale quantity included, and the entry could never be bought.
+
+Deleting a master-list item takes its shopping-list entries with it, bought
+and unbought alike: `GroceryItemsRepository::destroyEntity()` deletes
+`$model->listItems()` before deleting the item itself, so nothing is left
+pointing at a `grocery_items` row that no longer exists.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

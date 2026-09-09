@@ -65,6 +65,17 @@ class GroceryItemsRepository extends DefaultRepository
         return $model;
     }
 
+    /**
+     * @param  GroceryItem  $model
+     */
+    public function destroyEntity(Model $model, Authenticatable $user): bool
+    {
+        $model->listItems()->delete();
+        $model->delete();
+
+        return true;
+    }
+
     private function assertNameIsUnique(string $name, int $userGroupId, ?int $ignoreId = null): void
     {
         $duplicateExists = GroceryItem::query()

@@ -63,9 +63,20 @@ class FamilyMembershipTest extends TestCase
         self::assertTrue($memberIds->contains($memberTwo->id));
 
         self::assertEquals($family->id, $memberOne->taskGroup->id);
-        self::assertEquals($family->id, $memberOne->task_group_id);
+        self::assertEquals($family->id, $memberOne->group_ids['tasks']);
         self::assertEquals($family->id, $memberTwo->taskGroup->id);
-        self::assertEquals($family->id, $memberTwo->task_group_id);
+        self::assertEquals($family->id, $memberTwo->group_ids['tasks']);
+
+        $groceryGroup = UserGroupsRepository::createEntityStatic([
+            'name' => 'test grocery group',
+            'scope' => FeatureEnum::GROCERY->value,
+            'members' => [['id' => $memberOne->id]],
+        ], new User);
+
+        self::assertEquals([
+            'tasks' => $family->id,
+            'grocery' => $groceryGroup->id,
+        ], $memberOne->fresh()->group_ids);
 
         $statsIds = collect($this->jsonAs($memberOne, 'GET', 'api/family-stats?userGroupId='.$family->id.'&year='.Carbon::now()->year)
             ->assertSuccessful()

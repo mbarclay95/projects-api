@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Grocery\GroceryItem;
 use App\Models\Tasks\RecurringTask;
 use App\Models\Tasks\Task;
 use App\Models\UserGroups\UserGroup;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
             'user-group' => UserGroup::class,
             'task' => Task::class,
             'recurring-task' => RecurringTask::class,
+            'grocery-item' => GroceryItem::class,
         ]);
     }
 }

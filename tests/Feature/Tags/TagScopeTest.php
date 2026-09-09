@@ -3,6 +3,7 @@
 namespace Tests\Feature\Tags;
 
 use App\Enums\Roles;
+use App\Models\Grocery\GroceryItem;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
 use App\Models\UserGroups\UserGroup;
@@ -79,7 +80,58 @@ class TagScopeTest extends TestCase
     {
         $this->jsonAs($this->user, 'GET', 'api/tags')->assertStatus(422);
         $this->jsonAs($this->user, 'GET', 'api/tags?scope=groceries')->assertStatus(422);
-        $this->jsonAs($this->user, 'GET', 'api/tags?scope=grocery')->assertStatus(422);
+    }
+
+    public function test_the_grocery_scope_returns_tags_on_the_callers_grocery_groups_items(): void
+    {
+        $groceryUser = User::factory()->create();
+        $groceryUser->assignRole(Roles::GROCERY_ROLE);
+        $groceryGroup = UserGroup::factory()->grocery()->create();
+        $groceryGroup->members()->attach($groceryUser->id, ['scope' => 'grocery']);
+
+        $item = GroceryItem::factory()->create(['user_group_id' => $groceryGroup->id]);
+        $item->updateTags(['costco']);
+
+        $tags = $this->jsonAs($groceryUser, 'GET', 'api/tags?scope=grocery')
+            ->assertSuccessful()
+            ->json();
+
+        self::assertContains('costco', $tags);
+    }
+
+    public function test_the_grocery_scope_excludes_another_groups_tags_and_a_tags_only_tag(): void
+    {
+        $groceryUser = User::factory()->create();
+        $groceryUser->assignRole(Roles::GROCERY_ROLE);
+        $groceryGroup = UserGroup::factory()->grocery()->create();
+        $groceryGroup->members()->attach($groceryUser->id, ['scope' => 'grocery']);
+
+        $otherGroup = UserGroup::factory()->grocery()->create();
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $otherGroup->id]);
+        $otherItem->updateTags(['stranger']);
+
+        $userTask = Task::factory()->create([
+            'owner_type' => (new User)->getMorphClass(),
+            'owner_id' => $this->user->id,
+        ]);
+        $userTask->updateTags(['kitchen']);
+
+        $tags = $this->jsonAs($groceryUser, 'GET', 'api/tags?scope=grocery')
+            ->assertSuccessful()
+            ->json();
+
+        self::assertNotContains('stranger', $tags);
+        self::assertNotContains('kitchen', $tags);
+    }
+
+    public function test_the_grocery_scope_is_empty_for_a_caller_with_no_grocery_group(): void
+    {
+        $groupless = User::factory()->create();
+        $groupless->assignRole(Roles::GROCERY_ROLE);
+
+        $this->jsonAs($groupless, 'GET', 'api/tags?scope=grocery')
+            ->assertSuccessful()
+            ->assertJson([]);
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

@@ -9,7 +9,7 @@ enum FeatureEnum: string
     case TASKS = 'tasks';
     case GROCERY = 'grocery';
 
-    public const TAG_SCOPES = [self::TASKS];
+    public const TAG_SCOPES = [self::TASKS, self::GROCERY];
 
     public const GROUP_SCOPES = [self::TASKS, self::GROCERY];
 

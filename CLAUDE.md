@@ -98,6 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
+| Grocery | `GroceryItem` — `GroceryItemController`, `GroceryItemsRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -118,9 +119,9 @@ Complex list endpoints use `EloquentFilter` — filter classes live in `app/Mode
 ### Morph map
 
 Polymorphic `*_type` columns hold short aliases, not PHP class names:
-`user`, `user-group`, `task`, `recurring-task`. The map is registered with
-`Relation::enforceMorphMap()` in `AppServiceProvider::boot()`, so calling
-`getMorphClass()` on a model outside the map throws
+`user`, `user-group`, `task`, `recurring-task`, `grocery-item`. The map is
+registered with `Relation::enforceMorphMap()` in `AppServiceProvider::boot()`,
+so calling `getMorphClass()` on a model outside the map throws
 `ClassMorphViolationException` instead of writing its class name into a column.
 Use `getMorphClass()`, never `Relation::getMorphAlias()` — the latter falls
 back to the class name for an unmapped model instead of throwing, which
@@ -130,7 +131,9 @@ map first.
 The five columns holding these aliases: `tasks.owner_type`,
 `recurring_tasks.owner_type`, `taggables.taggable_type`,
 `model_has_roles.model_type`, `model_has_permissions.model_type` (the latter
-two are Spatie's permission tables).
+two are Spatie's permission tables). `grocery_items` has no morph column of
+its own — it doesn't need one, and it only widens `taggables.taggable_type`,
+which now holds `task` and `grocery-item` rather than `task` alone.
 
 ### User-group membership
 
@@ -242,16 +245,25 @@ a stale hide-list entry ships green.
 Nothing on a `tags` row says which feature it belongs to, and there is not
 going to be one — the pool of tags a feature offers is defined the same way
 its rows are defined: a relation on `Tag` plus that feature's own visibility
-rule (a task is owned by a user *or* a family, so the tasks scope is an
-`orWhere` over both; a differently-owned feature gets a different rule, not
-the same one reused).
+rule.
 
-The tasks scope covers `tasks` alone, and that is complete rather than a gap.
-`Task::updateTags()` is the only tag writer in the app. `RecurringTask::tags()`
-is declared but nothing ever writes through it — a recurring task hands its
-tag strings to the `Task` it generates, which ends in that same
-`updateTags()`. Every row in `taggables` is therefore a `task` row; there is
-nothing a `recurring-task` clause would catch.
+Two scopes exist, each with its own rule. The tasks scope covers a task owned
+by a user *or* a family, an `orWhere` over both. The grocery scope is simpler
+because ownership is simpler: tags on grocery items whose `user_group_id` is
+the caller's grocery group, resolved through `User::groceryGroup()`; a caller
+with no grocery group gets an empty collection from an early return, not a
+query with a null in it. A differently-owned feature gets its own rule, not
+one of these reused.
+
+`App\Traits\HasTags` — `tags()` and `updateTags()` — is the app's single tag
+writer, used by both `Task` and `GroceryItem`. `RecurringTask::tags()` is
+declared but nothing ever writes through it — a recurring task hands its tag
+strings to the `Task` it generates, which ends in that same `updateTags()`.
+`taggables` therefore holds only `task` and `grocery-item` rows.
+
+The two features' tag pools stay separate by design: a `costco` tag entered on
+a task and a `costco` tag entered on a grocery item are two `tags` rows,
+permanently, and neither scope's list ever surfaces the other's.
 
 Everything that varies by scope — for tags or for user groups — lives on
 `App\Enums\FeatureEnum`: a case per feature, plus two arrays over its cases.
@@ -261,14 +273,46 @@ Everything that varies by scope — for tags or for user groups — lives on
 | `TAG_SCOPES` | features with a tag list — an arm of the `match` in `TagsRepository::getEntities()` |
 | `GROUP_SCOPES` | features that can have a `user_groups` row — an arm of `groupConfigRules()` and `buildConfig()` |
 
-A case in neither array simply does not exist to either mechanism: `grocery`
-is in `GROUP_SCOPES` and not in `TAG_SCOPES`, so a grocery group can be
-created while `GET /tags?scope=grocery` stays a 422. Adding a feature is a
-case, membership in whichever arrays it opts into, and a `match` arm wherever
-it opted in — the arms are what fail loudly. `TagsRepository::getEntities()`'s
-`match` and `FeatureEnum::groupConfigRules()` / `buildConfig()` throw
-`UnhandledMatchError` on a case with no arm, rather than silently returning
-the wrong thing. The arrays are deliberately the silent half.
+`grocery` is in both arrays now. A case in neither simply does not exist to
+either mechanism. Adding a feature is a case, membership in whichever arrays it
+opts into, and a `match` arm wherever it opted in — the arms are what fail
+loudly. `TagsRepository::getEntities()`'s `match` and
+`FeatureEnum::groupConfigRules()` / `buildConfig()` throw `UnhandledMatchError`
+on a case with no arm, rather than silently returning the wrong thing. The
+arrays are deliberately the silent half.
+
+### Grocery ownership
+
+A `grocery_items` row belongs to a grocery-scoped `user_groups` row through a
+plain `user_group_id` integer — no `owner_type`, because nothing in the
+feature wants a personal grocery item the way tasks want a personal task.
+`User::groceryGroup()` is a `HasOneThrough` mirroring `taskGroup()`, filtered
+to `user_group_user.scope = 'grocery'`.
+
+`GroceryItemController` overrides `cannotUpdate()` and `cannotDestroy()` to add
+`$model->user_group_id !== $user->groceryGroup?->id` alongside the permission
+check — the package's own `_for_user` fallback compares `$model->user_id`, a
+column this table doesn't have. This is the same hazard already written up for
+Drafts (`createDraftsRole()`'s comment in `RolesAndPermissionsSeeder`): the
+role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
+and never the unscoped pair, because either unscoped grant satisfies
+`CrudController`'s check before the override's second clause runs. The
+overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
+missing permission row is a 500, not a 401.
+
+A name is unique within a group, case-insensitively: `GroceryItemsRepository`
+compares `lower(name)` on both create and update, throwing a
+`ValidationException` rather than relying on a database constraint, so a
+duplicate name is a 422 with a message rather than a 500 from a failed insert.
+
+Every item declares how it's quantified: `unit`, a required `App\Enums\GroceryItemUnit`
+(`NONE`, `WEIGHT`, `COUNT`) with no database default, so the frontend always sends
+one explicitly. `default_quantity` is a nullable decimal alongside it — a default
+amount for a future shopping-list entry to seed from, not anything read elsewhere
+yet. `GroceryItemsRepository` rejects a non-null `default_quantity` on a `NONE`
+item with a 422; nothing constrains the other two, since a household may not always
+know a default when they enter an item. `WEIGHT` is assumed to be pounds — there's
+no sub-unit column.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

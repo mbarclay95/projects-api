@@ -29,6 +29,7 @@ use App\Http\Controllers\Gaming\GamingSessionController;
 use App\Http\Controllers\Gaming\GamingSessionDeviceController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
+use App\Http\Controllers\Grocery\GroceryItemController;
 use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tags\TagController;
@@ -97,6 +98,11 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('family-stats', FamilyStatsController::class)->only('index');
     Route::apiResource('task-user-config', TaskUserConfigController::class)->only('index', 'update');
     Route::apiResource('tasks.history', TaskHistoryController::class)->only('index');
+});
+
+// GROCERY
+Route::middleware('auth')->group(function () {
+    Route::apiResource('grocery-items', GroceryItemController::class)->except('show');
 });
 
 // DASHBOARD

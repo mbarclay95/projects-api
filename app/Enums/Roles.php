@@ -27,4 +27,6 @@ class Roles
     const GAMING_SESSION_ADMIN_ROLE = 'gaming_session_admin_role';
 
     const DRAFTS_ROLE = 'drafts_role';
+
+    const GROCERY_ROLE = 'grocery_role';
 }

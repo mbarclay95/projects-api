@@ -24,4 +24,12 @@ class UserGroupFactory extends Factory
             'scope' => 'tasks',
         ];
     }
+
+    public function grocery(): static
+    {
+        return $this->state(fn () => [
+            'scope' => 'grocery',
+            'config' => [],
+        ]);
+    }
 }

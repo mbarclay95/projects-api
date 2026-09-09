@@ -16,6 +16,7 @@ class TagsRepository extends DefaultRepository
     {
         return match (FeatureEnum::from($request['scope'])) {
             FeatureEnum::TASKS => $this->taskTags($user),
+            FeatureEnum::GROCERY => $this->groceryTags($user),
         };
     }
 
@@ -37,6 +38,19 @@ class TagsRepository extends DefaultRepository
                         });
                 });
             })
+            ->select('tag')
+            ->distinct()
+            ->get();
+    }
+
+    private function groceryTags(Authenticatable $user): Collection
+    {
+        if (! $user->groceryGroup) {
+            return Collection::make();
+        }
+
+        return Tag::query()
+            ->whereHas('groceryItems', fn ($where) => $where->where('user_group_id', '=', $user->groceryGroup->id))
             ->select('tag')
             ->distinct()
             ->get();

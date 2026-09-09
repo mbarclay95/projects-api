@@ -2,6 +2,7 @@
 
 namespace App\Models\Tags;
 
+use App\Models\Grocery\GroceryItem;
 use App\Models\Tasks\{RecurringTask, Task};
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property string tag
  * @property Collection|Task[] tasks
  * @property Collection|RecurringTask[] recurringTasks
+ * @property Collection|GroceryItem[] groceryItems
  */
 class Tag extends ApiModel
 {
@@ -40,5 +42,10 @@ class Tag extends ApiModel
     public function recurringTasks(): MorphToMany
     {
         return $this->morphedByMany(RecurringTask::class, 'taggable');
+    }
+
+    public function groceryItems(): MorphToMany
+    {
+        return $this->morphedByMany(GroceryItem::class, 'taggable');
     }
 }

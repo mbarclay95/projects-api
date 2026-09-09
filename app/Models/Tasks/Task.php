@@ -6,13 +6,13 @@ use App\Models\ApiModels\UserGroupMemberApiModel;
 use App\Models\Tags\Tag;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
+use App\Traits\HasTags;
 use Carbon\Carbon;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
@@ -40,7 +40,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  */
 class Task extends ApiModel
 {
-    use Filterable, HasFactory;
+    use Filterable, HasFactory, HasTags;
 
     protected static array $apiModelAttributes = ['id', 'name', 'completed_at', 'cleared_at', 'due_date', 'description',
         'owner_type', 'owner_id', 'frequency_amount', 'frequency_unit', 'recurring', 'is_active', 'priority', 'task_point'];
@@ -59,38 +59,6 @@ class Task extends ApiModel
         'completed_at' => 'datetime',
         'cleared_at' => 'datetime',
     ];
-
-    public function updateTags(array $newTags): Task
-    {
-        $currentTags = $this->tags;
-        $tagsToInsert = [];
-        /** @var string $newTag */
-        foreach ($newTags as $newTag) {
-            if ($currentTags->doesntContain(function (Tag $currentTag) use ($newTag) {
-                return $newTag == $currentTag->tag;
-            })) {
-                $tagsToInsert[] = new Tag(['tag' => $newTag]);
-            }
-        }
-        $this->tags()->saveMany($tagsToInsert);
-
-        foreach ($currentTags as $currentTag) {
-            if (Collection::make($newTags)->doesntContain(function (string $newTag) use ($currentTag) {
-                return $currentTag->tag == $newTag;
-            })) {
-                $this->tags()->detach($currentTag);
-            }
-        }
-
-        $this->load('tags');
-
-        return $this;
-    }
-
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
-    }
 
     public static function createFromRecurring(RecurringTask $recurringTask, Carbon $dueDate, array $tags): Task
     {

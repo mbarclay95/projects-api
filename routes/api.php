@@ -29,8 +29,10 @@ use App\Http\Controllers\Gaming\GamingSessionController;
 use App\Http\Controllers\Gaming\GamingSessionDeviceController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
+use App\Http\Controllers\Grocery\GroceryCategoryController;
 use App\Http\Controllers\Grocery\GroceryItemController;
 use App\Http\Controllers\Grocery\GroceryListItemController;
+use App\Http\Controllers\Grocery\GroceryStoreController;
 use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tags\TagController;
@@ -105,6 +107,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('grocery-items', GroceryItemController::class)->except('show');
     Route::apiResource('grocery-list-items', GroceryListItemController::class)->except('show');
+    Route::apiResource('grocery-categories', GroceryCategoryController::class)->only('index');
+    Route::apiResource('grocery-stores', GroceryStoreController::class)->except('show');
 });
 
 // DASHBOARD

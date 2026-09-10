@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem`, `GroceryListItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryItemsRepository`, `GroceryListItemsRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -289,22 +289,41 @@ feature wants a personal grocery item the way tasks want a personal task.
 `User::groceryGroup()` is a `HasOneThrough` mirroring `taskGroup()`, filtered
 to `user_group_user.scope = 'grocery'`.
 
-`GroceryItemController` and `GroceryListItemController` both override
-`cannotUpdate()` and `cannotDestroy()` to add
-`$model->user_group_id !== $user->groceryGroup?->id` alongside the permission
-check — the package's own `_for_user` fallback compares `$model->user_id`, a
-column neither table has. This is the same hazard already written up for
-Drafts (`createDraftsRole()`'s comment in `RolesAndPermissionsSeeder`): the
-role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
-for both models and never the unscoped pair, because either unscoped grant
-satisfies `CrudController`'s check before the override's second clause runs.
-Both overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
-missing permission row is a 500, not a 401.
+`GroceryItemController`, `GroceryListItemController`, `GroceryStoreController`
+and `GroceryStoreItemCategoryController` all override `cannotUpdate()` and
+`cannotDestroy()` to add `$model->user_group_id !== $user->groceryGroup?->id`
+alongside the permission check — the package's own `_for_user` fallback
+compares `$model->user_id`, a column none of the four tables has. This is the
+same hazard already written up for Drafts (`createDraftsRole()`'s comment in
+`RolesAndPermissionsSeeder`), and it now covers four models rather than two:
+the role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
+for each and never the unscoped pair, because either unscoped grant satisfies
+`CrudController`'s check before the override's second clause runs. All four
+overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
+missing permission row is a 500, not a 401. `GroceryCategory` sits outside
+this entirely — its route is index-only, so there is no `cannotUpdate()` /
+`cannotDestroy()` to get wrong, and the role holds only its
+`viewAnyForUserPermission()`.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
 compares `lower(name)` on both create and update, throwing a
 `ValidationException` rather than relying on a database constraint, so a
 duplicate name is a 422 with a message rather than a 500 from a failed insert.
+
+A category is a single-valued field on the item, not a tag — an item tagged
+both `produce` and `bulk` has no answer for which one decides where it sorts
+on a shopping list, so category avoids the question rather than resolving it.
+`grocery_categories` rows are created implicitly:
+`GroceryItemsRepository::resolveCategoryId()` trims the request's `category`
+name, finds an existing row in the group by `lower(name)` or creates one, and
+returns `null` for an empty result rather than a category called `""`.
+`GroceryItem::groceryCategory()` is the `BelongsTo`; `getCategoryAttribute()`
+exposes it as a name, the same accessor shape as `GroceryListItem::getBoughtAttribute()`.
+That accessor is an N+1 waiting to happen — it lazy-loads per row unless eager
+loaded — which is why `GroceryItemsRepository::getEntities()`'s and
+`GroceryListItemsRepository::getEntities()`'s `with()` calls both name
+`groceryCategory` beside `tags`, the second one nested under `groceryItem`
+because the shopping list nests the whole item.
 
 Every item declares how it's quantified: `unit`, a required `App\Enums\GroceryItemUnit`
 (`NONE`, `WEIGHT`, `COUNT`) with no database default, so the frontend always sends
@@ -312,6 +331,28 @@ one explicitly. `default_quantity` is a nullable decimal alongside it. `GroceryI
 rejects a non-null `default_quantity` on a `NONE` item with a 422; nothing constrains
 the other two, since a household may not always know a default when they enter an
 item. `WEIGHT` is assumed to be pounds — there's no sub-unit column.
+
+A `grocery_stores` row is a name plus `category_order`, a jsonb array of
+`grocery_categories.id` — ordering ids rather than names is what lets a
+category's name change without every store's array having to be rewritten.
+`GroceryStoresRepository::sanitiseCategoryOrder()` filters a store's write
+down to ids that are actually `grocery_categories` rows in the caller's
+group, dedupes them and preserves the order given, silently dropping anything
+else rather than answering a 422. That is unlike `GroceryItemsRepository`'s
+validation of everything on an item: nothing in the UI can produce a bad
+category id, and rejecting one would strand a store whose category
+disappeared — every later save of that store would fail on data the caller
+cannot see or fix.
+
+`grocery_store_item_categories` is a store's exceptions — one row per
+(store, item), naming a category rather than a position, so re-dragging a
+store's aisle order afterwards keeps every exception correct without
+touching it. `GroceryStoreItemCategoriesRepository::createEntity()` checks
+that the store, the item and the category each belong to the caller's group
+before writing, and throws a `ValidationException` — its own message per
+check — for a mismatch or for a second exception at the same (store, item);
+there is no unique index behind that last rule, the same call
+`GroceryItemsRepository` makes for its own name-uniqueness rule.
 
 `grocery_list_items` is the shopping list: one row per `grocery_item_id`
 currently on it, carrying `user_group_id`, `added_by_user_id`, a nullable
@@ -353,10 +394,12 @@ UI can produce one, and a 422 here would strand an entry whose item was
 changed to `NONE` after the entry was created — ticking it off PUTs the whole
 entity, stale quantity included, and the entry could never be bought.
 
-Deleting a master-list item takes its shopping-list entries with it, bought
-and unbought alike: `GroceryItemsRepository::destroyEntity()` deletes
-`$model->listItems()` before deleting the item itself, so nothing is left
-pointing at a `grocery_items` row that no longer exists.
+Deleting a master-list item cascades twice: `GroceryItemsRepository::destroyEntity()`
+deletes `$model->listItems()` (bought and unbought alike) and
+`$model->exceptions()` before deleting the item itself, so nothing is left
+pointing at a `grocery_items` row that no longer exists. Deleting a store
+cascades the same way — `GroceryStoresRepository::destroyEntity()` deletes
+`$model->exceptions()` before deleting the store.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

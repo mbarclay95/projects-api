@@ -27,6 +27,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property GroceryCategory|null groceryCategory
  * @property string|null category
  * @property Collection|Tag[] tags
+ * @property Collection|GroceryStoreItemCategory[] exceptions
  */
 class GroceryItem extends ApiModel
 {
@@ -48,6 +49,11 @@ class GroceryItem extends ApiModel
     public function listItems(): HasMany
     {
         return $this->hasMany(GroceryListItem::class);
+    }
+
+    public function exceptions(): HasMany
+    {
+        return $this->hasMany(GroceryStoreItemCategory::class);
     }
 
     public function groceryCategory(): BelongsTo

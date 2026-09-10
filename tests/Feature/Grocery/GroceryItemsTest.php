@@ -6,6 +6,8 @@ use App\Enums\Roles;
 use App\Models\Grocery\GroceryCategory;
 use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Grocery\GroceryStore;
+use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
@@ -307,6 +309,33 @@ class GroceryItemsTest extends TestCase
         self::assertNull($unboughtEntry->fresh());
         self::assertNull($boughtEntry->fresh());
         self::assertNotNull($otherEntry->fresh());
+    }
+
+    public function test_a_delete_removes_its_exception_rows_and_leaves_another_items_alone(): void
+    {
+        $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $store = GroceryStore::factory()->create(['user_group_id' => $this->group->id]);
+        $category = GroceryCategory::factory()->create(['user_group_id' => $this->group->id]);
+
+        $exception = GroceryStoreItemCategory::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $item->id,
+            'grocery_category_id' => $category->id,
+        ]);
+        $otherException = GroceryStoreItemCategory::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $otherItem->id,
+            'grocery_category_id' => $category->id,
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/grocery-items/{$item->id}")
+            ->assertSuccessful();
+
+        self::assertNull($exception->fresh());
+        self::assertNotNull($otherException->fresh());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

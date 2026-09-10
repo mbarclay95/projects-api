@@ -74,6 +74,7 @@ class GroceryItemsRepository extends DefaultRepository
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {
         $model->listItems()->delete();
+        $model->exceptions()->delete();
         $model->delete();
 
         return true;

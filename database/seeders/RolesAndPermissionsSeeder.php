@@ -24,8 +24,11 @@ use App\Models\Gaming\GamingDevice;
 use App\Models\Gaming\GamingSession;
 use App\Models\Goals\Goal;
 use App\Models\Goals\GoalDay;
+use App\Models\Grocery\GroceryCategory;
 use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Grocery\GroceryStore;
+use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\Logging\LogEvent;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
@@ -290,14 +293,18 @@ class RolesAndPermissionsSeeder extends Seeder
     }
 
     /**
-     * GroceryItem::updatePermission() / GroceryItem::deletePermission() and
-     * GroceryListItem::updatePermission() / GroceryListItem::deletePermission()
-     * — the unscoped variants — must never be granted here. Either one
-     * short-circuits the ownership test in cannotUpdate()/cannotDestroy(),
-     * letting any holder of this role edit any group's items. The scoped
-     * grants below do not work on their own until GroceryItemController and
-     * GroceryListItemController override both methods, because the package
-     * compares $model->user_id and neither table has such a column.
+     * GroceryItem::updatePermission() / GroceryItem::deletePermission(),
+     * GroceryListItem::updatePermission() / GroceryListItem::deletePermission(),
+     * GroceryStore::updatePermission() / GroceryStore::deletePermission() and
+     * GroceryStoreItemCategory::updatePermission() /
+     * GroceryStoreItemCategory::deletePermission() — the unscoped variants —
+     * must never be granted here. Either one short-circuits the ownership
+     * test in cannotUpdate()/cannotDestroy(), letting any holder of this role
+     * edit any group's items. The scoped grants below do not work on their
+     * own until each model's controller overrides both methods, because the
+     * package compares $model->user_id and none of these tables has such a
+     * column. GroceryCategory has no update or delete route to guard —
+     * it's granted only viewAnyForUserPermission().
      */
     private function createGroceryRole(): void
     {
@@ -311,6 +318,18 @@ class RolesAndPermissionsSeeder extends Seeder
             GroceryListItem::createPermission(),
             GroceryListItem::updateForUserPermission(),
             GroceryListItem::deleteForUserPermission(),
+
+            GroceryCategory::viewAnyForUserPermission(),
+
+            GroceryStore::viewAnyForUserPermission(),
+            GroceryStore::createPermission(),
+            GroceryStore::updateForUserPermission(),
+            GroceryStore::deleteForUserPermission(),
+
+            GroceryStoreItemCategory::viewAnyForUserPermission(),
+            GroceryStoreItemCategory::createPermission(),
+            GroceryStoreItemCategory::updateForUserPermission(),
+            GroceryStoreItemCategory::deleteForUserPermission(),
 
             Tag::viewAnyForUserPermission(),
 

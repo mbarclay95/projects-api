@@ -3,6 +3,7 @@
 namespace App\Repositories\Grocery;
 
 use App\Enums\GroceryItemUnit;
+use App\Models\Grocery\GroceryCategory;
 use App\Models\Grocery\GroceryItem;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,7 @@ class GroceryItemsRepository extends DefaultRepository
 
         return GroceryItem::query()
             ->where('user_group_id', '=', $user->groceryGroup->id)
-            ->with('tags')
+            ->with('tags', 'groceryCategory')
             ->orderBy('name')
             ->get();
     }
@@ -40,6 +41,7 @@ class GroceryItemsRepository extends DefaultRepository
             'user_group_id' => $user->groceryGroup->id,
             'unit' => $request['unit'],
             'default_quantity' => $request['defaultQuantity'] ?? null,
+            'grocery_category_id' => $this->resolveCategoryId($request['category'] ?? null, $user->groceryGroup->id),
         ]);
         $item->save();
         $item->updateTags($request['tags']);
@@ -59,6 +61,7 @@ class GroceryItemsRepository extends DefaultRepository
         $model->notes = $request['notes'] ?? null;
         $model->unit = $request['unit'];
         $model->default_quantity = $request['defaultQuantity'] ?? null;
+        $model->grocery_category_id = $this->resolveCategoryId($request['category'] ?? null, $model->user_group_id);
         $model->updateTags($request['tags']);
         $model->save();
 
@@ -96,5 +99,31 @@ class GroceryItemsRepository extends DefaultRepository
                 'defaultQuantity' => 'An item with no unit can\'t have a default quantity.',
             ]);
         }
+    }
+
+    private function resolveCategoryId(?string $name, int $userGroupId): ?int
+    {
+        $name = trim($name ?? '');
+
+        if ($name === '') {
+            return null;
+        }
+
+        $category = GroceryCategory::query()
+            ->where('user_group_id', '=', $userGroupId)
+            ->whereRaw('lower(name) = ?', [strtolower($name)])
+            ->first();
+
+        if ($category) {
+            return $category->id;
+        }
+
+        $category = new GroceryCategory([
+            'name' => $name,
+            'user_group_id' => $userGroupId,
+        ]);
+        $category->save();
+
+        return $category->id;
     }
 }

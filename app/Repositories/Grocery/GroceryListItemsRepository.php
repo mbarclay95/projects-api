@@ -22,7 +22,7 @@ class GroceryListItemsRepository extends DefaultRepository
         return GroceryListItem::query()
             ->where('user_group_id', '=', $user->groceryGroup->id)
             ->whereNull('bought_at')
-            ->with('groceryItem.tags', 'addedBy')
+            ->with('groceryItem.tags', 'groceryItem.groceryCategory', 'addedBy')
             ->orderBy(GroceryItem::query()->select('name')->whereColumn('id', 'grocery_list_items.grocery_item_id'))
             ->get();
     }

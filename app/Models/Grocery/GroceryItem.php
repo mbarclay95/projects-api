@@ -7,6 +7,7 @@ use App\Models\Tags\Tag;
 use App\Traits\HasTags;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
@@ -22,13 +23,18 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property int user_group_id
  * @property GroceryItemUnit unit
  * @property float|null default_quantity
+ * @property int|null grocery_category_id
+ * @property GroceryCategory|null groceryCategory
+ * @property string|null category
  * @property Collection|Tag[] tags
  */
 class GroceryItem extends ApiModel
 {
     use HasFactory, HasTags;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'notes', 'unit', 'default_quantity'];
+    protected static array $apiModelAttributes = [
+        'id', 'name', 'notes', 'unit', 'default_quantity', 'grocery_category_id', 'category',
+    ];
 
     protected static array $apiModelArrayEntities = [
         'tags' => Tag::class,
@@ -42,5 +48,15 @@ class GroceryItem extends ApiModel
     public function listItems(): HasMany
     {
         return $this->hasMany(GroceryListItem::class);
+    }
+
+    public function groceryCategory(): BelongsTo
+    {
+        return $this->belongsTo(GroceryCategory::class);
+    }
+
+    public function getCategoryAttribute(): ?string
+    {
+        return $this->groceryCategory?->name;
     }
 }

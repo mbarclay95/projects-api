@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem`, `Recipe`, `RecipeItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `RecipeController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository`, `RecipesRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -290,13 +290,14 @@ feature wants a personal grocery item the way tasks want a personal task.
 to `user_group_user.scope = 'grocery'`.
 
 `GroceryItemController`, `GroceryListItemController`, `GroceryStoreController`,
-`GroceryStoreItemCategoryController` and `GroceryStoreUnavailableItemController`
-all follow the same scoped-permission pattern: `cannotDestroy()` (and, for the
-first four, `cannotUpdate()`) adds `$model->user_group_id !== $user->groceryGroup?->id`
+`GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`
+and `RecipeController` all follow the same scoped-permission pattern:
+`cannotDestroy()` (and, for all but `GroceryStoreUnavailableItemController`,
+`cannotUpdate()`) adds `$model->user_group_id !== $user->groceryGroup?->id`
 alongside the permission check — the package's own `_for_user` fallback
-compares `$model->user_id`, a column none of the five tables has. This is the
+compares `$model->user_id`, a column none of the six tables has. This is the
 same hazard already written up for Drafts (`createDraftsRole()`'s comment in
-`RolesAndPermissionsSeeder`), and it now covers five models rather than two:
+`RolesAndPermissionsSeeder`), and it now covers six models rather than two:
 the role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
 for each and never the unscoped pair, because either unscoped grant satisfies
 `CrudController`'s check before the override's second clause runs. Every
@@ -308,7 +309,10 @@ this: `GroceryCategory`'s route is index-only, so there is no `cannotUpdate()`
 route, so the update half of the rule doesn't apply to it while the delete
 half does — it overrides `cannotDestroy()` only, and the role holds
 `viewAnyForUserPermission()`, `createPermission()` and
-`deleteForUserPermission()`, never `updateForUserPermission()`.
+`deleteForUserPermission()`, never `updateForUserPermission()`. `RecipeItem`
+holds no permissions at all: it has no controller and no routes of its own —
+every read and write of an ingredient goes through its recipe — so there is
+nothing to scope.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
 compares `lower(name)` on both create and update, throwing a
@@ -425,12 +429,42 @@ UI can produce one, and a 422 here would strand an entry whose item was
 changed to `NONE` after the entry was created — ticking it off PUTs the whole
 entity, stale quantity included, and the entry could never be bought.
 
-Deleting a master-list item cascades twice: `GroceryItemsRepository::destroyEntity()`
-deletes `$model->listItems()` (bought and unbought alike) and
-`$model->exceptions()` before deleting the item itself, so nothing is left
-pointing at a `grocery_items` row that no longer exists. Deleting a store
+Deleting a master-list item cascades three ways: `GroceryItemsRepository::destroyEntity()`
+deletes `$model->listItems()` (bought and unbought alike), `$model->exceptions()`
+and `$model->recipeItems()` before deleting the item itself, so nothing is left
+pointing at a `grocery_items` row that no longer exists — a recipe that used
+the item loses that one ingredient and keeps the rest. Deleting a store
 cascades the same way — `GroceryStoresRepository::destroyEntity()` deletes
 `$model->exceptions()` before deleting the store.
+
+`recipes` and `recipe_items` are the last pair: a recipe's name and optional
+description, and its ingredients — `grocery_item_id` plus a nullable
+`quantity`, both bare indexed integers with no foreign keys, the usual
+reasoning. `recipe_items` carries no `user_group_id` of its own and has no
+controller, repository, route or permissions: every read and write of an
+ingredient goes through its recipe, which carries the group, and ingredients
+travel only inside a recipe's `ingredients` array — never addressed on their
+own the way a store's exceptions are. `RecipesRepository::updateEntity()`
+replaces the whole ingredient list on every save — delete every `recipe_items`
+row for the recipe, then insert the request's list, inside one
+`DB::transaction` — so ingredient ids change on every save and nothing keys on
+them. An ingredient's quantity follows its item's `unit` the same way a
+shopping-list entry's does: the repository nulls it silently, whatever was
+sent, when the item's `unit === GroceryItemUnit::NONE`. Deleting a recipe
+cascades to its own `recipe_items` rows — `RecipesRepository::destroyEntity()`.
+
+`POST /recipes/{recipeId}/add-to-list` is the one grocery route
+`CrudController` doesn't guard, so `RecipeController::addToList()` authorises
+by hand: a missing recipe is a 404, and a caller who lacks
+`GroceryListItem::createPermission()` or `GroceryListItem::updateForUserPermission()`,
+or whose group doesn't match the recipe's, is a 401 — no `try`/`catch` around
+`hasPermissionTo()`, the house style. For each ingredient,
+`RecipesRepository::addToList()` looks for the group's unbought
+`grocery_list_items` entry for that item: none found creates one; found adds
+the ingredient's amount to the existing quantity rather than creating a second
+entry, leaving `added_by_user_id` pointing at whoever added it first. It
+ignores the selected store entirely — adding a recipe adds every ingredient
+regardless of what any store carries.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

@@ -76,6 +76,7 @@ class GroceryItemsRepository extends DefaultRepository
         $model->listItems()->delete();
         $model->exceptions()->delete();
         $model->unavailableAt()->delete();
+        $model->recipeItems()->delete();
         $model->delete();
 
         return true;

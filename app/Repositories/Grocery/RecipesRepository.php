@@ -4,7 +4,9 @@ namespace App\Repositories\Grocery;
 
 use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
+use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\Recipe;
+use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -79,6 +81,49 @@ class RecipesRepository extends DefaultRepository
         $model->delete();
 
         return true;
+    }
+
+    public function addToList(Recipe $recipe, User $user): array
+    {
+        return DB::transaction(function () use ($recipe, $user) {
+            $added = 0;
+            $alreadyOnList = 0;
+
+            $recipe->load('ingredients.groceryItem');
+
+            foreach ($recipe->ingredients as $ingredient) {
+                $item = $ingredient->groceryItem;
+                $amount = $item->unit === GroceryItemUnit::NONE
+                    ? null
+                    : ($ingredient->quantity ?? $item->default_quantity);
+
+                $entry = GroceryListItem::query()
+                    ->where('user_group_id', '=', $recipe->user_group_id)
+                    ->where('grocery_item_id', '=', $item->id)
+                    ->whereNull('bought_at')
+                    ->first();
+
+                if (! $entry) {
+                    GroceryListItem::query()->create([
+                        'grocery_item_id' => $item->id,
+                        'user_group_id' => $recipe->user_group_id,
+                        'added_by_user_id' => $user->id,
+                        'quantity' => $amount,
+                    ]);
+                    $added++;
+
+                    continue;
+                }
+
+                if ($amount !== null) {
+                    $entry->quantity = ($entry->quantity ?? 0) + $amount;
+                    $entry->save();
+                }
+                $alreadyOnList++;
+            }
+
+            return ['added' => $added, 'alreadyOnList' => $alreadyOnList];
+        });
     }
 
     private function assertNameIsUnique(string $name, int $userGroupId, ?int $ignoreId = null): void

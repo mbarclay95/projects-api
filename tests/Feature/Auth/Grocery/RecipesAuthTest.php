@@ -52,4 +52,17 @@ class RecipesAuthTest extends AuthTestCase
         $recipe = Recipe::factory()->create(['user_group_id' => $group->id]);
         $this->runTestsDELETE("api/recipes/{$recipe->id}");
     }
+
+    /**
+     * ADD TO LIST
+     */
+    public function test_post_recipe_add_to_list_user_permissions(): void
+    {
+        $this->initRoles([Roles::GROCERY_ROLE], []);
+        $group = UserGroup::factory()->grocery()->create();
+        $group->members()->attach($this->goodUser->id, ['scope' => 'grocery']);
+        /** @var Recipe $recipe */
+        $recipe = Recipe::factory()->create(['user_group_id' => $group->id]);
+        $this->runTestsPOST("api/recipes/{$recipe->id}/add-to-list");
+    }
 }

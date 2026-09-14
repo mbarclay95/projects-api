@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers\Grocery;
 
+use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\Recipe;
+use App\Repositories\Grocery\RecipesRepository;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Mbarclay36\LaravelCrud\CrudController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RecipeController extends CrudController
 {
@@ -42,5 +48,30 @@ class RecipeController extends CrudController
     {
         return ! $user->hasPermissionTo(Recipe::deleteForUserPermission())
             || $model->user_group_id !== $user->groceryGroup?->id;
+    }
+
+    /**
+     * CrudController only guards its own verbs, so this route authorises by
+     * hand.
+     */
+    public function addToList(int $recipeId): JsonResponse
+    {
+        /** @var Recipe|null $recipe */
+        $recipe = Recipe::query()->find($recipeId);
+
+        if (! $recipe) {
+            throw new NotFoundHttpException;
+        }
+
+        /** @var Authenticatable $user */
+        $user = Auth::user();
+
+        if (! $user->hasPermissionTo(GroceryListItem::createPermission())
+            || ! $user->hasPermissionTo(GroceryListItem::updateForUserPermission())
+            || $recipe->user_group_id !== $user->groceryGroup?->id) {
+            throw new AuthenticationException;
+        }
+
+        return new JsonResponse((new RecipesRepository)->addToList($recipe, $user));
     }
 }

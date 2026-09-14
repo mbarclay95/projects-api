@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('grocery-store-item-categories', GroceryStoreItemCategoryController::class)->except('show');
     Route::apiResource('grocery-store-unavailable-items', GroceryStoreUnavailableItemController::class)->only(['index', 'store', 'destroy']);
     Route::apiResource('recipes', RecipeController::class)->except('show');
+    Route::post('recipes/{recipeId}/add-to-list', [RecipeController::class, 'addToList'])
+        ->whereNumber('recipeId');
 });
 
 // DASHBOARD

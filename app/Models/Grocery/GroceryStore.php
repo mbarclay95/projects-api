@@ -18,6 +18,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property int user_group_id
  * @property array category_order
  * @property Collection|GroceryStoreItemCategory[] exceptions
+ * @property Collection|GroceryStoreUnavailableItem[] unavailableItems
  */
 class GroceryStore extends ApiModel
 {
@@ -32,5 +33,10 @@ class GroceryStore extends ApiModel
     public function exceptions(): HasMany
     {
         return $this->hasMany(GroceryStoreItemCategory::class);
+    }
+
+    public function unavailableItems(): HasMany
+    {
+        return $this->hasMany(GroceryStoreUnavailableItem::class);
     }
 }

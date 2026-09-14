@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\FeatureEnum;
 use App\Enums\GroceryItemUnit;
+use App\Models\Grocery\GroceryCategory;
 use App\Models\Grocery\GroceryItem;
 use App\Models\UserGroups\UserGroup;
 use Illuminate\Database\Seeder;
@@ -11,20 +12,25 @@ use Illuminate\Database\Seeder;
 class GroceryItemsSeeder extends Seeder
 {
     private const ITEMS = [
-        'Milk', 'Eggs', 'Butter', 'Cheddar Cheese', 'Yogurt',
-        'Bread', 'Bagels', 'Tortillas',
-        'Bananas', 'Apples', 'Oranges', 'Grapes', 'Avocados', 'Lemons',
-        'Lettuce', 'Spinach', 'Tomatoes', 'Onions', 'Garlic', 'Potatoes',
-        'Carrots', 'Bell Peppers', 'Broccoli', 'Cucumbers',
-        'Chicken Breast', 'Ground Beef', 'Bacon', 'Salmon', 'Deli Turkey',
-        'Rice', 'Pasta', 'Pasta Sauce', 'Cereal', 'Oatmeal',
-        'Peanut Butter', 'Jelly', 'Flour', 'Sugar', 'Olive Oil',
-        'Salt', 'Black Pepper', 'Ketchup', 'Mustard', 'Mayonnaise',
-        'Canned Beans', 'Canned Tomatoes', 'Chicken Broth',
-        'Coffee', 'Tea', 'Orange Juice', 'Sparkling Water',
-        'Chips', 'Crackers', 'Granola Bars',
-        'Frozen Vegetables', 'Frozen Pizza', 'Ice Cream',
-        'Paper Towels', 'Toilet Paper', 'Dish Soap', 'Laundry Detergent', 'Trash Bags',
+        'Milk' => 'Dairy', 'Eggs' => 'Dairy', 'Butter' => 'Dairy', 'Cheddar Cheese' => 'Dairy', 'Yogurt' => 'Dairy',
+        'Bread' => 'Bakery', 'Bagels' => 'Bakery', 'Tortillas' => 'Bakery',
+        'Bananas' => 'Produce', 'Apples' => 'Produce', 'Oranges' => 'Produce', 'Grapes' => 'Produce',
+        'Avocados' => 'Produce', 'Lemons' => 'Produce',
+        'Lettuce' => 'Produce', 'Spinach' => 'Produce', 'Tomatoes' => 'Produce', 'Onions' => 'Produce',
+        'Garlic' => 'Produce', 'Potatoes' => 'Produce',
+        'Carrots' => 'Produce', 'Bell Peppers' => 'Produce', 'Broccoli' => 'Produce', 'Cucumbers' => 'Produce',
+        'Chicken Breast' => 'Meat & Seafood', 'Ground Beef' => 'Meat & Seafood', 'Bacon' => 'Meat & Seafood',
+        'Salmon' => 'Meat & Seafood', 'Deli Turkey' => 'Meat & Seafood',
+        'Rice' => 'Pantry', 'Pasta' => 'Pantry', 'Pasta Sauce' => 'Pantry', 'Cereal' => 'Pantry', 'Oatmeal' => 'Pantry',
+        'Peanut Butter' => 'Pantry', 'Jelly' => 'Pantry', 'Flour' => 'Pantry', 'Sugar' => 'Pantry', 'Olive Oil' => 'Pantry',
+        'Salt' => 'Pantry', 'Black Pepper' => 'Pantry',
+        'Ketchup' => 'Condiments', 'Mustard' => 'Condiments', 'Mayonnaise' => 'Condiments',
+        'Canned Beans' => 'Pantry', 'Canned Tomatoes' => 'Pantry', 'Chicken Broth' => 'Pantry',
+        'Coffee' => 'Beverages', 'Tea' => 'Beverages', 'Orange Juice' => 'Beverages', 'Sparkling Water' => 'Beverages',
+        'Chips' => 'Snacks', 'Crackers' => 'Snacks', 'Granola Bars' => 'Snacks',
+        'Frozen Vegetables' => 'Frozen', 'Frozen Pizza' => 'Frozen', 'Ice Cream' => 'Frozen',
+        'Paper Towels' => 'Household', 'Toilet Paper' => 'Household', 'Dish Soap' => 'Household',
+        'Laundry Detergent' => 'Household', 'Trash Bags' => 'Household',
     ];
 
     /**
@@ -39,7 +45,7 @@ class GroceryItemsSeeder extends Seeder
             ->each(fn (UserGroup $group) => $this->seedGroup($group));
     }
 
-    private function seedGroup(UserGroup $group): void
+    public function seedGroup(UserGroup $group): void
     {
         $existingNames = GroceryItem::query()
             ->where('user_group_id', '=', $group->id)
@@ -47,7 +53,7 @@ class GroceryItemsSeeder extends Seeder
             ->map(fn (string $name) => strtolower($name))
             ->all();
 
-        foreach (self::ITEMS as $name) {
+        foreach (self::ITEMS as $name => $category) {
             if (in_array(strtolower($name), $existingNames, true)) {
                 continue;
             }
@@ -57,6 +63,7 @@ class GroceryItemsSeeder extends Seeder
                 'user_group_id' => $group->id,
                 'unit' => GroceryItemUnit::NONE,
                 'default_quantity' => null,
+                'grocery_category_id' => GroceryCategory::resolveForGroup($category, $group->id)?->id,
             ]);
             $groceryItem->save();
         }

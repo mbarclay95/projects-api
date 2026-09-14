@@ -105,27 +105,6 @@ class GroceryItemsRepository extends DefaultRepository
 
     private function resolveCategoryId(?string $name, int $userGroupId): ?int
     {
-        $name = trim($name ?? '');
-
-        if ($name === '') {
-            return null;
-        }
-
-        $category = GroceryCategory::query()
-            ->where('user_group_id', '=', $userGroupId)
-            ->whereRaw('lower(name) = ?', [strtolower($name)])
-            ->first();
-
-        if ($category) {
-            return $category->id;
-        }
-
-        $category = new GroceryCategory([
-            'name' => $name,
-            'user_group_id' => $userGroupId,
-        ]);
-        $category->save();
-
-        return $category->id;
+        return GroceryCategory::resolveForGroup($name, $userGroupId)?->id;
     }
 }

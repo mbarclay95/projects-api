@@ -26,4 +26,30 @@ class GroceryCategory extends ApiModel
     {
         return $this->hasMany(GroceryItem::class);
     }
+
+    public static function resolveForGroup(?string $name, int $userGroupId): ?self
+    {
+        $name = trim($name ?? '');
+
+        if ($name === '') {
+            return null;
+        }
+
+        $category = self::query()
+            ->where('user_group_id', '=', $userGroupId)
+            ->whereRaw('lower(name) = ?', [strtolower($name)])
+            ->first();
+
+        if ($category) {
+            return $category;
+        }
+
+        $category = new self([
+            'name' => $name,
+            'user_group_id' => $userGroupId,
+        ]);
+        $category->save();
+
+        return $category;
+    }
 }

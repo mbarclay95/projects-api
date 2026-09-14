@@ -5,6 +5,7 @@ namespace App\Repositories\UserGroups;
 use App\Enums\FeatureEnum;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
+use Database\Seeders\GroceryItemsSeeder;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -30,6 +31,11 @@ class UserGroupsRepository extends DefaultRepository
             ->get();
         $userGroup->save();
         $userGroup->syncMembers($members);
+
+        if ($scope === FeatureEnum::GROCERY) {
+            (new GroceryItemsSeeder())->seedGroup($userGroup);
+        }
+
         $userGroup->refresh();
 
         return $userGroup;

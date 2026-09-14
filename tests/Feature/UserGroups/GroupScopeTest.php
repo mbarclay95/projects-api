@@ -3,6 +3,7 @@
 namespace Tests\Feature\UserGroups;
 
 use App\Enums\Roles;
+use App\Models\Grocery\GroceryItem;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
@@ -96,6 +97,39 @@ class GroupScopeTest extends TestCase
         foreach (['taskStrategy', 'taskPoints', 'tasksPerWeek', 'totalFamilyTasks', 'minWeekOffset', 'minYear'] as $key) {
             self::assertArrayHasKey($key, $family);
         }
+    }
+
+    public function test_creating_a_grocery_group_seeds_the_master_list_with_guessed_categories(): void
+    {
+        $member = User::factory()->create();
+
+        $group = $this->jsonAs($this->admin, 'POST', 'api/user-groups', [
+            'name' => 'test grocery group',
+            'scope' => 'grocery',
+            'members' => [['id' => $member->id]],
+        ])->assertSuccessful()->json();
+
+        $milk = GroceryItem::query()
+            ->where('user_group_id', '=', $group['id'])
+            ->where('name', '=', 'Milk')
+            ->first();
+
+        self::assertNotNull($milk);
+        self::assertEquals('Dairy', $milk->category);
+    }
+
+    public function test_creating_a_tasks_group_does_not_seed_grocery_items(): void
+    {
+        $member = User::factory()->create();
+
+        $group = $this->jsonAs($this->admin, 'POST', 'api/user-groups', [
+            'name' => 'test family',
+            'scope' => 'tasks',
+            'taskStrategy' => 'per task point',
+            'members' => [['id' => $member->id]],
+        ])->assertSuccessful()->json();
+
+        self::assertEquals(0, GroceryItem::query()->where('user_group_id', '=', $group['id'])->count());
     }
 
     public function test_scope_in_the_update_body_does_not_change_the_stored_scope(): void

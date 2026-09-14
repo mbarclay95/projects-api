@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -289,21 +289,26 @@ feature wants a personal grocery item the way tasks want a personal task.
 `User::groceryGroup()` is a `HasOneThrough` mirroring `taskGroup()`, filtered
 to `user_group_user.scope = 'grocery'`.
 
-`GroceryItemController`, `GroceryListItemController`, `GroceryStoreController`
-and `GroceryStoreItemCategoryController` all override `cannotUpdate()` and
-`cannotDestroy()` to add `$model->user_group_id !== $user->groceryGroup?->id`
+`GroceryItemController`, `GroceryListItemController`, `GroceryStoreController`,
+`GroceryStoreItemCategoryController` and `GroceryStoreUnavailableItemController`
+all follow the same scoped-permission pattern: `cannotDestroy()` (and, for the
+first four, `cannotUpdate()`) adds `$model->user_group_id !== $user->groceryGroup?->id`
 alongside the permission check — the package's own `_for_user` fallback
-compares `$model->user_id`, a column none of the four tables has. This is the
+compares `$model->user_id`, a column none of the five tables has. This is the
 same hazard already written up for Drafts (`createDraftsRole()`'s comment in
-`RolesAndPermissionsSeeder`), and it now covers four models rather than two:
+`RolesAndPermissionsSeeder`), and it now covers five models rather than two:
 the role must be granted `updateForUserPermission()` / `deleteForUserPermission()`
 for each and never the unscoped pair, because either unscoped grant satisfies
-`CrudController`'s check before the override's second clause runs. All four
-overrides also drop the package's `catch (PermissionDoesNotExist)`, so a
-missing permission row is a 500, not a 401. `GroceryCategory` sits outside
-this entirely — its route is index-only, so there is no `cannotUpdate()` /
-`cannotDestroy()` to get wrong, and the role holds only its
-`viewAnyForUserPermission()`.
+`CrudController`'s check before the override's second clause runs. Every
+override also drops the package's `catch (PermissionDoesNotExist)`, so a
+missing permission row is a 500, not a 401. Two models sit outside part of
+this: `GroceryCategory`'s route is index-only, so there is no `cannotUpdate()`
+/ `cannotDestroy()` to get wrong and the role holds only its
+`viewAnyForUserPermission()`; `GroceryStoreUnavailableItem` has no update
+route, so the update half of the rule doesn't apply to it while the delete
+half does — it overrides `cannotDestroy()` only, and the role holds
+`viewAnyForUserPermission()`, `createPermission()` and
+`deleteForUserPermission()`, never `updateForUserPermission()`.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
 compares `lower(name)` on both create and update, throwing a
@@ -353,6 +358,32 @@ before writing, and throws a `ValidationException` — its own message per
 check — for a mismatch or for a second exception at the same (store, item);
 there is no unique index behind that last rule, the same call
 `GroceryItemsRepository` makes for its own name-uniqueness rule.
+
+`grocery_store_unavailable_items` is a store's other per-(store, item) fact:
+what it does **not** carry. `id`, `timestamps()`, and three bare indexed
+integers — `user_group_id`, `grocery_store_id`, `grocery_item_id` — with no
+foreign keys, the same shape as `grocery_store_item_categories` and for the
+same reasons. **Absence of a row means the item is available at the store**,
+not the reverse: a plain many-to-many table recording availability was
+considered and rejected, because every one of the master list's existing
+items would then read as unavailable everywhere until someone hand-entered
+items × stores — the same per-item-per-store data-entry cost milestone 09
+turned down for aisle numbers. Opting out is the only entry anyone has to
+make. `GroceryStore::unavailableItems()` and `GroceryItem::unavailableAt()`
+are the two `HasMany` relations — not `exceptions()`, which both models
+already declare for the category exceptions. A row has nothing to update: it
+is its own fact, so `GroceryStoreUnavailableItemController` has no update
+route, the grocery role holds no `updateForUserPermission()` for it, and the
+controller has no `cannotUpdate()` — the three go together, and adding an
+update route later without the matching permission grant turns a 401 into a
+500 the moment someone adds the override these controllers use. One row per
+(store, item) is a `ValidationException` in the repository, not a unique
+index, the same call `GroceryStoreItemCategoriesRepository` makes. Deleting a
+master-list item or a store cascades to this table too:
+`GroceryItemsRepository::destroyEntity()` deletes `$model->unavailableAt()`
+and `GroceryStoresRepository::destroyEntity()` deletes
+`$model->unavailableItems()`, beside their existing `exceptions()` (and, for
+items, `listItems()`) deletes.
 
 `grocery_list_items` is the shopping list: one row per `grocery_item_id`
 currently on it, carrying `user_group_id`, `added_by_user_id`, a nullable

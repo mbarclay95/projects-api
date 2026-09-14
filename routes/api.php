@@ -34,6 +34,7 @@ use App\Http\Controllers\Grocery\GroceryItemController;
 use App\Http\Controllers\Grocery\GroceryListItemController;
 use App\Http\Controllers\Grocery\GroceryStoreController;
 use App\Http\Controllers\Grocery\GroceryStoreItemCategoryController;
+use App\Http\Controllers\Grocery\GroceryStoreUnavailableItemController;
 use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
 use App\Http\Controllers\Tags\TagController;
@@ -111,6 +112,7 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('grocery-categories', GroceryCategoryController::class)->only('index');
     Route::apiResource('grocery-stores', GroceryStoreController::class)->except('show');
     Route::apiResource('grocery-store-item-categories', GroceryStoreItemCategoryController::class)->except('show');
+    Route::apiResource('grocery-store-unavailable-items', GroceryStoreUnavailableItemController::class)->only(['index', 'store', 'destroy']);
 });
 
 // DASHBOARD

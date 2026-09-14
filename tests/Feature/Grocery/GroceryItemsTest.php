@@ -8,6 +8,7 @@ use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\GroceryStore;
 use App\Models\Grocery\GroceryStoreItemCategory;
+use App\Models\Grocery\GroceryStoreUnavailableItem;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
@@ -336,6 +337,30 @@ class GroceryItemsTest extends TestCase
 
         self::assertNull($exception->fresh());
         self::assertNotNull($otherException->fresh());
+    }
+
+    public function test_a_delete_removes_its_unavailable_rows_and_leaves_another_items_alone(): void
+    {
+        $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $store = GroceryStore::factory()->create(['user_group_id' => $this->group->id]);
+
+        $unavailable = GroceryStoreUnavailableItem::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $item->id,
+        ]);
+        $otherUnavailable = GroceryStoreUnavailableItem::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $otherItem->id,
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/grocery-items/{$item->id}")
+            ->assertSuccessful();
+
+        self::assertNull($unavailable->fresh());
+        self::assertNotNull($otherUnavailable->fresh());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

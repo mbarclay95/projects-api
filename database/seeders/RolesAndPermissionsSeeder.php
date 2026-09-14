@@ -29,6 +29,7 @@ use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\GroceryStore;
 use App\Models\Grocery\GroceryStoreItemCategory;
+use App\Models\Grocery\GroceryStoreUnavailableItem;
 use App\Models\Logging\LogEvent;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
@@ -295,16 +296,20 @@ class RolesAndPermissionsSeeder extends Seeder
     /**
      * GroceryItem::updatePermission() / GroceryItem::deletePermission(),
      * GroceryListItem::updatePermission() / GroceryListItem::deletePermission(),
-     * GroceryStore::updatePermission() / GroceryStore::deletePermission() and
+     * GroceryStore::updatePermission() / GroceryStore::deletePermission(),
      * GroceryStoreItemCategory::updatePermission() /
-     * GroceryStoreItemCategory::deletePermission() — the unscoped variants —
+     * GroceryStoreItemCategory::deletePermission() and
+     * GroceryStoreUnavailableItem::deletePermission() — the unscoped variants —
      * must never be granted here. Either one short-circuits the ownership
      * test in cannotUpdate()/cannotDestroy(), letting any holder of this role
      * edit any group's items. The scoped grants below do not work on their
      * own until each model's controller overrides both methods, because the
      * package compares $model->user_id and none of these tables has such a
      * column. GroceryCategory has no update or delete route to guard —
-     * it's granted only viewAnyForUserPermission().
+     * it's granted only viewAnyForUserPermission(). GroceryStoreUnavailableItem
+     * has no update route either, so only its delete half needs the scoped
+     * grant; it's granted viewAnyForUserPermission(), createPermission() and
+     * deleteForUserPermission(), with no updateForUserPermission() to guard.
      */
     private function createGroceryRole(): void
     {
@@ -330,6 +335,10 @@ class RolesAndPermissionsSeeder extends Seeder
             GroceryStoreItemCategory::createPermission(),
             GroceryStoreItemCategory::updateForUserPermission(),
             GroceryStoreItemCategory::deleteForUserPermission(),
+
+            GroceryStoreUnavailableItem::viewAnyForUserPermission(),
+            GroceryStoreUnavailableItem::createPermission(),
+            GroceryStoreUnavailableItem::deleteForUserPermission(),
 
             Tag::viewAnyForUserPermission(),
 

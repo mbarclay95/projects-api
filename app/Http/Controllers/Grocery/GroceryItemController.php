@@ -25,6 +25,7 @@ class GroceryItemController extends CrudController
             'tags' => 'array|present',
             'unit' => ['required', 'string', Rule::enum(GroceryItemUnit::class)],
             'defaultQuantity' => 'nullable|numeric',
+            'category' => 'nullable|string',
         ];
 
         static::$storeRules = $rules;

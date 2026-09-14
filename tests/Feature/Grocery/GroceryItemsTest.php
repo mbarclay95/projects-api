@@ -3,8 +3,11 @@
 namespace Tests\Feature\Grocery;
 
 use App\Enums\Roles;
+use App\Models\Grocery\GroceryCategory;
 use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Grocery\GroceryStore;
+use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
@@ -107,6 +110,93 @@ class GroceryItemsTest extends TestCase
         self::assertEquals(['produce'], $response['tags']);
         self::assertEquals('count', $response['unit']);
         self::assertEquals(4, $response['defaultQuantity']);
+    }
+
+    public function test_a_post_carrying_a_category_name_creates_the_category_and_links_the_item(): void
+    {
+        $response = $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+            'name' => 'milk',
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'none',
+            'category' => 'dairy',
+        ])->assertSuccessful()->json();
+
+        self::assertEquals('dairy', $response['category']);
+
+        $category = GroceryCategory::query()->where('user_group_id', '=', $this->group->id)->firstOrFail();
+        self::assertEquals('dairy', $category->name);
+        self::assertEquals($category->id, GroceryItem::query()->findOrFail($response['id'])->grocery_category_id);
+    }
+
+    public function test_a_post_naming_an_existing_category_differing_only_in_case_reuses_it(): void
+    {
+        $category = GroceryCategory::factory()->create(['user_group_id' => $this->group->id, 'name' => 'dairy']);
+
+        $response = $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+            'name' => 'milk',
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'none',
+            'category' => 'DAIRY',
+        ])->assertSuccessful()->json();
+
+        self::assertEquals($category->id, GroceryItem::query()->findOrFail($response['id'])->grocery_category_id);
+        self::assertEquals(1, GroceryCategory::query()->where('user_group_id', '=', $this->group->id)->count());
+    }
+
+    public function test_a_post_with_a_null_empty_or_whitespace_category_leaves_it_uncategorised(): void
+    {
+        foreach ([null, '', '   '] as $category) {
+            $response = $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+                'name' => 'milk '.uniqid(),
+                'notes' => null,
+                'tags' => [],
+                'unit' => 'none',
+                'category' => $category,
+            ])->assertSuccessful()->json();
+
+            self::assertNull($response['category']);
+        }
+
+        self::assertEquals(0, GroceryCategory::query()->where('user_group_id', '=', $this->group->id)->count());
+    }
+
+    public function test_a_put_changes_the_items_category_creating_the_new_row_and_leaving_the_old_one_in_place(): void
+    {
+        $oldCategory = GroceryCategory::factory()->create(['user_group_id' => $this->group->id, 'name' => 'dairy']);
+        $item = GroceryItem::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_category_id' => $oldCategory->id,
+        ]);
+
+        $response = $this->jsonAs($this->user, 'PUT', "api/grocery-items/{$item->id}", [
+            'name' => $item->name,
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'none',
+            'category' => 'produce',
+        ])->assertSuccessful()->json();
+
+        self::assertEquals('produce', $response['category']);
+        self::assertNotNull($oldCategory->fresh());
+    }
+
+    public function test_the_same_category_name_in_a_different_grocery_group_is_a_separate_row(): void
+    {
+        $otherGroup = UserGroup::factory()->grocery()->create();
+        $otherCategory = GroceryCategory::factory()->create(['user_group_id' => $otherGroup->id, 'name' => 'dairy']);
+
+        $response = $this->jsonAs($this->user, 'POST', 'api/grocery-items', [
+            'name' => 'milk',
+            'notes' => null,
+            'tags' => [],
+            'unit' => 'none',
+            'category' => 'dairy',
+        ])->assertSuccessful()->json();
+
+        $category = GroceryItem::query()->findOrFail($response['id'])->grocery_category_id;
+        self::assertNotEquals($otherCategory->id, $category);
     }
 
     public function test_a_post_with_an_unknown_unit_is_a_422(): void
@@ -219,6 +309,33 @@ class GroceryItemsTest extends TestCase
         self::assertNull($unboughtEntry->fresh());
         self::assertNull($boughtEntry->fresh());
         self::assertNotNull($otherEntry->fresh());
+    }
+
+    public function test_a_delete_removes_its_exception_rows_and_leaves_another_items_alone(): void
+    {
+        $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $store = GroceryStore::factory()->create(['user_group_id' => $this->group->id]);
+        $category = GroceryCategory::factory()->create(['user_group_id' => $this->group->id]);
+
+        $exception = GroceryStoreItemCategory::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $item->id,
+            'grocery_category_id' => $category->id,
+        ]);
+        $otherException = GroceryStoreItemCategory::factory()->create([
+            'user_group_id' => $this->group->id,
+            'grocery_store_id' => $store->id,
+            'grocery_item_id' => $otherItem->id,
+            'grocery_category_id' => $category->id,
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/grocery-items/{$item->id}")
+            ->assertSuccessful();
+
+        self::assertNull($exception->fresh());
+        self::assertNotNull($otherException->fresh());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

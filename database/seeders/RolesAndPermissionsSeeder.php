@@ -30,6 +30,7 @@ use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\GroceryStore;
 use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\Grocery\GroceryStoreUnavailableItem;
+use App\Models\Grocery\Recipe;
 use App\Models\Logging\LogEvent;
 use App\Models\Tags\Tag;
 use App\Models\Tasks\Task;
@@ -298,18 +299,21 @@ class RolesAndPermissionsSeeder extends Seeder
      * GroceryListItem::updatePermission() / GroceryListItem::deletePermission(),
      * GroceryStore::updatePermission() / GroceryStore::deletePermission(),
      * GroceryStoreItemCategory::updatePermission() /
-     * GroceryStoreItemCategory::deletePermission() and
-     * GroceryStoreUnavailableItem::deletePermission() — the unscoped variants —
-     * must never be granted here. Either one short-circuits the ownership
-     * test in cannotUpdate()/cannotDestroy(), letting any holder of this role
-     * edit any group's items. The scoped grants below do not work on their
-     * own until each model's controller overrides both methods, because the
-     * package compares $model->user_id and none of these tables has such a
-     * column. GroceryCategory has no update or delete route to guard —
-     * it's granted only viewAnyForUserPermission(). GroceryStoreUnavailableItem
+     * GroceryStoreItemCategory::deletePermission(),
+     * GroceryStoreUnavailableItem::deletePermission(),
+     * Recipe::updatePermission() / Recipe::deletePermission() — the unscoped
+     * variants — must never be granted here. Either one short-circuits the
+     * ownership test in cannotUpdate()/cannotDestroy(), letting any holder of
+     * this role edit any group's items. The scoped grants below do not work
+     * on their own until each model's controller overrides both methods,
+     * because the package compares $model->user_id and none of these tables
+     * has such a column. GroceryCategory has no update or delete route to
+     * guard — it's granted only viewAnyForUserPermission(). GroceryStoreUnavailableItem
      * has no update route either, so only its delete half needs the scoped
      * grant; it's granted viewAnyForUserPermission(), createPermission() and
      * deleteForUserPermission(), with no updateForUserPermission() to guard.
+     * RecipeItem has no routes of its own — every read and write of an
+     * ingredient goes through its recipe — so it gets no permissions at all.
      */
     private function createGroceryRole(): void
     {
@@ -339,6 +343,11 @@ class RolesAndPermissionsSeeder extends Seeder
             GroceryStoreUnavailableItem::viewAnyForUserPermission(),
             GroceryStoreUnavailableItem::createPermission(),
             GroceryStoreUnavailableItem::deleteForUserPermission(),
+
+            Recipe::viewAnyForUserPermission(),
+            Recipe::createPermission(),
+            Recipe::updateForUserPermission(),
+            Recipe::deleteForUserPermission(),
 
             Tag::viewAnyForUserPermission(),
 

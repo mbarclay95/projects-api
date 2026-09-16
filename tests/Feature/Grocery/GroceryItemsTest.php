@@ -9,6 +9,8 @@ use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\GroceryStore;
 use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\Grocery\GroceryStoreUnavailableItem;
+use App\Models\Grocery\Recipe;
+use App\Models\Grocery\RecipeItem;
 use App\Models\UserGroups\UserGroup;
 use App\Models\Users\User;
 use Illuminate\Testing\TestResponse;
@@ -361,6 +363,29 @@ class GroceryItemsTest extends TestCase
 
         self::assertNull($unavailable->fresh());
         self::assertNotNull($otherUnavailable->fresh());
+    }
+
+    public function test_a_delete_removes_its_recipe_items_rows_leaves_another_items_alone_and_leaves_the_recipe_in_place(): void
+    {
+        $item = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $otherItem = GroceryItem::factory()->create(['user_group_id' => $this->group->id]);
+        $recipe = Recipe::factory()->create(['user_group_id' => $this->group->id]);
+
+        $ingredient = RecipeItem::factory()->create([
+            'recipe_id' => $recipe->id,
+            'grocery_item_id' => $item->id,
+        ]);
+        $otherIngredient = RecipeItem::factory()->create([
+            'recipe_id' => $recipe->id,
+            'grocery_item_id' => $otherItem->id,
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/grocery-items/{$item->id}")
+            ->assertSuccessful();
+
+        self::assertNull($ingredient->fresh());
+        self::assertNotNull($otherIngredient->fresh());
+        self::assertNotNull($recipe->fresh());
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

@@ -29,6 +29,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Collection|Tag[] tags
  * @property Collection|GroceryStoreItemCategory[] exceptions
  * @property Collection|GroceryStoreUnavailableItem[] unavailableAt
+ * @property Collection|RecipeItem[] recipeItems
  */
 class GroceryItem extends ApiModel
 {
@@ -60,6 +61,11 @@ class GroceryItem extends ApiModel
     public function unavailableAt(): HasMany
     {
         return $this->hasMany(GroceryStoreUnavailableItem::class);
+    }
+
+    public function recipeItems(): HasMany
+    {
+        return $this->hasMany(RecipeItem::class);
     }
 
     public function groceryCategory(): BelongsTo

@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem`, `Recipe`, `RecipeItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `RecipeController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository`, `RecipesRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem`, `Recipe`, `RecipeItem`, `Meal` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `RecipeController`, `MealController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository`, `RecipesRepository`, `MealsRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -312,7 +312,12 @@ half does — it overrides `cannotDestroy()` only, and the role holds
 `deleteForUserPermission()`, never `updateForUserPermission()`. `RecipeItem`
 holds no permissions at all: it has no controller and no routes of its own —
 every read and write of an ingredient goes through its recipe — so there is
-nothing to scope.
+nothing to scope. `Meal` holds only `viewAnyForUserPermission()` and
+`updateForUserPermission()`: it has an index route and no `store` or `destroy`
+route, and `MealController::updateDay()` authorises by hand against
+`updateForUserPermission()` before validating, then writes only to the caller's
+own group's rows, so there is no row to run `cannotUpdate()` against and no
+unscoped grant to get wrong.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
 compares `lower(name)` on both create and update, throwing a
@@ -465,6 +470,23 @@ the ingredient's amount to the existing quantity rather than creating a second
 entry, leaving `added_by_user_id` pointing at whoever added it first. It
 ignores the selected store entirely — adding a recipe adds every ingredient
 regardless of what any store carries.
+
+`meals` is the meal plan: one row per dish, not per slot — dinner of tacos and
+rice is two rows with `slot = 'dinner'` (`App\Enums\MealSlot`) and positions 0
+and 1 — with `user_group_id` and `recipe_id` as bare indexed integers and no
+foreign keys. `date` is a calendar date and is not cast, so it serialises as
+`YYYY-MM-DD`. The client never sends a recipe id: `MealsRepository` links a dish
+by trimming its name and matching a recipe in the caller's group
+case-insensitively, storing the name as typed. `GET /meals?weekStart=` returns
+the seven days from `weekStart`; the server neither computes weeks nor checks
+that `weekStart` is a Monday, because the browser knows which Monday it is
+looking at. `PUT /meals/days/{date}` replaces one date's dishes — delete the
+group's rows for that date, insert the request's, inside one transaction — and
+an empty `meals` array clears the day. Deleting a recipe unlinks its dishes
+rather than deleting them: `RecipesRepository::destroyEntity()` nulls their
+`recipe_id` and rewrites `name` to the recipe's current name, since a linked
+dish displays the recipe's name and the stored one may be stale after a rename.
+Renaming a recipe changes nothing in `meals`.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

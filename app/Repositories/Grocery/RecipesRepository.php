@@ -5,6 +5,7 @@ namespace App\Repositories\Grocery;
 use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Grocery\Meal;
 use App\Models\Grocery\Recipe;
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -77,6 +78,8 @@ class RecipesRepository extends DefaultRepository
      */
     public function destroyEntity(Model $model, Authenticatable $user): bool
     {
+        Meal::query()->where('recipe_id', '=', $model->id)
+            ->update(['recipe_id' => null, 'name' => $model->name]);
         $model->ingredients()->delete();
         $model->delete();
 

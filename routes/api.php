@@ -35,6 +35,7 @@ use App\Http\Controllers\Grocery\GroceryListItemController;
 use App\Http\Controllers\Grocery\GroceryStoreController;
 use App\Http\Controllers\Grocery\GroceryStoreItemCategoryController;
 use App\Http\Controllers\Grocery\GroceryStoreUnavailableItemController;
+use App\Http\Controllers\Grocery\MealController;
 use App\Http\Controllers\Grocery\RecipeController;
 use App\Http\Controllers\Logging\LogEventController;
 use App\Http\Controllers\Logging\LoggingController;
@@ -117,6 +118,9 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('recipes', RecipeController::class)->except('show');
     Route::post('recipes/{recipeId}/add-to-list', [RecipeController::class, 'addToList'])
         ->whereNumber('recipeId');
+    Route::apiResource('meals', MealController::class)->only('index');
+    Route::put('meals/days/{date}', [MealController::class, 'updateDay'])
+        ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
 });
 
 // DASHBOARD

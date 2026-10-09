@@ -111,6 +111,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('grocery-items', GroceryItemController::class)->except('show');
     Route::apiResource('grocery-list-items', GroceryListItemController::class)->except('show');
+    Route::post('grocery-list-items/batch', [GroceryListItemController::class, 'addBatch']);
     Route::apiResource('grocery-categories', GroceryCategoryController::class)->only('index');
     Route::apiResource('grocery-stores', GroceryStoreController::class)->except('show');
     Route::apiResource('grocery-store-item-categories', GroceryStoreItemCategoryController::class)->except('show');

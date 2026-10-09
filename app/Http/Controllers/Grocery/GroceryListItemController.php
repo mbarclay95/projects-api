@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\Grocery;
 
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Users\User;
+use App\Repositories\Grocery\GroceryListItemsRepository;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Mbarclay36\LaravelCrud\CrudController;
 
 class GroceryListItemController extends CrudController
@@ -36,5 +42,28 @@ class GroceryListItemController extends CrudController
     {
         return ! $user->hasPermissionTo(GroceryListItem::deleteForUserPermission())
             || $model->user_group_id !== $user->groceryGroup?->id;
+    }
+
+    /**
+     * CrudController only guards its own verbs, so this route authorises by
+     * hand.
+     */
+    public function addBatch(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (! $user->hasPermissionTo(GroceryListItem::createPermission())
+            || ! $user->hasPermissionTo(GroceryListItem::updateForUserPermission())) {
+            throw new AuthenticationException;
+        }
+
+        $validated = $request->validate([
+            'items' => 'array|present',
+            'items.*.groceryItemId' => 'required|integer|distinct',
+            'items.*.quantity' => 'nullable|numeric|gt:0',
+        ]);
+
+        return new JsonResponse((new GroceryListItemsRepository)->addBatch($validated['items'], $user));
     }
 }

@@ -455,18 +455,15 @@ shopping-list entry's does: the repository nulls it silently, whatever was
 sent, when the item's `unit === GroceryItemUnit::NONE`. Deleting a recipe
 cascades to its own `recipe_items` rows — `RecipesRepository::destroyEntity()`.
 
-`POST /recipes/{recipeId}/add-to-list` is the one grocery route
-`CrudController` doesn't guard, so `RecipeController::addToList()` authorises
-by hand: a missing recipe is a 404, and a caller who lacks
-`GroceryListItem::createPermission()` or `GroceryListItem::updateForUserPermission()`,
-or whose group doesn't match the recipe's, is a 401 — no `try`/`catch` around
-`hasPermissionTo()`, the house style. For each ingredient,
-`RecipesRepository::addToList()` looks for the group's unbought
-`grocery_list_items` entry for that item: none found creates one; found adds
-the ingredient's amount to the existing quantity rather than creating a second
-entry, leaving `added_by_user_id` pointing at whoever added it first. It
-ignores the selected store entirely — adding a recipe adds every ingredient
-regardless of what any store carries.
+`POST /grocery-list-items/batch` isn't guarded by `CrudController`, so
+`GroceryListItemController::addBatch()` authorises by hand: a 401 when the
+caller lacks either `GroceryListItem::createPermission()` or
+`GroceryListItem::updateForUserPermission()`, checked before validation, with
+no `try`/`catch` around `hasPermissionTo()`. The only cross-group guard is the
+master-list check in `GroceryListItemsRepository::addBatch()`; the controller
+compares no groups. A quantity is added to an existing unbought entry, so
+`gt:0` on `items.*.quantity` is load-bearing: zero or a negative number would
+shrink someone's entry.
 
 `meals` is one row per dish, not per slot. The client never sends a recipe id:
 `MealsRepository` links a dish by matching its trimmed name to a recipe in the

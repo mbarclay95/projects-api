@@ -5,9 +5,11 @@ namespace App\Repositories\Grocery;
 use App\Enums\GroceryItemUnit;
 use App\Models\Grocery\GroceryItem;
 use App\Models\Grocery\GroceryListItem;
+use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Mbarclay36\LaravelCrud\DefaultRepository;
 
@@ -65,6 +67,68 @@ class GroceryListItemsRepository extends DefaultRepository
         $model->save();
 
         return $model;
+    }
+
+    /**
+     * @param  array<int, array{groceryItemId: int, quantity?: float|int|string|null}>  $items
+     * @return array{added: int, alreadyOnList: int}
+     */
+    public function addBatch(array $items, User $user): array
+    {
+        $group = $user->groceryGroup;
+
+        if (! $group) {
+            throw ValidationException::withMessages(['items' => 'You are not in a grocery group.']);
+        }
+
+        $itemIds = array_column($items, 'groceryItemId');
+        $groceryItems = GroceryItem::query()
+            ->where('user_group_id', '=', $group->id)
+            ->whereIn('id', $itemIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($groceryItems->count() < count($itemIds)) {
+            throw ValidationException::withMessages(['items' => 'That item is not on your master list.']);
+        }
+
+        return DB::transaction(function () use ($items, $groceryItems, $group, $user) {
+            $added = 0;
+            $alreadyOnList = 0;
+
+            foreach ($items as $requested) {
+                $item = $groceryItems[$requested['groceryItemId']];
+                $amount = $item->unit === GroceryItemUnit::NONE
+                    ? null
+                    : ($requested['quantity'] ?? $item->default_quantity);
+
+                $entry = GroceryListItem::query()
+                    ->where('user_group_id', '=', $group->id)
+                    ->where('grocery_item_id', '=', $item->id)
+                    ->whereNull('bought_at')
+                    ->first();
+
+                if (! $entry) {
+                    GroceryListItem::query()->create([
+                        'grocery_item_id' => $item->id,
+                        'user_group_id' => $group->id,
+                        'added_by_user_id' => $user->id,
+                        'quantity' => $amount,
+                    ]);
+                    $added++;
+
+                    continue;
+                }
+
+                if ($amount !== null) {
+                    $entry->quantity = ($entry->quantity ?? 0) + $amount;
+                    $entry->save();
+                }
+                $alreadyOnList++;
+            }
+
+            return ['added' => $added, 'alreadyOnList' => $alreadyOnList];
+        });
     }
 
     private function assertNotAlreadyOnTheList(int $groceryItemId, int $userGroupId): void

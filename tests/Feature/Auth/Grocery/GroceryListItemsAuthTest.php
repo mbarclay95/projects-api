@@ -28,6 +28,12 @@ class GroceryListItemsAuthTest extends AuthTestCase
         $this->runTestsPOST('api/grocery-list-items');
     }
 
+    public function test_post_grocery_list_items_batch_user_permissions(): void
+    {
+        $this->initRoles([Roles::GROCERY_ROLE], []);
+        $this->runTestsPOST('api/grocery-list-items/batch');
+    }
+
     /**
      * UPDATE
      */

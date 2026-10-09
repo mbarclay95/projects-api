@@ -111,13 +111,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::apiResource('grocery-items', GroceryItemController::class)->except('show');
     Route::apiResource('grocery-list-items', GroceryListItemController::class)->except('show');
+    Route::post('grocery-list-items/batch', [GroceryListItemController::class, 'addBatch']);
     Route::apiResource('grocery-categories', GroceryCategoryController::class)->only('index');
     Route::apiResource('grocery-stores', GroceryStoreController::class)->except('show');
     Route::apiResource('grocery-store-item-categories', GroceryStoreItemCategoryController::class)->except('show');
     Route::apiResource('grocery-store-unavailable-items', GroceryStoreUnavailableItemController::class)->only(['index', 'store', 'destroy']);
     Route::apiResource('recipes', RecipeController::class)->except('show');
-    Route::post('recipes/{recipeId}/add-to-list', [RecipeController::class, 'addToList'])
-        ->whereNumber('recipeId');
     Route::apiResource('meals', MealController::class)->only('index');
     Route::put('meals/days/{date}', [MealController::class, 'updateDay'])
         ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');

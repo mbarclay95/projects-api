@@ -5,6 +5,7 @@ namespace Tests\Feature\Grocery;
 use App\Enums\GroceryItemUnit;
 use App\Enums\Roles;
 use App\Models\Grocery\GroceryItem;
+use App\Models\Grocery\Meal;
 use App\Models\Grocery\Recipe;
 use App\Models\Grocery\RecipeItem;
 use App\Models\UserGroups\UserGroup;
@@ -264,6 +265,41 @@ class RecipesTest extends TestCase
             ->assertUnauthorized();
 
         self::assertNotNull($otherRecipe->fresh());
+    }
+
+    public function test_a_delete_unlinks_the_recipes_meals_and_keeps_the_recipes_current_name(): void
+    {
+        $recipe = Recipe::factory()->create(['user_group_id' => $this->group->id, 'name' => 'Tacos']);
+        $meal = Meal::factory()->create([
+            'user_group_id' => $this->group->id,
+            'recipe_id' => $recipe->id,
+            'name' => 'old name',
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/recipes/{$recipe->id}")
+            ->assertSuccessful();
+
+        $meal = $meal->fresh();
+        self::assertNull($meal->recipe_id);
+        self::assertEquals('Tacos', $meal->name);
+    }
+
+    public function test_a_delete_leaves_meals_linked_to_another_recipe_untouched(): void
+    {
+        $recipe = Recipe::factory()->create(['user_group_id' => $this->group->id, 'name' => 'Tacos']);
+        $other = Recipe::factory()->create(['user_group_id' => $this->group->id, 'name' => 'Chili']);
+        $meal = Meal::factory()->create([
+            'user_group_id' => $this->group->id,
+            'recipe_id' => $other->id,
+            'name' => 'old name',
+        ]);
+
+        $this->jsonAs($this->user, 'DELETE', "api/recipes/{$recipe->id}")
+            ->assertSuccessful();
+
+        $meal = $meal->fresh();
+        self::assertEquals($other->id, $meal->recipe_id);
+        self::assertEquals('old name', $meal->name);
     }
 
     private function jsonAs(User $user, string $method, string $uri, array $data = []): TestResponse

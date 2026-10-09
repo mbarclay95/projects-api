@@ -98,7 +98,7 @@ Code under `app/` is organized by domain. Each domain typically has models, a co
 | Tasks | `Task`, `RecurringTask`, `TaskUserConfig` — 5 repositories |
 | UserGroups | `UserGroup`, `UserGroupUser` |
 | Tags | `Tag` |
-| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem`, `Recipe`, `RecipeItem` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `RecipeController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository`, `RecipesRepository` |
+| Grocery | `GroceryItem`, `GroceryListItem`, `GroceryCategory`, `GroceryStore`, `GroceryStoreItemCategory`, `GroceryStoreUnavailableItem`, `Recipe`, `RecipeItem`, `Meal` — `GroceryItemController`, `GroceryListItemController`, `GroceryCategoryController`, `GroceryStoreController`, `GroceryStoreItemCategoryController`, `GroceryStoreUnavailableItemController`, `RecipeController`, `MealController`, `GroceryItemsRepository`, `GroceryListItemsRepository`, `GroceryCategoriesRepository`, `GroceryStoresRepository`, `GroceryStoreItemCategoriesRepository`, `GroceryStoreUnavailableItemsRepository`, `RecipesRepository`, `MealsRepository` |
 | Backups | `Backup`, `BackupStep`, `ScheduledBackup`, `Target` + `RunBackupService` |
 | Gaming | `GamingSession`, `GamingDevice` + MQTT via `MqttService`, WebSocket via `GamingBroadcastService` |
 | Dashboard | `Folder`, `Site`, `Image` — S3 image storage |
@@ -312,7 +312,9 @@ half does — it overrides `cannotDestroy()` only, and the role holds
 `deleteForUserPermission()`, never `updateForUserPermission()`. `RecipeItem`
 holds no permissions at all: it has no controller and no routes of its own —
 every read and write of an ingredient goes through its recipe — so there is
-nothing to scope.
+nothing to scope. `Meal` holds only `viewAnyForUserPermission()` and
+`updateForUserPermission()`: it has no `store` or `destroy` route, and
+`MealController::updateDay()` authorises by hand before validating.
 
 A name is unique within a group, case-insensitively: `GroceryItemsRepository`
 compares `lower(name)` on both create and update, throwing a
@@ -465,6 +467,15 @@ the ingredient's amount to the existing quantity rather than creating a second
 entry, leaving `added_by_user_id` pointing at whoever added it first. It
 ignores the selected store entirely — adding a recipe adds every ingredient
 regardless of what any store carries.
+
+`meals` is one row per dish, not per slot. The client never sends a recipe id:
+`MealsRepository` links a dish by matching its trimmed name to a recipe in the
+caller's group case-insensitively, so a dish saved before its recipe existed
+stays unlinked until its day is next saved. `weekStart` is the client's — the
+server neither computes weeks nor checks it is a Monday. Deleting a recipe
+unlinks its dishes and rewrites their `name` to the recipe's current name
+(`RecipesRepository::destroyEntity()`), because a linked dish displays the
+recipe's name and the stored one may be stale.
 
 **The `in:` lists are built from these arrays, not hand-extended.**
 `Rule::in()` cannot run in a static property initializer, so

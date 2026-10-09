@@ -30,6 +30,7 @@ use App\Models\Grocery\GroceryListItem;
 use App\Models\Grocery\GroceryStore;
 use App\Models\Grocery\GroceryStoreItemCategory;
 use App\Models\Grocery\GroceryStoreUnavailableItem;
+use App\Models\Grocery\Meal;
 use App\Models\Grocery\Recipe;
 use App\Models\Logging\LogEvent;
 use App\Models\Tags\Tag;
@@ -314,6 +315,9 @@ class RolesAndPermissionsSeeder extends Seeder
      * deleteForUserPermission(), with no updateForUserPermission() to guard.
      * RecipeItem has no routes of its own — every read and write of an
      * ingredient goes through its recipe — so it gets no permissions at all.
+     * Meal gets no createPermission(), deleteForUserPermission() or unscoped
+     * variants, because its only routes are the index and a whole-day replace
+     * that is scoped to the caller's group by construction.
      */
     private function createGroceryRole(): void
     {
@@ -348,6 +352,9 @@ class RolesAndPermissionsSeeder extends Seeder
             Recipe::createPermission(),
             Recipe::updateForUserPermission(),
             Recipe::deleteForUserPermission(),
+
+            Meal::viewAnyForUserPermission(),
+            Meal::updateForUserPermission(),
 
             Tag::viewAnyForUserPermission(),
 

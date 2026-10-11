@@ -103,6 +103,37 @@ class RecipesTest extends TestCase
         self::assertEquals($this->group->id, Recipe::query()->findOrFail($response['id'])->user_group_id);
     }
 
+    public function test_a_post_stores_the_url_and_a_put_clears_it(): void
+    {
+        $response = $this->jsonAs($this->user, 'POST', 'api/recipes', [
+            'name' => 'Tacos',
+            'description' => null,
+            'url' => 'https://example.com/tacos',
+            'ingredients' => [],
+        ])->assertSuccessful()->json();
+
+        self::assertEquals('https://example.com/tacos', $response['url']);
+
+        $this->jsonAs($this->user, 'PUT', 'api/recipes/'.$response['id'], [
+            'name' => 'Tacos',
+            'description' => null,
+            'url' => null,
+            'ingredients' => [],
+        ])->assertSuccessful()->assertJsonPath('url', null);
+
+        self::assertNull(Recipe::query()->findOrFail($response['id'])->url);
+    }
+
+    public function test_a_post_with_a_non_http_url_is_a_422(): void
+    {
+        $this->jsonAs($this->user, 'POST', 'api/recipes', [
+            'name' => 'Tacos',
+            'description' => null,
+            'url' => 'javascript:alert(1)',
+            'ingredients' => [],
+        ])->assertStatus(422)->assertJsonValidationErrors(['url']);
+    }
+
     public function test_a_post_naming_another_groups_item_is_a_422_and_writes_no_row(): void
     {
         $otherGroup = UserGroup::factory()->grocery()->create();

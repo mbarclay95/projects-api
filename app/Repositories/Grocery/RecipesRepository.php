@@ -42,6 +42,7 @@ class RecipesRepository extends DefaultRepository
             $recipe = new Recipe([
                 'name' => $request['name'],
                 'description' => $request['description'] ?? null,
+                'url' => $request['url'] ?? null,
                 'user_group_id' => $userGroupId,
             ]);
             $recipe->save();
@@ -62,6 +63,7 @@ class RecipesRepository extends DefaultRepository
         return DB::transaction(function () use ($model, $request) {
             $model->name = $request['name'];
             $model->description = $request['description'] ?? null;
+            $model->url = $request['url'] ?? null;
             $model->save();
 
             $model->ingredients()->delete();

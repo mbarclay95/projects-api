@@ -14,6 +14,7 @@ class RecipeController extends CrudController
     protected static array $storeRules = [
         'name' => 'required|string',
         'description' => 'nullable|string',
+        'url' => 'nullable|url:http,https',
         'ingredients' => 'array|present',
         'ingredients.*.groceryItemId' => 'required|integer',
         'ingredients.*.quantity' => 'nullable|numeric|gt:0',
@@ -22,6 +23,7 @@ class RecipeController extends CrudController
     protected static array $updateRules = [
         'name' => 'required|string',
         'description' => 'nullable|string',
+        'url' => 'nullable|url:http,https',
         'ingredients' => 'array|present',
         'ingredients.*.groceryItemId' => 'required|integer',
         'ingredients.*.quantity' => 'nullable|numeric|gt:0',

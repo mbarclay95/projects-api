@@ -16,6 +16,7 @@ use Mbarclay36\LaravelCrud\ApiModel;
  * @property Carbon updated_at
  * @property string name
  * @property string|null description
+ * @property string|null url
  * @property int user_group_id
  * @property Collection|RecipeItem[] ingredients
  */
@@ -23,7 +24,7 @@ class Recipe extends ApiModel
 {
     use HasFactory;
 
-    protected static array $apiModelAttributes = ['id', 'name', 'description'];
+    protected static array $apiModelAttributes = ['id', 'name', 'description', 'url'];
 
     protected static array $apiModelArrayEntities = [
         'ingredients' => RecipeItem::class,

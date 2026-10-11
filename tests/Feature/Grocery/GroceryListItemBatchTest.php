@@ -71,7 +71,7 @@ class GroceryListItemBatchTest extends TestCase
 
         $this->postBatch($this->user, [['groceryItemId' => $item->id, 'quantity' => 2]])
             ->assertSuccessful()
-            ->assertExactJson(['added' => 0, 'alreadyOnList' => 1]);
+            ->assertExactJson(['added' => 1, 'alreadyOnList' => 0]);
 
         self::assertEquals(1, GroceryListItem::query()->count());
         $entry->refresh();
@@ -117,18 +117,21 @@ class GroceryListItemBatchTest extends TestCase
         self::assertNotNull($bought->bought_at);
     }
 
-    public function test_a_batch_with_a_new_item_and_one_already_on_the_list_counts_both(): void
+    public function test_a_batch_counts_new_and_raised_entries_as_added_and_unchanged_ones_as_already_on_the_list(): void
     {
         $new = $this->item(GroceryItemUnit::COUNT);
-        $existing = $this->item(GroceryItemUnit::COUNT);
-        $this->entry($existing, ['quantity' => 1]);
+        $raised = $this->item(GroceryItemUnit::COUNT);
+        $unchanged = $this->item(GroceryItemUnit::NONE);
+        $this->entry($raised, ['quantity' => 1]);
+        $this->entry($unchanged);
 
         $this->postBatch($this->user, [
             ['groceryItemId' => $new->id, 'quantity' => 1],
-            ['groceryItemId' => $existing->id, 'quantity' => 1],
+            ['groceryItemId' => $raised->id, 'quantity' => 1],
+            ['groceryItemId' => $unchanged->id, 'quantity' => null],
         ])
             ->assertSuccessful()
-            ->assertExactJson(['added' => 1, 'alreadyOnList' => 1]);
+            ->assertExactJson(['added' => 2, 'alreadyOnList' => 1]);
     }
 
     public function test_an_item_from_another_groups_master_list_is_a_422(): void

@@ -120,11 +120,15 @@ class GroceryListItemsRepository extends DefaultRepository
                     continue;
                 }
 
-                if ($amount !== null) {
-                    $entry->quantity = ($entry->quantity ?? 0) + $amount;
-                    $entry->save();
+                if ($amount === null) {
+                    $alreadyOnList++;
+
+                    continue;
                 }
-                $alreadyOnList++;
+
+                $entry->quantity = ($entry->quantity ?? 0) + $amount;
+                $entry->save();
+                $added++;
             }
 
             return ['added' => $added, 'alreadyOnList' => $alreadyOnList];

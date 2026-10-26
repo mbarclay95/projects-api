@@ -2,7 +2,7 @@
 
 artisan="/usr/local/bin/php /var/www/html/artisan"
 
-$artisan migrate
+$artisan migrate --force
 $artisan db:seed --class=RolesAndPermissionsSeeder --force
 
 $artisan config:clear

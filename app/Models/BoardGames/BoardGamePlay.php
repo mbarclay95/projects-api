@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 use Mbarclay36\LaravelCrud\ApiModel;
 
 /**
@@ -40,5 +41,10 @@ class BoardGamePlay extends ApiModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function toApiModels(array|Collection $models, array $hideItem = []): array
+    {
+        return parent::toApiModels($models, [...$hideItem, 'state']);
     }
 }

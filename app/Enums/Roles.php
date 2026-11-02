@@ -29,4 +29,6 @@ class Roles
     const DRAFTS_ROLE = 'drafts_role';
 
     const GROCERY_ROLE = 'grocery_role';
+
+    const BOARD_GAMES_ROLE = 'board_games_role';
 }

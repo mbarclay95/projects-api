@@ -90,5 +90,7 @@ class Permissions
 
     const VIEW_GROCERY_PAGE = self::CLIENT.'view_grocery_page';
 
+    const VIEW_BOARD_GAMES_PAGE = self::CLIENT.'view_board_games_page';
+
     const LISTEN_TO_UPTIME_KUMA_WEBSOCKET = self::CLIENT.'listen_to_uptime_kuma_websocket';
 }

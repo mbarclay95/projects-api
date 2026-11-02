@@ -29,6 +29,7 @@ use App\Http\Controllers\Gaming\GamingSessionController;
 use App\Http\Controllers\Gaming\GamingSessionDeviceController;
 use App\Http\Controllers\Goals\GoalController;
 use App\Http\Controllers\Goals\GoalDayController;
+use App\Http\Controllers\BoardGames\BoardGamePlayController;
 use App\Http\Controllers\Grocery\GroceryCategoryController;
 use App\Http\Controllers\Grocery\GroceryItemController;
 use App\Http\Controllers\Grocery\GroceryListItemController;
@@ -120,6 +121,11 @@ Route::middleware('auth')->group(function () {
     Route::apiResource('meals', MealController::class)->only('index');
     Route::put('meals/days/{date}', [MealController::class, 'updateDay'])
         ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+});
+
+// BOARD GAMES
+Route::middleware('auth')->group(function () {
+    Route::apiResource('board-game-plays', BoardGamePlayController::class);
 });
 
 // DASHBOARD

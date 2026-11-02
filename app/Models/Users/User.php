@@ -5,11 +5,13 @@ namespace App\Models\Users;
 use App\Enums\FeatureEnum;
 use App\Models\ApiModels\PermissionApiModel;
 use App\Models\ApiModels\RoleApiModel;
+use App\Models\BoardGames\BoardGamePlay;
 use App\Models\Tasks\TaskUserConfig;
 use App\Models\UserGroups\UserGroup;
 use App\Models\UserGroups\UserGroupUser;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -73,6 +75,11 @@ class User extends Authenticatable implements JWTSubject
     public function userConfig(): HasOne
     {
         return $this->hasOne(UserConfig::class);
+    }
+
+    public function boardGamePlays(): HasMany
+    {
+        return $this->hasMany(BoardGamePlay::class);
     }
 
     public function taskUserConfig(): HasOne

@@ -10,6 +10,7 @@ use App\Models\ApiModels\RoleApiModel;
 use App\Models\Backups\Backup;
 use App\Models\Backups\Schedule;
 use App\Models\Backups\Target;
+use App\Models\BoardGames\BoardGamePlay;
 use App\Models\Dashboard\Folder;
 use App\Models\Dashboard\Site;
 use App\Models\Dashboard\SiteImage;
@@ -69,6 +70,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->createMoneyAppRole();
         $this->createDraftsRole();
         $this->createGroceryRole();
+        $this->createBoardGamesRole();
 
         // Permission names encode the granting model's namespace (see
         // HasCrudPermissions), so a moved or renamed class leaves its old
@@ -359,6 +361,24 @@ class RolesAndPermissionsSeeder extends Seeder
             Tag::viewAnyForUserPermission(),
 
             Permissions::VIEW_GROCERY_PAGE,
+        ]);
+    }
+
+    /**
+     * BoardGamePlay::viewAnyPermission() — the all-users variant — must never
+     * be granted or declared; index ownership comes from the scoped variant
+     * plus the repository's user_id filter.
+     */
+    private function createBoardGamesRole(): void
+    {
+        $this->createAndAssign(Roles::BOARD_GAMES_ROLE, [
+            BoardGamePlay::viewAnyForUserPermission(),
+            BoardGamePlay::viewForUserPermission(),
+            BoardGamePlay::createPermission(),
+            BoardGamePlay::updateForUserPermission(),
+            BoardGamePlay::deleteForUserPermission(),
+
+            Permissions::VIEW_BOARD_GAMES_PAGE,
         ]);
     }
 }
